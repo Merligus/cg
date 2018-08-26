@@ -168,7 +168,7 @@ TransformEdit(cg::Transform* transform)
   if (ImGui::DragVec3("Position", temp))
     transform->setLocalPosition(temp);
   temp = transform->localEulerAngles();
-  if (ImGui::DragVec3("Rotation", temp))
+  if (ImGui::DragVec3("Rotatio", temp))
     transform->setLocalEulerAngles(temp);
   temp = transform->localScale();
   if (ImGui::DragVec3("Scale", temp))
