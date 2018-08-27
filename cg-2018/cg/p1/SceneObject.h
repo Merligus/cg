@@ -56,7 +56,8 @@ public:
   SceneObject(const char* name, Scene* scene):
     SceneNode{name},
     _scene{scene},
-    _parent{}
+    _parent{},
+	_childrenSize{0}
   {
     makeUse(&_transform);
   }
@@ -75,6 +76,9 @@ public:
 
   /// Sets the parent of this scene object.
   void setParent(SceneObject* parent);
+  std::list<SceneObject>::iterator append(SceneObject novo);
+  std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it);
+
 
   /// Returns the transform of this scene object.
   auto transform()
@@ -86,6 +90,8 @@ private:
   Scene* _scene;
   SceneObject* _parent;
   Transform _transform;
+  std::list<SceneObject> _children;
+  unsigned int _childrenSize;
 
   friend class Scene;
 

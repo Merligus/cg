@@ -37,7 +37,6 @@
 namespace cg
 { // begin namespace cg
 
-
 /////////////////////////////////////////////////////////////////////
 //
 // SceneNode implementation
@@ -53,5 +52,20 @@ SceneNode::setName(const char* format, ...)
   std::vsnprintf(buffer, bufferSize, format, args);
   _name = buffer;
 }
+
+//std::list<SceneObject>::iterator 
+//SceneNode::append(SceneObject novo)
+//{
+//	_containerSize++; // incrementa  o tamanho da lista
+//	_container.push_back(novo); // insere na última posição
+//	return _container.end(); // retorna o iterator pro "novo" na lista
+//}
+//
+//std::list<SceneObject>::iterator 
+//SceneNode::remove(std::list<SceneObject>::iterator it)
+//{
+//	_containerSize--; // decrementa o tamanho da lista
+//	return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o início
+//}
 
 } // end namespace cg

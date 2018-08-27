@@ -46,4 +46,19 @@ SceneObject::setParent(SceneObject* parent)
   // TODO
 }
 
+std::list<SceneObject>::iterator
+SceneObject::append(SceneObject novo)
+{
+	_childrenSize++; // incrementa  o tamanho da lista
+	_children.push_back(novo); // insere na última posição
+	return _children.end(); // retorna o iterator pro "novo" na lista
+}
+
+std::list<SceneObject>::iterator
+SceneObject::remove(std::list<SceneObject>::iterator it)
+{
+	_childrenSize--; // decrementa o tamanho da lista
+	return _children.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o início
+}
+
 } // end namespace cg
