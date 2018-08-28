@@ -101,7 +101,21 @@ P1::hierarchyWindow()
       if (ImGui::MenuItem("Box"))
       {
 		  std::cout << "Create new 3D Box\n";
-
+		  
+		  if (_current == nullptr || dynamic_cast<cg::Scene*>(_current))
+		  {
+			  std::cout << "\tCria raiz\n";
+			  // _box = new cg::SceneObject{ "New Box", _scene };
+			  //_scene->append(*_box); // criando nova raíz
+		  }
+		  else if (dynamic_cast<cg::SceneObject*>(_current))
+		  {
+			  std::cout << "\tCria com pai\n";
+			  //_box = new cg::SceneObject{ "New Box", _scene };
+			  //_box->setParent(dynamic_cast<cg::SceneObject*>(_current));
+			  //_box->parent()->append(*_box); // criando child
+		  }
+		  _primitive = cg::makeBoxMesh();
       }
       ImGui::EndMenu();
     }

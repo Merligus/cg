@@ -61,6 +61,7 @@ public:
   std::list<SceneObject>::iterator append(SceneObject novo)
   {
 	  std::list<SceneObject>::iterator aux;
+	  std::cout << "Adiciona " << novo.name() << " na cena " << name() << std::endl;
 	  _containerSize++; // incrementa  o tamanho da lista
 	  _container.push_back(novo); // insere na última posição
 	  aux = --_container.end(); // pega o iterator para a última posição da lista
@@ -70,6 +71,7 @@ public:
 
   std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
   {
+	  std::cout << "Remove " << it->name() << " da cena " << name() << std::endl;
 	  _containerSize--; // decrementa o tamanho da lista
 	  return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
   }
@@ -83,6 +85,7 @@ private:
 inline void
 SceneObject::setParent(SceneObject* parent)
 {
+	std::cout << "Atualiza pai: pai antigo = " << _parent->name() << ", pai novo = " << parent->name() << std::endl;
 	// atualiza a lista do antigo pai
 	if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
 		_scene->remove(_myIterator);

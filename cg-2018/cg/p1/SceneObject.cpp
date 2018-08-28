@@ -51,6 +51,7 @@ std::list<SceneObject>::iterator
 SceneObject::append(SceneObject novo)
 {
 	std::list<SceneObject>::iterator aux;
+	std::cout << "Adiciona " << novo.name() << " no pai " << name() << std::endl;
 	_childrenSize++; // incrementa  o tamanho da lista
 	_children.push_back(novo); // insere na última posição
 	aux = --_children.end(); // pega o iterator para a última posição da lista
@@ -61,6 +62,7 @@ SceneObject::append(SceneObject novo)
 std::list<SceneObject>::iterator
 SceneObject::remove(std::list<SceneObject>::iterator it)
 {
+	std::cout << "Remove " << it->name() << " do pai " << name() << std::endl;
 	_childrenSize--; // decrementa o tamanho da lista
 	return _children.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
 }
