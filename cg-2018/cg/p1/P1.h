@@ -4,6 +4,7 @@
 #include "Primitive.h"
 #include "Scene.h"
 #include "graphics/Application.h"
+#include <iostream>
 
 class P1: public cg::GLWindow
 {

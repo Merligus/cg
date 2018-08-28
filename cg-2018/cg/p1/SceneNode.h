@@ -39,8 +39,6 @@
 
 namespace cg
 { // begin namespace cg
-	// Forward definition
-	/*class SceneObject;*/
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -57,38 +55,19 @@ public:
 
   /// Sets the name of this scene node.
   void setName(const char* format, ...);
-  //std::list<SceneObject>::iterator append(SceneObject novo)
-  //{
-	 // _containerSize++; // incrementa  o tamanho da lista
-	 // _container.push_back(novo); // insere na última posição
-	 // return _container.end(); // retorna o iterator pro "novo" na lista
-  //}
-  //std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
-  //{
-	 // _containerSize--; // decrementa o tamanho da lista
-	 // return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o início
-  //}
 
 
 protected:
 	SceneNode() = default;
-	//SceneNode():
-	//	_containerSize{0}
-	//{
-	//	// do nothing
-	//}
 
   SceneNode(const char* name):
 	  _name{ name }
-	  //_containerSize{0}
   {
     // do nothing
   }
 
 private:
   std::string _name;
-  /*std::list<SceneObject> _container;
-  unsigned int _containerSize;*/
 
 }; // SceneNode
 

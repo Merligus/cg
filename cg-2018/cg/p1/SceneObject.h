@@ -75,7 +75,8 @@ public:
   }
 
   /// Sets the parent of this scene object.
-  void setParent(SceneObject* parent);
+  void setParent(SceneObject* parent); /// implementado em Scene.h
+  void setMyIterator(std::list<SceneObject>::iterator it);
   std::list<SceneObject>::iterator append(SceneObject novo);
   std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it);
 
@@ -92,6 +93,7 @@ private:
   Transform _transform;
   std::list<SceneObject> _children;
   unsigned int _childrenSize;
+  std::list<SceneObject>::iterator _myIterator;
 
   friend class Scene;
 

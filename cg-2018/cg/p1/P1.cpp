@@ -100,7 +100,8 @@ P1::hierarchyWindow()
     {
       if (ImGui::MenuItem("Box"))
       {
-        // TODO: create a new box.
+		  std::cout << "Create new 3D Box\n";
+
       }
       ImGui::EndMenu();
     }
@@ -241,8 +242,8 @@ P1::gui()
   hierarchyWindow();
   inspectorWindow();
   
-  /*static bool demo = true;
-  ImGui::ShowDemoWindow(&demo);*/
+  static bool demo = true;
+  ImGui::ShowDemoWindow(&demo);
   
 }
 

@@ -51,12 +51,51 @@ public:
 
   /// Constructs an empty scene.
   Scene(const char* name):
-    SceneNode{name}
+    SceneNode{name},
+	_containerSize{0}
   {
     // do nothing
   }
 
+
+  std::list<SceneObject>::iterator append(SceneObject novo)
+  {
+	  std::list<SceneObject>::iterator aux;
+	  _containerSize++; // incrementa  o tamanho da lista
+	  _container.push_back(novo); // insere na última posição
+	  aux = --_container.end(); // pega o iterator para a última posição da lista
+	  (*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
+	  return aux; // retorna o iterator pro "novo" na lista
+  }
+
+  std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
+  {
+	  _containerSize--; // decrementa o tamanho da lista
+	  return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
+  }
+
+private:
+  std::list<SceneObject> _container;
+  unsigned int _containerSize;
+
 }; // Scene
+
+inline void
+SceneObject::setParent(SceneObject* parent)
+{
+	// atualiza a lista do antigo pai
+	if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
+		_scene->remove(_myIterator);
+	else // atualizar a lista do pai atual e inserir no novo pai
+		_parent->remove(_myIterator); // retira do pai antigo
+
+	// atualiza a lista do novo pai
+	if (parent != nullptr) // adiciona na lista do novo pai
+		_myIterator = parent->append(*this); // adiciona no novo pai e atualiza o myIterator
+	else // adiciona na lista de raízes da cena
+		_myIterator = _scene->append(*this); // adiciona nas raízes e atualiza o myIterator
+	_parent = parent; // atualiza o novo pai
+}
 
 } // end namespace cg
 

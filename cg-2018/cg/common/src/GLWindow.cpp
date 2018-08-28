@@ -260,9 +260,9 @@ GLWindow::show()
   // Setup style.
   auto& style = ImGui::GetStyle();
 
-  style.FrameRounding = style.WindowRounding = 0.0f;
+  style.FrameRounding = style.WindowRounding = 12.0f;
   style.FrameBorderSize = 1.0f;
-  style.Alpha = 0.9f;
+  style.Alpha = 1.0f;
   ImGui::StyleColorsDark();
   // Clear error buffer.
   while (glGetError() != GL_NO_ERROR)
