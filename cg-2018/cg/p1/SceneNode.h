@@ -50,7 +50,7 @@ public:
   /// Returns the name of this scene node.
   auto name() const
   {
-    return _name.c_str();
+	return _name.c_str();
   }
 
   /// Sets the name of this scene node.

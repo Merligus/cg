@@ -1,2 +1,3 @@
 ﻿  P1.cpp
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\scene.h(71): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
   p1.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepos\cg-2018\cg\p1\build\vs2017\..\..\p1.exe

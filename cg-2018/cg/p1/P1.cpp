@@ -100,20 +100,25 @@ P1::hierarchyWindow()
     {
       if (ImGui::MenuItem("Box"))
       {
+		  cg::SceneObject *newBox;
+		  cg::Scene *currentScene = _scene;
+
 		  std::cout << "Create new 3D Box\n";
-		  
-		  if (_current == nullptr || dynamic_cast<cg::Scene*>(_current))
+		  if (_current == nullptr || _current == _scene)
 		  {
 			  std::cout << "\tCria raiz\n";
-			  // _box = new cg::SceneObject{ "New Box", _scene };
-			  //_scene->append(*_box); // criando nova raíz
+			  newBox = new cg::SceneObject{ "New Box", currentScene};
+			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
+			  it->setMyIterator(it); // criando nova raíz
 		  }
-		  else if (dynamic_cast<cg::SceneObject*>(_current))
+		  else if (_current == _box)
 		  {
+			  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
 			  std::cout << "\tCria com pai\n";
-			  //_box = new cg::SceneObject{ "New Box", _scene };
-			  //_box->setParent(dynamic_cast<cg::SceneObject*>(_current));
-			  //_box->parent()->append(*_box); // criando child
+			  newBox = new cg::SceneObject{ "New Box", currentScene};
+			  newBox->setParent(currentBox);
+			  std::list<cg::SceneObject>::iterator it = currentBox->append(*newBox);
+			  it->setMyIterator(it); // criando child
 		  }
 		  _primitive = cg::makeBoxMesh();
       }
@@ -124,6 +129,7 @@ P1::hierarchyWindow()
   ImGui::Separator();
 
   ImGuiTreeNodeFlags flag{ImGuiTreeNodeFlags_OpenOnArrow};
+  int i[] = { 1, 2, 3, 4, 5, 6 };
   auto open = ImGui::TreeNodeEx(_scene,
     _current == _scene ? flag | ImGuiTreeNodeFlags_Selected : flag,
     _scene->name());
@@ -133,13 +139,90 @@ P1::hierarchyWindow()
   if (open)
   {
     flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-    ImGui::TreeNodeEx(_box,
+    /*open = ImGui::TreeNodeEx(_box,
       _current == _box ? flag | ImGuiTreeNodeFlags_Selected : flag,
-      _box->name());
+      _box->name());*/
+	open = ImGui::TreeNode(_box, _box->name());
     if (ImGui::IsItemClicked())
       _current = _box;
-    ImGui::TreePop();
+	if (open)
+	{
+		open = ImGui::TreeNodeEx((void*)(intptr_t)i[0], flag, "Selectable Node %d", i[0]);
+		if (ImGui::IsItemClicked())
+			_current = _box;
+		open = ImGui::TreeNode((void*)(intptr_t)i[1], "Selectable Node %d", i[1]);
+		if (ImGui::IsItemClicked())
+			_current = _box;
+		if (open)
+		{
+			open = ImGui::TreeNodeEx((void*)(intptr_t)i[2], flag, "Selectable Node %d", i[2]);
+			if (ImGui::IsItemClicked())
+				_current = _box;
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
+	}
+	open = ImGui::TreeNode((void*)(intptr_t)i[3], "Selectable Node %d", i[3]);
+	if (ImGui::IsItemClicked())
+		_current = _box;
+	if (open)
+	{
+		open = ImGui::TreeNodeEx((void*)(intptr_t)i[4], flag, "Selectable Node %d", i[4]);
+		if (ImGui::IsItemClicked())
+			_current = _box;
+		ImGui::TreePop();
+	}
+	ImGui::TreePop();
   }
+
+
+
+	//for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+	//{
+	//	// Disable the default open on single-click behavior and pass in Selected flag according to our selection state.
+	//	ImGuiTreeNodeFlags flag{ ImGuiTreeNodeFlags_OpenOnArrow };
+	//	// Node
+	//	auto open = ImGui::TreeNodeEx(_scene,
+	//		_current == _scene ? flag | ImGuiTreeNodeFlags_Selected : flag,
+	//		_scene->name());
+	//	if (ImGui::IsItemClicked())
+	//		_current = _scene;
+	//	if (open)
+	//	{
+
+	//	}
+	//  
+	//	if (it->childrenSize() > 0)
+	//	{
+	//		std::list<std::list<cg::SceneObject>::iterator> tree;
+	//		tree.push_back(it);
+	//		while (!tree.empty() && open)
+	//		{
+	//			for (std::list<cg::SceneObject>::iterator it2 = it->childrenBegin(); it2 != it->childrenEnd(); ++it2)
+	//			{
+	//				open = ImGui::TreeNodeEx(it2,
+	//					_current == it2 ? flag | ImGuiTreeNodeFlags_Selected : flag,
+	//					it2->name());
+	//				if (ImGui::IsItemClicked())
+	//					_current = it2;
+	//			}
+	//			ImGui::TreePop();
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// Leaf: The only reason we have a TreeNode at all is to allow selection of the leaf. Otherwise we can use BulletText() or TreeAdvanceToLabelPos()+Text().
+	//		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+	//		ImGui::TreeNodeEx(it,
+	//			_current == (cg::SceneObject*)it ? flag | ImGuiTreeNodeFlags_Selected : flag,
+	//			it->name());
+	//		if (ImGui::IsItemClicked())
+	//			_current = it;
+	//		ImGui::TreePop();
+	//	}
+	//}
+
+   
   ImGui::End();
 }
 

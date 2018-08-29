@@ -45,14 +45,32 @@ void
 SceneObject::setMyIterator(std::list<SceneObject>::iterator it)
 {
 	_myIterator = it;
+	myIteratorSet = true;
+}
+
+std::list<SceneObject>::iterator
+SceneObject::childrenBegin()
+{
+	return _children.begin();
+}
+
+std::list<SceneObject>::iterator
+SceneObject::childrenEnd()
+{
+	return _children.end();
+}
+
+unsigned int
+SceneObject::childrenSize()
+{
+	return _children.size();
 }
 
 std::list<SceneObject>::iterator
 SceneObject::append(SceneObject novo)
 {
 	std::list<SceneObject>::iterator aux;
-	std::cout << "Adiciona " << novo.name() << " no pai " << name() << std::endl;
-	_childrenSize++; // incrementa  o tamanho da lista
+	std::cout << "Adiciona no pai" << std::endl;
 	_children.push_back(novo); // insere na última posição
 	aux = --_children.end(); // pega o iterator para a última posição da lista
 	(*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
@@ -62,8 +80,7 @@ SceneObject::append(SceneObject novo)
 std::list<SceneObject>::iterator
 SceneObject::remove(std::list<SceneObject>::iterator it)
 {
-	std::cout << "Remove " << it->name() << " do pai " << name() << std::endl;
-	_childrenSize--; // decrementa o tamanho da lista
+	std::cout << "Remove do pai" << std::endl;
 	return _children.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
 }
 

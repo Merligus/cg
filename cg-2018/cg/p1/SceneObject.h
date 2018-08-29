@@ -52,13 +52,13 @@ class SceneObject: public SceneNode
 {
 public:
   bool visible{true};
+  bool myIteratorSet{false};
 
   /// Constructs an empty scene object.
   SceneObject(const char* name, Scene* scene):
     SceneNode{name},
     _scene{scene},
-    _parent{},
-	_childrenSize{0}
+    _parent{}
   {
     makeUse(&_transform);
   }
@@ -78,6 +78,9 @@ public:
   /// Sets the parent of this scene object.
   void setParent(SceneObject* parent); /// implementado em Scene.h
   void setMyIterator(std::list<SceneObject>::iterator it);
+  std::list<SceneObject>::iterator childrenBegin();
+  std::list<SceneObject>::iterator childrenEnd();
+  unsigned int childrenSize();
   std::list<SceneObject>::iterator append(SceneObject novo);
   std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it);
 
@@ -93,7 +96,6 @@ private:
   SceneObject* _parent;
   Transform _transform;
   std::list<SceneObject> _children;
-  unsigned int _childrenSize;
   std::list<SceneObject>::iterator _myIterator;
 
   friend class Scene;
