@@ -64,8 +64,35 @@ makeBoxMesh()
 inline void
 P1::buildScene()
 {
+  std::cout << "Cria cena inicial\n";
   _current = _scene = new cg::Scene{"Scene 1"};
-  _box = new cg::SceneObject{"Box 1", _scene};
+
+  cg::Scene *currentScene = _scene;
+  cg::SceneObject *newBox, *currentBox;
+  std::list<cg::SceneObject>::iterator it;
+  
+  newBox = new cg::SceneObject{ "Box 1", currentScene }; // criando box nivel 1
+  it = currentScene->append(*newBox);
+  it->setMyIterator(it);
+  _primitive = cg::makeBoxMesh();
+
+  currentBox = it->mySelf(); // criando box nivel 2
+  newBox = new cg::SceneObject{ "Box 1.1", currentScene };
+  newBox->setParent(currentBox);
+  it = currentBox->append(*newBox);
+  it->setMyIterator(it);
+  _primitive = cg::makeBoxMesh();
+
+  newBox = new cg::SceneObject{ "Box 2", currentScene }; // criando box nivel 1
+  it = currentScene->append(*newBox);
+  it->setMyIterator(it);
+  _primitive = cg::makeBoxMesh();
+
+  currentBox = it->mySelf(); // criando box nivel 2
+  newBox = new cg::SceneObject{ "Box 2.1", currentScene };
+  newBox->setParent(currentBox);
+  it = currentBox->append(*newBox);
+  it->setMyIterator(it);
   _primitive = cg::makeBoxMesh();
 }
 
@@ -267,20 +294,23 @@ P1::gui()
 void
 P1::render()
 {
-  Base::render();
-  if (!_box->visible)
-    return;
-  _program.setUniformMat4("transform", _transform);
+	Base::render();
+	for(std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+	{
+		if (!it->visible)
+			continue;
+		_program.setUniformMat4("transform", _transform);
 
-  auto m = _primitive->mesh();
+		auto m = _primitive->mesh();
 
-  m->bind();
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-  if (_current != _box)
-    return;
-  m->setVertexColor(selectedWireframeColor);  
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-  m->useVertexColors();
+		m->bind();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+		if (_current != it->mySelf())
+			continue;
+		m->setVertexColor(selectedWireframeColor);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+		m->useVertexColors();
+	}
 }

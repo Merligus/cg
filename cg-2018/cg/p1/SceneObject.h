@@ -79,6 +79,7 @@ public:
   /// Sets the parent of this scene object.
   void setParent(SceneObject* parent); /// implementado em Scene.h
   void setMyIterator(std::list<SceneObject>::iterator it);
+  SceneObject* mySelf();
   std::list<SceneObject>::iterator childrenBegin();
   std::list<SceneObject>::iterator childrenEnd();
   unsigned int childrenSize();

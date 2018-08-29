@@ -48,6 +48,12 @@ SceneObject::setMyIterator(std::list<SceneObject>::iterator it)
 	myIteratorSet = true;
 }
 
+SceneObject*
+SceneObject::mySelf()
+{
+	return this;
+}
+
 std::list<SceneObject>::iterator
 SceneObject::childrenBegin()
 {
