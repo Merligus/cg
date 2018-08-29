@@ -84,4 +84,35 @@ SceneObject::remove(std::list<SceneObject>::iterator it)
 	return _children.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
 }
 
+SceneNode*
+SceneObject::show(ImGuiTreeNodeFlags flag, SceneNode* current)
+{
+	if (_children.size() > 0)
+	{
+		auto open = ImGui::TreeNodeEx(this,
+			current == this ? flag | ImGuiTreeNodeFlags_Selected : flag,
+			this->name());
+		//auto open = ImGui::TreeNode(this, this->name());
+		if (ImGui::IsItemClicked())
+			current = this;
+		if (open)
+		{
+			for (std::list<SceneObject>::iterator it = _children.begin(); it != _children.end(); ++it)
+				current = it->show(flag, current);
+
+			ImGui::TreePop();
+		}
+	}
+	else
+	{
+		flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+		ImGui::TreeNodeEx(this,
+		current == this ? flag | ImGuiTreeNodeFlags_Selected : flag,
+		this->name());
+		if (ImGui::IsItemClicked())
+			current = this;
+	}
+	return current;
+}
+
 } // end namespace cg

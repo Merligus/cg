@@ -35,6 +35,7 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "imgui.h"
 #include <iostream>
 
 namespace cg
@@ -83,6 +84,7 @@ public:
   unsigned int childrenSize();
   std::list<SceneObject>::iterator append(SceneObject novo);
   std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it);
+  SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
 
 
   /// Returns the transform of this scene object.
