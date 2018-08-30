@@ -121,4 +121,25 @@ SceneObject::show(ImGuiTreeNodeFlags flag, SceneNode* current)
 	return current;
 }
 
+void
+SceneObject::render(GLSL::Program *program)
+{
+	if (this->visible)
+	{
+		if (this->primitive() != nullptr)
+		{
+			cg::GLMeshArray * m;
+			cg::Transform *t = (Transform*)_components[0];
+			program->setUniformMat4("transform", t->localToWorldMatrix());
+
+			m = (this->primitive())->mesh();
+			m->bind();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+		}
+	}
+	for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
+		it->render(program);
+}
+
 } // end namespace cg

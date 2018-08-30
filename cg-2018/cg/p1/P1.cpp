@@ -118,7 +118,33 @@ P1::hierarchyWindow()
     ImGui::OpenPopup("CreateObjectPopup");
   if (ImGui::BeginPopup("CreateObjectPopup"))
   {
-    ImGui::MenuItem("Empty Object");
+	if (ImGui::MenuItem("Empty Object"))
+	{
+		cg::SceneObject *newBox;
+		cg::Scene *currentScene = _scene;
+
+		std::string objectIndex("Object ");
+		static int i = 1;
+		objectIndex += std::to_string(i++);
+
+		std::cout << "Create new Empty Box\n";
+		if (_current == nullptr || _current == _scene)
+		{
+			std::cout << "\tCria raiz\n";
+			newBox = new cg::SceneObject{ objectIndex.c_str(), currentScene};
+			std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
+			it->setMyIterator(it); // criando nova raíz
+		}
+		else
+		{
+			cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+			std::cout << "\tCria com pai\n";
+			newBox = new cg::SceneObject{ objectIndex.c_str(), currentScene};
+			newBox->setParent(currentBox);
+			std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
+			it->setMyIterator(it); // criando child
+		}
+	}
     if (ImGui::BeginMenu("3D Object"))
     {
       if (ImGui::MenuItem("Box"))
@@ -126,11 +152,15 @@ P1::hierarchyWindow()
 		  cg::SceneObject *newBox;
 		  cg::Scene *currentScene = _scene;
 
+		  std::string boxIndex("Box ");
+		  static int index = 1;
+		  boxIndex += std::to_string(index++);
+
 		  std::cout << "Create new 3D Box\n";
 		  if (_current == nullptr || _current == _scene)
 		  {
 			  std::cout << "\tCria raiz\n";
-			  newBox = new cg::SceneObject{ "New Box", currentScene, cg::makeBoxMesh() };
+			  newBox = new cg::SceneObject{ boxIndex.c_str(), currentScene, cg::makeBoxMesh() };
 			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
 			  it->setMyIterator(it); // criando nova raíz
 		  }
@@ -138,7 +168,7 @@ P1::hierarchyWindow()
 		  {
 			  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
 			  std::cout << "\tCria com pai\n";
-			  newBox = new cg::SceneObject{ "New Box", currentScene, cg::makeBoxMesh() };
+			  newBox = new cg::SceneObject{ boxIndex.c_str(), currentScene, cg::makeBoxMesh() };
 			  newBox->setParent(currentBox);
 			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
 			  it->setMyIterator(it); // criando child
@@ -215,22 +245,6 @@ TransformEdit(cg::Transform* transform)
     transform->setLocalScale(temp);
 }
 
-//void
-//PrimitiveEdit(cg::Primitive* primitive)
-//{
-//	vec3f temp;
-//
-//	temp = primitive->localPosition();
-//	if (ImGui::DragVec3("Position", temp))
-//		primitive->setLocalPosition(temp);
-//	temp = primitive->localEulerAngles();
-//	if (ImGui::DragVec3("Rotation", temp))
-//		primitive->setLocalEulerAngles(temp);
-//	temp = primitive->localScale();
-//	if (ImGui::DragVec3("Scale", temp))
-//		primitive->setLocalScale(temp);
-//}
-
 } // end namespace ImGui
 
 inline void
@@ -256,6 +270,7 @@ P1::sceneObjectGui()
   ImGui::SameLine();
   ImGui::Checkbox("###visible", &object->visible);
   ImGui::Separator();
+
   if (ImGui::CollapsingHeader(object->transform()->typeName()))
   {
 	  auto t = object->transform();
@@ -263,14 +278,17 @@ P1::sceneObjectGui()
 	  ImGui::TransformEdit(t);
 	  _transform = t->localToWorldMatrix();
   }
-  if (ImGui::CollapsingHeader(object->primitive()->typeName()))
+  if (object->primitive() != nullptr)
   {
-	  ImGui::Text("LUL\n");
-	  // TODO: show primitive properties.
-	  /*auto p = object->primitive();
+	  if (ImGui::CollapsingHeader(object->primitive()->typeName()))
+	  {
+		  ImGui::Text("LUL\n");
+		  // TODO: show primitive properties.
+		  /*auto p = object->primitive();
 
-	  ImGui::PrimitiveEdit(p);
-	  _primitive = p;*/
+		  ImGui::PrimitiveEdit(p);
+		  _primitive = p;*/
+	  }
   }
 }
 
@@ -312,22 +330,28 @@ P1::render()
 {
 	Base::render();
 	for(std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+		it->render(&_program);
+
+	if (_current != _scene) // desenha o selecionado
 	{
-		if (!it->visible)
-			continue;
-		_program.setUniformMat4("transform", _transform);
+		cg::SceneObject *object = (cg::SceneObject*)_current;
+		if (object->visible && object->primitive() != nullptr)
+		{
+			cg::GLMeshArray * m;
+			cg::Transform *t = object->transform();
+			_program.setUniformMat4("transform", t->localToWorldMatrix());
 
-		auto m = (it->primitive())->mesh();
+			m = (object->primitive())->mesh();
+			m->bind();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
 
-		m->bind();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-		if (_current != it->mySelf())
-			continue;
-		m->setVertexColor(selectedWireframeColor);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-		m->useVertexColors();
+			m = (object->primitive())->mesh();
+			m->setVertexColor(selectedWireframeColor);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+			m->useVertexColors();
+		}
 	}
 
 }

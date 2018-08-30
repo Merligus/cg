@@ -57,13 +57,21 @@ public:
   bool myIteratorSet{false};
 
   /// Constructs an empty scene object.
+  SceneObject(const char* name, Scene* scene) :
+	  SceneNode{ name },
+	  _scene{ scene },
+	  _parent{}
+  {
+	  makeUse(_components[0]);
+  }
+
+  /// Constructs defined scene object.
   SceneObject(const char* name, Scene* scene, Primitive * p):
     SceneNode{name},
     _scene{scene},
     _parent{}
   {
     makeUse(_components[0]);
-	_components.pop_back();
 	_components.push_back(p);
   }
 
@@ -87,7 +95,10 @@ public:
 
   Primitive * primitive()
   {
-	  return (Primitive*)(_components[1]);
+	  if (_components.size() > 1)
+		  return (Primitive*)(_components[1]);
+	  else
+		  return nullptr;
   }
 
   /// Sets the parent of this scene object.
@@ -99,14 +110,15 @@ public:
   auto childrenSize();
   std::list<SceneObject>::iterator appendChildren(SceneObject novo);
   std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
-  SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);  
+  SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
+  void render(GLSL::Program *program);
 
 private:
   Scene* _scene;
   SceneObject* _parent;
   std::list<SceneObject> _children;
   std::list<SceneObject>::iterator _myIterator;
-  std::vector<Component*> _components = { new Transform(), new Transform()};
+  std::vector<Component*> _components = { new Transform()};
 
   friend class Scene;
 
