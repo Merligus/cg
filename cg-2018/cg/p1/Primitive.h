@@ -53,12 +53,12 @@ public:
   {
     // do nothing
   }
-
+  
   ~Primitive() override
   {
     delete _mesh;
   }
-
+  
   auto mesh() const
   {
     return _mesh;

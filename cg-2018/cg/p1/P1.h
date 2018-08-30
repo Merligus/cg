@@ -32,8 +32,6 @@ public:
 private:
   Program _program;
   Reference<cg::Scene> _scene;
-  Reference<cg::SceneObject> _box;
-  Reference<cg::Primitive> _primitive;
   cg::SceneNode* _current{};
   Color selectedWireframeColor{255, 102, 0};
   mat4f _transform{mat4f::identity()};

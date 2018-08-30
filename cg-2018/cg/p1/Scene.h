@@ -66,7 +66,7 @@ public:
 	  return _container.end();
   }
 
-  unsigned int containerSize()
+  auto containerSize()
   {
 	  return _container.size();
   }
@@ -102,7 +102,7 @@ SceneObject::setParent(SceneObject* parent)
 		if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
 			_scene->remove(_myIterator);
 		else // atualizar a lista do pai atual e inserir no novo pai
-			_parent->remove(_myIterator); // retira do pai antigo
+			_parent->removeChildren(_myIterator); // retira do pai antigo
 	}
 	_parent = parent; // atualiza o novo pai
 }

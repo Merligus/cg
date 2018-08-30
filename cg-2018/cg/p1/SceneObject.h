@@ -35,6 +35,7 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "Primitive.h"
 #include "imgui.h"
 #include <iostream>
 
@@ -56,12 +57,14 @@ public:
   bool myIteratorSet{false};
 
   /// Constructs an empty scene object.
-  SceneObject(const char* name, Scene* scene):
+  SceneObject(const char* name, Scene* scene, Primitive * p):
     SceneNode{name},
     _scene{scene},
     _parent{}
   {
-    makeUse(&_transform);
+    makeUse(_components[0]);
+	_components.pop_back();
+	_components.push_back(p);
   }
 
   /// Returns the scene which this scene object belong to.
@@ -76,30 +79,34 @@ public:
     return _parent;
   }
 
+  /// Returns the transform of this scene object.
+  auto transform()
+  {
+	  return (Transform*)(_components[0]);
+  }
+
+  Primitive * primitive()
+  {
+	  return (Primitive*)(_components[1]);
+  }
+
   /// Sets the parent of this scene object.
   void setParent(SceneObject* parent); /// implementado em Scene.h
   void setMyIterator(std::list<SceneObject>::iterator it);
   SceneObject* mySelf();
   std::list<SceneObject>::iterator childrenBegin();
   std::list<SceneObject>::iterator childrenEnd();
-  unsigned int childrenSize();
-  std::list<SceneObject>::iterator append(SceneObject novo);
-  std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it);
-  SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
-
-
-  /// Returns the transform of this scene object.
-  auto transform()
-  {
-    return &_transform;
-  }
+  auto childrenSize();
+  std::list<SceneObject>::iterator appendChildren(SceneObject novo);
+  std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
+  SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);  
 
 private:
   Scene* _scene;
   SceneObject* _parent;
-  Transform _transform;
   std::list<SceneObject> _children;
   std::list<SceneObject>::iterator _myIterator;
+  std::vector<Component*> _components = { new Transform(), new Transform()};
 
   friend class Scene;
 

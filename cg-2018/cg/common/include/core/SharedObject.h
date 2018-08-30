@@ -32,6 +32,8 @@
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
+#include <list>
+#include <vector>
 
 
 /////////////////////////////////////////////////////////////////////

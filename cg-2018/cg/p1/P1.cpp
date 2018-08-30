@@ -71,29 +71,25 @@ P1::buildScene()
   cg::SceneObject *newBox, *currentBox;
   std::list<cg::SceneObject>::iterator it;
   
-  newBox = new cg::SceneObject{ "Box 1", currentScene }; // criando box nivel 1
+  newBox = new cg::SceneObject{ "Box 1", currentScene, cg::makeBoxMesh()}; // criando box nivel 1  
   it = currentScene->append(*newBox);
   it->setMyIterator(it);
-  _primitive = cg::makeBoxMesh();
 
   currentBox = it->mySelf(); // criando box nivel 2
-  newBox = new cg::SceneObject{ "Box 1.1", currentScene };
+  newBox = new cg::SceneObject{ "Box 1.1", currentScene, cg::makeBoxMesh() };
   newBox->setParent(currentBox);
-  it = currentBox->append(*newBox);
+  it = currentBox->appendChildren(*newBox);
   it->setMyIterator(it);
-  _primitive = cg::makeBoxMesh();
 
-  newBox = new cg::SceneObject{ "Box 2", currentScene }; // criando box nivel 1
+  newBox = new cg::SceneObject{ "Box 2", currentScene, cg::makeBoxMesh() }; // criando box nivel 1
   it = currentScene->append(*newBox);
   it->setMyIterator(it);
-  _primitive = cg::makeBoxMesh();
 
   currentBox = it->mySelf(); // criando box nivel 2
-  newBox = new cg::SceneObject{ "Box 2.1", currentScene };
+  newBox = new cg::SceneObject{ "Box 2.1", currentScene, cg::makeBoxMesh() };
   newBox->setParent(currentBox);
-  it = currentBox->append(*newBox);
+  it = currentBox->appendChildren(*newBox);
   it->setMyIterator(it);
-  _primitive = cg::makeBoxMesh();
 }
 
 void
@@ -134,7 +130,7 @@ P1::hierarchyWindow()
 		  if (_current == nullptr || _current == _scene)
 		  {
 			  std::cout << "\tCria raiz\n";
-			  newBox = new cg::SceneObject{ "New Box", currentScene};
+			  newBox = new cg::SceneObject{ "New Box", currentScene, cg::makeBoxMesh() };
 			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
 			  it->setMyIterator(it); // criando nova raíz
 		  }
@@ -142,12 +138,11 @@ P1::hierarchyWindow()
 		  {
 			  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
 			  std::cout << "\tCria com pai\n";
-			  newBox = new cg::SceneObject{ "New Box", currentScene};
+			  newBox = new cg::SceneObject{ "New Box", currentScene, cg::makeBoxMesh() };
 			  newBox->setParent(currentBox);
-			  std::list<cg::SceneObject>::iterator it = currentBox->append(*newBox);
+			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
 			  it->setMyIterator(it); // criando child
 		  }
-		  _primitive = cg::makeBoxMesh();
       }
       ImGui::EndMenu();
     }
@@ -213,12 +208,28 @@ TransformEdit(cg::Transform* transform)
   if (ImGui::DragVec3("Position", temp))
     transform->setLocalPosition(temp);
   temp = transform->localEulerAngles();
-  if (ImGui::DragVec3("Rotatio", temp))
+  if (ImGui::DragVec3("Rotation", temp))
     transform->setLocalEulerAngles(temp);
   temp = transform->localScale();
   if (ImGui::DragVec3("Scale", temp))
     transform->setLocalScale(temp);
 }
+
+//void
+//PrimitiveEdit(cg::Primitive* primitive)
+//{
+//	vec3f temp;
+//
+//	temp = primitive->localPosition();
+//	if (ImGui::DragVec3("Position", temp))
+//		primitive->setLocalPosition(temp);
+//	temp = primitive->localEulerAngles();
+//	if (ImGui::DragVec3("Rotation", temp))
+//		primitive->setLocalEulerAngles(temp);
+//	temp = primitive->localScale();
+//	if (ImGui::DragVec3("Scale", temp))
+//		primitive->setLocalScale(temp);
+//}
 
 } // end namespace ImGui
 
@@ -247,14 +258,19 @@ P1::sceneObjectGui()
   ImGui::Separator();
   if (ImGui::CollapsingHeader(object->transform()->typeName()))
   {
-    auto t = object->transform();
+	  auto t = object->transform();
 
-    ImGui::TransformEdit(t);
-    _transform = t->localToWorldMatrix();
+	  ImGui::TransformEdit(t);
+	  _transform = t->localToWorldMatrix();
   }
-  if (ImGui::CollapsingHeader(_primitive->typeName()))
+  if (ImGui::CollapsingHeader(object->primitive()->typeName()))
   {
-    // TODO: show primitive properties.
+	  ImGui::Text("LUL\n");
+	  // TODO: show primitive properties.
+	  /*auto p = object->primitive();
+
+	  ImGui::PrimitiveEdit(p);
+	  _primitive = p;*/
   }
 }
 
@@ -301,7 +317,7 @@ P1::render()
 			continue;
 		_program.setUniformMat4("transform", _transform);
 
-		auto m = _primitive->mesh();
+		auto m = (it->primitive())->mesh();
 
 		m->bind();
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -313,4 +329,5 @@ P1::render()
 		glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
 		m->useVertexColors();
 	}
+
 }

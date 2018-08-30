@@ -35,7 +35,6 @@
 
 #include "core/SharedObject.h"
 #include <string>
-#include <list>
 
 namespace cg
 { // begin namespace cg
