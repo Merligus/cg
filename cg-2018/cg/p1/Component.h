@@ -50,6 +50,7 @@ class Transform;
 class Component: public SharedObject
 {
 public:
+	bool myIteratorSet{ false };
 
   /// Returns the type name of this component.
   auto typeName() const
@@ -61,6 +62,17 @@ public:
   auto sceneObject() const
   {
     return _sceneObject;
+  }
+
+  Component* mySelf()
+  {
+	  return this;
+  }
+
+  void setMyIterator(std::list<Component*>::iterator it)
+  {
+	  _myIterator = it;
+	  myIteratorSet = true;
   }
   
   /// Returns the transform of this component.
@@ -76,6 +88,7 @@ protected:
 private:
   const char* const _typeName;
   SceneObject* _sceneObject{};
+  std::list<Component*>::iterator _myIterator;
 
   friend class SceneObject;
 

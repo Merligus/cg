@@ -264,32 +264,54 @@ P1::sceneGui()
 inline void
 P1::sceneObjectGui()
 {
-  auto object = (cg::SceneObject*)_current;
+	auto object = (cg::SceneObject*)_current;
 
-  ImGui::ObjectNameInput(object);
-  ImGui::SameLine();
-  ImGui::Checkbox("###visible", &object->visible);
-  ImGui::Separator();
+	ImGui::ObjectNameInput(object);
+	ImGui::SameLine();
+	ImGui::Checkbox("###visible", &object->visible);
+	ImGui::Separator();
 
-  if (ImGui::CollapsingHeader(object->transform()->typeName()))
-  {
-	  auto t = object->transform();
+	if (ImGui::CollapsingHeader(object->transform()->typeName()))
+	{
+		auto t = object->transform();
 
-	  ImGui::TransformEdit(t);
-	  _transform = t->localToWorldMatrix();
-  }
-  if (object->primitive() != nullptr)
-  {
-	  if (ImGui::CollapsingHeader(object->primitive()->typeName()))
-	  {
-		  ImGui::Text("LUL\n");
-		  // TODO: show primitive properties.
-		  /*auto p = object->primitive();
+		ImGui::TransformEdit(t);
+		_transform = t->localToWorldMatrix();
+	}
+	if (object->primitive() != nullptr)
+	{
+		if (ImGui::CollapsingHeader(object->primitive()->typeName()))
+		{
+			// TODO: show primitive properties.
+			auto m = object->primitive()->mesh();
+			static bool v_borders = false;
+			ImGui::Columns(4, NULL, v_borders);
+			for (int j = 0; j < m->numeroDeTriangulos; j++)
+			{
+				ImGui::Separator();
+				ImGui::Text("Triangle %d", j+1);
+				ImGui::NextColumn();
+				cg::GLMeshArray::Triangle v = m->triangles[j];
+				for (int i = 0; i < 3; i++)
+				{
+					ImGui::Text("x %.1f", m->pos[v.v[i]].x);
+					ImGui::Text("y %.1f", m->pos[v.v[i]].y);
+					ImGui::Text("z %.1f", m->pos[v.v[i]].z);
+					ImGui::PushID(i);
+					ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor(m->colors[v.v[i]].r, m->colors[v.v[i]].g, m->colors[v.v[i]].b, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor(m->colors[v.v[i]].r, m->colors[v.v[i]].g + 0.1f, m->colors[v.v[i]].b + 0.1f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor(m->colors[v.v[i]].r, m->colors[v.v[i]].g + 0.2f, m->colors[v.v[i]].b + 0.2f, 1.0f));
+					ImGui::Button(" ");
+					ImGui::PopStyleColor(3);
+					ImGui::PopID();
 
-		  ImGui::PrimitiveEdit(p);
-		  _primitive = p;*/
-	  }
-  }
+					ImGui::NextColumn();
+				}
+			}
+			ImGui::Columns(1);
+			ImGui::Separator();
+		}
+	}
 }
 
 inline void

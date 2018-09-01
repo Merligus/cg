@@ -62,7 +62,9 @@ public:
 	  _scene{ scene },
 	  _parent{}
   {
-	  makeUse(_components[0]);
+	  _components.push_back(new Transform());
+	  std::list<Component*>::iterator begin = _components.begin();
+	  makeUse((Transform*)(*begin)->mySelf());
   }
 
   /// Constructs defined scene object.
@@ -71,8 +73,13 @@ public:
     _scene{scene},
     _parent{}
   {
-    makeUse(_components[0]);
+	_components.push_back(new Transform());
+	std::list<Component*>::iterator begin = _components.begin();
+    makeUse((Transform*)(*begin)->mySelf());
+
 	_components.push_back(p);
+	_primitiveInUse = --_components.end();
+	(*_primitiveInUse)->setMyIterator(_primitiveInUse);
   }
 
   /// Returns the scene which this scene object belong to.
@@ -90,13 +97,13 @@ public:
   /// Returns the transform of this scene object.
   auto transform()
   {
-	  return (Transform*)(_components[0]);
+	  return (Transform*)((*_components.begin())->mySelf());
   }
 
   Primitive * primitive()
   {
 	  if (_components.size() > 1)
-		  return (Primitive*)(_components[1]);
+		  return (Primitive*)((*_primitiveInUse)->mySelf());
 	  else
 		  return nullptr;
   }
@@ -110,15 +117,24 @@ public:
   auto childrenSize();
   std::list<SceneObject>::iterator appendChildren(SceneObject novo);
   std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
+
   SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
   void render(GLSL::Program *program);
+
+  void setPrimitiveInUse(std::list<Component*>::iterator it);
+  std::list<Component*>::iterator componentsBegin();
+  std::list<Component*>::iterator componentsEnd();
+  auto componentsSize();
+  std::list<Component*>::iterator appendComponents(Component* novo);
+  std::list<Component*>::iterator removeComponents(std::list<Component*>::iterator it);
 
 private:
   Scene* _scene;
   SceneObject* _parent;
   std::list<SceneObject> _children;
   std::list<SceneObject>::iterator _myIterator;
-  std::vector<Component*> _components = { new Transform()};
+  std::list<Component*> _components;
+  std::list<Component*>::iterator _primitiveInUse;
 
   friend class Scene;
 
