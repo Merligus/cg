@@ -342,8 +342,8 @@ P1::gui()
   hierarchyWindow();
   inspectorWindow();
   
-  static bool demo = true;
-  ImGui::ShowDemoWindow(&demo);
+ /* static bool demo = true;
+  ImGui::ShowDemoWindow(&demo);*/
   
 }
 
