@@ -1,7 +1,19 @@
-﻿  P1.cpp
+﻿  Main.cpp
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'v': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'c': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 't': possui classe de armazenamento incorreta
+  P1.cpp
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'v': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'c': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 't': possui classe de armazenamento incorreta
+  SceneObject.cpp
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'v': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 'c': possui classe de armazenamento incorreta
+c:\users\pichau\documents\computacao grafica\cgrepos\cg-2018\cg\p1\primitive.h(55): warning C4042: 't': possui classe de armazenamento incorreta
+  Transform.cpp
   Gerando código
-  139 of 1731 functions ( 8.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    24 functions had inline decision re-evaluated but remain unchanged
+  21 of 1730 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    3 functions had inline decision re-evaluated but remain unchanged
   Finalizada a geração de código
   p1.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepos\cg-2018\cg\p1\build\vs2017\..\..\p1.exe

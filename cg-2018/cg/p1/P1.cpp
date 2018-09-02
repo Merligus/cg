@@ -56,7 +56,7 @@ makeBoxMesh()
     {20, 21, 22}, {22, 23, 20}
   };
 
-  return new Primitive{new GLMeshArray{24, {v, 0}, {c, 1}, 12, t}};
+  return new Primitive{new GLMeshArray{24, {v, 0}, {c, 1}, 12, t}, 24, v, c, 12, t};
 }
 
 } // end namespace cg
@@ -283,7 +283,7 @@ P1::sceneObjectGui()
 		if (ImGui::CollapsingHeader(object->primitive()->typeName()))
 		{
 			// TODO: show primitive properties.
-			auto m = object->primitive()->mesh();
+			auto m = object->primitive();
 			static bool v_borders = false;
 			ImGui::Columns(4, NULL, v_borders);
 			for (int j = 0; j < m->numeroDeTriangulos; j++)

@@ -60,16 +60,11 @@ public:
     int v[3];
   };
 
-  const vec4f *pos;
-  const Color *colors;
-  const Triangle * triangles;
-  int numeroDeTriangulos, numeroDeVertices;
-
   GLMeshArray(int nv,
     const VertexBuffer<vec4f>& v,
     const VertexBuffer<Color>& c,
     int nt,
-    const Triangle* t) : numeroDeTriangulos{ nt }, numeroDeVertices{ nv }
+    const Triangle* t)
   {
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
@@ -85,10 +80,6 @@ public:
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffers[2]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size(t, nt), t, GL_STATIC_DRAW);
     _vertexCount = nt * 3;
-
-	pos = v.data;
-	colors = c.data;
-	triangles = t;
   }
 
   ~GLMeshArray()

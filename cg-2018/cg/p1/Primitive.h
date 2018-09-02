@@ -47,11 +47,20 @@ namespace cg
 class Primitive: public Component
 {
 public:
-  Primitive(GLMeshArray* mesh):
+	const vec4f *pos;
+	const Color *colors;
+	const GLMeshArray::Triangle *triangles;
+	int numeroDeTriangulos, numeroDeVertices;
+
+  Primitive(GLMeshArray* mesh, int nv, static const vec4f v[], static const Color c[], int nt, static const GLMeshArray::Triangle t[]):
     Component{"Primitive"},
     _mesh{mesh}
   {
-    // do nothing
+	  pos = v;
+	  colors = c;
+	  triangles = t;
+	  numeroDeTriangulos = nt;
+	  numeroDeVertices = nv;
   }
   
   ~Primitive() override

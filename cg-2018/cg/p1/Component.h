@@ -34,6 +34,7 @@
 #define __Component_h
 
 #include "core/SharedObject.h"
+#include <list>
 
 namespace cg
 { // begin namespace cg
