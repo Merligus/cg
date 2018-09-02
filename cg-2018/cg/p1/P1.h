@@ -29,12 +29,15 @@ public:
   /// Renders the scene.
   void render() override;
 
+  /// Capta entradas do teclado
+  bool keyInputEvent(int key, int action, int mods) override;
+
+
 private:
   Program _program;
   Reference<cg::Scene> _scene;
   cg::SceneNode* _current{};
   Color selectedWireframeColor{255, 102, 0};
-  mat4f _transform{mat4f::identity()};
 
 
   void buildScene();

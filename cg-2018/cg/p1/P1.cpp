@@ -114,11 +114,11 @@ inline void
 P1::hierarchyWindow()
 {
   ImGui::Begin("Hierarchy");
-  if (ImGui::Button("Create###object"))
-    ImGui::OpenPopup("CreateObjectPopup");
-  if (ImGui::BeginPopup("CreateObjectPopup"))
+  if (ImGui::Button("Options###object"))
+    ImGui::OpenPopup("OptionsPopup");
+  if (ImGui::BeginPopup("OptionsPopup"))
   {
-	if (ImGui::MenuItem("Empty Object"))
+	if (ImGui::MenuItem("New Empty Object"))
 	{
 		cg::SceneObject *newBox;
 		cg::Scene *currentScene = _scene;
@@ -145,7 +145,7 @@ P1::hierarchyWindow()
 			it->setMyIterator(it); // criando child
 		}
 	}
-    if (ImGui::BeginMenu("3D Object"))
+    if (ImGui::BeginMenu("New 3D Object"))
     {
       if (ImGui::MenuItem("Box"))
       {
@@ -176,8 +176,18 @@ P1::hierarchyWindow()
       }
       ImGui::EndMenu();
     }
+	if (ImGui::MenuItem("Delete", "Ctrl+Del"))
+	{
+		if (_current != nullptr && _current != _scene)
+		{
+			std::cout << "Apaga objeto e hierarquia do objeto selecionado\n";
+			cg::SceneObject *currentObject = (cg::SceneObject*)_current;
+			_current = currentObject->autoDelete();
+		}
+	}
     ImGui::EndPopup();
   }
+
   ImGui::Separator();
 
   ImGuiTreeNodeFlags flag{ImGuiTreeNodeFlags_OpenOnArrow};
@@ -276,7 +286,6 @@ P1::sceneObjectGui()
 		auto t = object->transform();
 
 		ImGui::TransformEdit(t);
-		_transform = t->localToWorldMatrix();
 	}
 	if (object->primitive() != nullptr)
 	{
@@ -342,7 +351,7 @@ P1::gui()
   hierarchyWindow();
   inspectorWindow();
   
- /* static bool demo = true;
+  /*static bool demo = true;
   ImGui::ShowDemoWindow(&demo);*/
   
 }
@@ -376,4 +385,23 @@ P1::render()
 		}
 	}
 
+}
+
+bool
+P1::keyInputEvent(int key, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_DELETE)
+		{
+			std::cout << "Deleteando hierarquia do objeto selecionado\n";
+			if (_current != nullptr && _current != _scene)
+			{
+				cg::SceneObject *currentObject = (cg::SceneObject*)_current;
+				_current = currentObject->autoDelete();
+			}
+			return true;
+		}
+	}
+	return false;
 }

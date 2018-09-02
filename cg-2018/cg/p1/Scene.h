@@ -107,6 +107,21 @@ SceneObject::setParent(SceneObject* parent)
 	_parent = parent; // atualiza o novo pai
 }
 
+inline SceneNode*
+SceneObject::autoDelete()
+{
+	if (_parent != nullptr)
+	{
+		_parent->removeChildren(_myIterator);
+		return _parent;
+	}
+	else
+	{
+		_scene->remove(_myIterator);
+		return _scene;
+	}
+}
+
 } // end namespace cg
 
 #endif // __Scene_h

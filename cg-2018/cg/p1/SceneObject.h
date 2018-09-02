@@ -112,6 +112,7 @@ public:
   void setParent(SceneObject* parent); /// implementado em Scene.h
   void setMyIterator(std::list<SceneObject>::iterator it);
   SceneObject* mySelf();
+  SceneNode* autoDelete(); /// implementado em Scene.h
   std::list<SceneObject>::iterator childrenBegin();
   std::list<SceneObject>::iterator childrenEnd();
   auto childrenSize();
