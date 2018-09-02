@@ -44,83 +44,86 @@ namespace cg
 //
 // Scene: scene class
 // =====
-class Scene: public SceneNode
-{
-public:
-  Color backgroundColor{Color::gray};
-
-  /// Constructs an empty scene.
-  Scene(const char* name):
-    SceneNode{name}
-  {
-    // do nothing
-  }
-
-  std::list<SceneObject>::iterator containerBegin()
-  {
-	  return _container.begin();
-  }
-
-  std::list<SceneObject>::iterator containerEnd()
-  {
-	  return _container.end();
-  }
-
-  auto containerSize()
-  {
-	  return _container.size();
-  }
-
-  std::list<SceneObject>::iterator append(SceneObject novo)
-  {
-	  std::list<SceneObject>::iterator aux;
-	  std::cout << "Adiciona na cena " << std::endl;
-	  _container.push_back(novo); // insere na última posição
-	  aux = --_container.end(); // pega o iterator para a última posição da lista
-	  (*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
-	  return aux; // retorna o iterator pro "novo" na lista
-  }
-
-  std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
-  {
-	  std::cout << "Remove da cena" << std::endl;
-	  return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
-  }
-
-private:
-  std::list<SceneObject> _container;
-
-}; // Scene
-
-inline void
-SceneObject::setParent(SceneObject* parent)
-{
-	std::cout << "Atualiza pai" << std::endl;
-	// atualiza a lista do antigo pai
-	if (myIteratorSet)
+	class Scene : public SceneNode
 	{
-		if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
+	public:
+		Color backgroundColor{ Color::gray };
+
+		/// Constructs an empty scene.
+		Scene(const char* name) :
+			SceneNode{ name }
+		{
+			// do nothing
+		}
+
+		std::list<SceneObject>::iterator containerBegin()
+		{
+			return _container.begin();
+		}
+
+		std::list<SceneObject>::iterator containerEnd()
+		{
+			return _container.end();
+		}
+
+		auto containerSize()
+		{
+			return _container.size();
+		}
+
+		std::list<SceneObject>::iterator append(SceneObject novo)
+		{
+			std::list<SceneObject>::iterator aux;
+			std::cout << "Adiciona na cena " << std::endl;
+			_container.push_back(novo); // insere na última posição
+			aux = --_container.end(); // pega o iterator para a última posição da lista
+			(*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
+			return aux; // retorna o iterator pro "novo" na lista
+		}
+
+		std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
+		{
+			std::cout << "Remove da cena" << std::endl;
+			return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
+		}
+
+	private:
+		std::list<SceneObject> _container;
+
+	}; // Scene
+
+	inline void
+		SceneObject::setParent(SceneObject* parent)
+	{
+		std::cout << "Atualiza pai" << std::endl;
+		// atualiza a lista do antigo pai
+		if (myIteratorSet)
+		{
+			if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
+				_scene->remove(_myIterator);
+			else // atualizar a lista do pai atual e inserir no novo pai
+				_parent->removeChildren(_myIterator); // retira do pai antigo
+		}
+		_parent = parent; // atualiza o novo pai
+	}
+
+	inline SceneNode*
+		SceneObject::autoDelete()
+	{
+		if (_parent != nullptr)
+		{
+			SceneObject *aux = _parent;
+			_parent->removeChildren(_myIterator);
+
+			return aux;
+		}
+		else
+		{
+			Scene *aux = _scene;
 			_scene->remove(_myIterator);
-		else // atualizar a lista do pai atual e inserir no novo pai
-			_parent->removeChildren(_myIterator); // retira do pai antigo
+			return aux;
+		}
 	}
-	_parent = parent; // atualiza o novo pai
-}
-
-inline SceneNode*
-SceneObject::autoDelete()
-{
-	if (_parent != nullptr)
-	{
-		_parent->removeChildren(_myIterator);
-		return _parent;
-	}
-	else
-	{
-		_scene->remove(_myIterator);
-		return _scene;
-	}
-}
 
 } // end namespace cg
 
