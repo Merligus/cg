@@ -71,7 +71,7 @@ P1::buildScene()
   cg::SceneObject *newBox, *currentBox;
   std::list<cg::SceneObject>::iterator it;
   
-  newBox = new cg::SceneObject{ "Box 1", currentScene, cg::makeBoxMesh()}; // criando box nivel 1  
+  newBox = new cg::SceneObject{ "Object 1", currentScene }; // criando box nivel 1  
   it = currentScene->append(*newBox);
   it->setMyIterator(it);
 
@@ -81,7 +81,7 @@ P1::buildScene()
   it = currentBox->appendChildren(*newBox);
   it->setMyIterator(it);
 
-  newBox = new cg::SceneObject{ "Box 2", currentScene, cg::makeBoxMesh() }; // criando box nivel 1
+  newBox = new cg::SceneObject{ "Object 2", currentScene }; // criando object nivel 1
   it = currentScene->append(*newBox);
   it->setMyIterator(it);
 
@@ -127,7 +127,7 @@ P1::hierarchyWindow()
 		static int i = 1;
 		objectIndex += std::to_string(i++);
 
-		std::cout << "Create new Empty Box\n";
+		std::cout << "Create new Empty Object\n";
 		if (_current == nullptr || _current == _scene)
 		{
 			std::cout << "\tCria raiz\n";
