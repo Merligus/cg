@@ -35,83 +35,133 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "Primitive.h"
+#include "imgui.h"
+#include <iostream>
 
 namespace cg
 { // begin namespace cg
 
 // Forward definition
-class Scene;
+	class Scene;
 
 
-/////////////////////////////////////////////////////////////////////
-//
-// SceneObject: scene object class
-// ===========
-class SceneObject: public SceneNode
-{
-public:
-  bool visible{true};
+	/////////////////////////////////////////////////////////////////////
+	//
+	// SceneObject: scene object class
+	// ===========
+	class SceneObject : public SceneNode
+	{
+	public:
+		bool visible{ true };
+		bool myIteratorSet{ false };
 
-  /// Constructs an empty scene object.
-  SceneObject(const char* name, Scene& scene):
-    SceneNode{name},
-    _scene{&scene},
-    _parent{}
-  {
-    makeUse(&_transform);
-  }
+		/// Constructs an empty scene object.
+		SceneObject(const char* name, Scene& scene) :
+			SceneNode{ name },
+			_scene{ &scene },
+			_parent{}
+		{
+			_components.push_back(new Transform());
+			std::list<Component*>::iterator begin = _components.begin();
+			makeUse((Transform*)(*begin)->mySelf());
+		}
 
-  /// Returns the scene which this scene object belong to.
-  auto scene() const
-  {
-    return _scene;
-  }
+		/// Constructs defined scene object.
+		SceneObject(const char* name, Scene& scene, Primitive * p) :
+			SceneNode{ name },
+			_scene{ &scene },
+			_parent{}
+		{
+			_components.push_back(new Transform());
+			std::list<Component*>::iterator begin = _components.begin();
+			makeUse((Transform*)(*begin)->mySelf());
 
-  /// Returns the parent of this scene object.
-  auto parent() const
-  {
-    return _parent;
-  }
+			_components.push_back(p);
+			_primitiveInUse = --_components.end();
+			(*_primitiveInUse)->setMyIterator(_primitiveInUse);
+		}
 
-  /// Sets the parent of this scene object.
-  void setParent(SceneObject* parent);
+		/// Returns the scene which this scene object belong to.
+		auto scene() const
+		{
+			return _scene;
+		}
 
-  /// Returns the transform of this scene object.
-  auto transform()
-  {
-    return &_transform;
-  }
+		/// Returns the parent of this scene object.
+		auto parent() const
+		{
+			return _parent;
+		}
 
-  void addComponent(Component* component)
-  {
-    component->_sceneObject = this;
-    // TODO
-  }
+		/// Returns the transform of this scene object.
+		auto transform()
+		{
+			return (Transform*)((*_components.begin())->mySelf());
+		}
 
-private:
-  Scene* _scene;
-  SceneObject* _parent;
-  Transform _transform;
+		void addComponent(Component* component)
+		{
+			component->_sceneObject = this;
+			// TODO
+		}
 
-  friend class Scene;
+		Primitive * primitive()
+		{
+			if (_components.size() > 1)
+				return (Primitive*)((*_primitiveInUse)->mySelf());
+			else
+				return nullptr;
+		}
 
-}; // SceneObject
+		/// Sets the parent of this scene object.
+		void setParent(SceneObject* parent); /// implementado em Scene.h
+		void setMyIterator(std::list<SceneObject>::iterator it);
+		SceneObject* mySelf();
+		SceneNode* autoDelete(); /// implementado em Scene.h
+		std::list<SceneObject>::iterator childrenBegin();
+		std::list<SceneObject>::iterator childrenEnd();
+		auto childrenSize();
+		std::list<SceneObject>::iterator appendChildren(SceneObject novo);
+		std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
 
-/// Returns the transform of a component.
-inline Transform*
-Component::transform() // declared in Component.h
-{
-  return sceneObject()->transform();
-}
+		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
+		void render(GLSL::Program *program);
 
-/// Returns the parent of a transform.
-inline Transform*
-Transform::parent() const // declared in Transform.h
-{
-  if (auto p = sceneObject()->parent())
-    return p->transform();
-   return nullptr;
-}
+		void setPrimitiveInUse(std::list<Component*>::iterator it);
+		std::list<Component*>::iterator componentsBegin();
+		std::list<Component*>::iterator componentsEnd();
+		auto componentsSize();
+		std::list<Component*>::iterator appendComponents(Component* novo);
+		std::list<Component*>::iterator removeComponents(std::list<Component*>::iterator it);
+
+	private:
+		Scene* _scene;
+		SceneObject* _parent;
+		std::list<SceneObject> _children;
+		std::list<SceneObject>::iterator _myIterator;
+		std::list<Component*> _components;
+		std::list<Component*>::iterator _primitiveInUse;
+
+		friend class Scene;
+
+	}; // SceneObject
+
+	/// Returns the transform of a component.
+	inline Transform*
+		Component::transform() // declared in Component.h
+	{
+		return sceneObject()->transform();
+	}
+
+	/// Returns the parent of a transform.
+	inline Transform*
+		Transform::parent() const // declared in Transform.h
+	{
+		if (auto p = sceneObject()->parent())
+			return p->transform();
+		return nullptr;
+	}
 
 } // end namespace cg
 

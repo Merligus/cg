@@ -40,10 +40,153 @@ namespace cg
 //
 // SceneObject implementation
 // ===========
-void
-SceneObject::setParent(SceneObject* parent)
-{
-  // TODO
-}
+
+	void
+		SceneObject::setMyIterator(std::list<SceneObject>::iterator it)
+	{
+		_myIterator = it;
+		myIteratorSet = true;
+	}
+
+	SceneObject*
+		SceneObject::mySelf()
+	{
+		return this;
+	}
+
+	std::list<SceneObject>::iterator
+		SceneObject::childrenBegin()
+	{
+		return _children.begin();
+	}
+
+	std::list<SceneObject>::iterator
+		SceneObject::childrenEnd()
+	{
+		return _children.end();
+	}
+
+	auto
+		SceneObject::childrenSize()
+	{
+		return _children.size();
+	}
+
+	std::list<SceneObject>::iterator
+		SceneObject::appendChildren(SceneObject novo)
+	{
+		std::list<SceneObject>::iterator aux;
+		std::cout << "Adiciona filho no pai" << std::endl;
+		_children.push_back(novo); // insere na última posição
+		aux = --_children.end(); // pega o iterator para a última posição da lista
+		(*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
+		return aux; // retorna o iterator pro "novo" na lista
+	}
+
+	std::list<SceneObject>::iterator
+		SceneObject::removeChildren(std::list<SceneObject>::iterator it)
+	{
+		std::cout << "Remove filho do pai" << std::endl;
+		return _children.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
+	}
+
+	SceneNode*
+		SceneObject::show(ImGuiTreeNodeFlags flag, SceneNode* current)
+	{
+		if (_children.size() > 0)
+		{
+			auto open = ImGui::TreeNodeEx(this,
+				current == this ? flag | ImGuiTreeNodeFlags_Selected : flag,
+				this->name());
+			//auto open = ImGui::TreeNode(this, this->name());
+			if (ImGui::IsItemClicked())
+				current = this;
+			if (open)
+			{
+				for (std::list<SceneObject>::iterator it = _children.begin(); it != _children.end(); ++it)
+					current = it->show(flag, current);
+
+				ImGui::TreePop();
+			}
+		}
+		else
+		{
+			flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+			ImGui::TreeNodeEx(this,
+				current == this ? flag | ImGuiTreeNodeFlags_Selected : flag,
+				this->name());
+			if (ImGui::IsItemClicked())
+				current = this;
+		}
+		return current;
+	}
+
+	void
+		SceneObject::render(GLSL::Program *program)
+	{
+		if (this->visible)
+		{
+			if (this->primitive() != nullptr)
+			{
+				cg::GLMesh * m = glMesh((this->primitive())->mesh());
+				cg::Transform *t = transform();
+				program->setUniformMat4("transform", t->localToWorldMatrix());
+
+				auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
+
+				program->setUniformMat4("transform", t->localToWorldMatrix());
+				program->setUniformMat3("normalMatrix", normalMatrix);
+				program->setUniformVec4("color", primitive()->color);
+				program->setUniform("flatMode", (int)0);
+				m->bind();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+			}
+		}
+		for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
+			it->render(program);
+	}
+
+	void
+		SceneObject::setPrimitiveInUse(std::list<Component*>::iterator it)
+	{
+		_primitiveInUse = it;
+	}
+
+	std::list<Component*>::iterator
+		SceneObject::componentsBegin()
+	{
+		return _components.begin();
+	}
+
+	std::list<Component*>::iterator
+		SceneObject::componentsEnd()
+	{
+		return _components.end();
+	}
+
+	auto
+		SceneObject::componentsSize()
+	{
+		return _components.size();
+	}
+
+	std::list<Component*>::iterator
+		SceneObject::appendComponents(Component* novo)
+	{
+		std::list<Component*>::iterator aux;
+		std::cout << "Adiciona componente no objeto de cena" << std::endl;
+		_components.push_back(novo); // insere na última posição
+		aux = --_components.end(); // pega o iterator para a última posição da lista
+		(*aux)->setMyIterator(aux); // atualiza o iterator do elemento da lista
+		return aux; // retorna o iterator pro "novo" na lista
+	}
+
+	std::list<Component*>::iterator
+		SceneObject::removeComponents(std::list<Component*>::iterator it)
+	{
+		std::cout << "Remove componente do objeto de cena" << std::endl;
+		return _components.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
+	}
 
 } // end namespace cg

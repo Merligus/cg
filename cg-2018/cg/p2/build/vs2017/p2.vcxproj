@@ -18,6 +18,7 @@
     <ClCompile Include="..\..\MeshSweeper.cpp" />
     <ClCompile Include="..\..\Renderer.cpp" />
     <ClCompile Include="..\..\P2.cpp" />
+    <ClCompile Include="..\..\SceneNode.cpp" />
     <ClCompile Include="..\..\SceneObject.cpp" />
     <ClCompile Include="..\..\Transform.cpp" />
   </ItemGroup>

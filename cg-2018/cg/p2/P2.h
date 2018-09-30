@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "core/Flags.h"
 #include "graphics/Application.h"
+#include <iostream>
 
 using namespace cg;
 

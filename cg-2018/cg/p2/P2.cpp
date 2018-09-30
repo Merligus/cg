@@ -19,10 +19,39 @@ makePrimitive(MeshMapIterator mit)
 inline void
 P2::buildScene()
 {
-  _current = _scene = new Scene{"Scene 1"};
+	std::cout << "Cria cena inicial\n";
+	_current = _scene = new cg::Scene{ "Scene 1" };
+
+	cg::Scene *currentScene = _scene;
+	cg::SceneObject *newBox, *currentBox;
+	std::list<cg::SceneObject>::iterator it;
+
+	newBox = new cg::SceneObject{ "Object 1", *currentScene }; // criando box nivel 1  
+	it = currentScene->append(*newBox);
+	it->setMyIterator(it);
+
+	currentBox = it->mySelf(); // criando box nivel 2
+	newBox = new cg::SceneObject{ "Box 1.1", *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+	newBox->setParent(currentBox);
+	it = currentBox->appendChildren(*newBox);
+	it->setMyIterator(it);
+
+	newBox = new cg::SceneObject{ "Object 2", *currentScene }; // criando object nivel 1
+	it = currentScene->append(*newBox);
+	it->setMyIterator(it);
+
+	currentBox = it->mySelf(); // criando box nivel 2
+	newBox = new cg::SceneObject{ "Box 2.1", *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+	newBox->setParent(currentBox);
+	it = currentBox->appendChildren(*newBox);
+	it->setMyIterator(it);
+
+	_box = currentBox;
+
+  /*_current = _scene = new Scene{"Scene 1"};
   _box = new SceneObject{"Box 1", *_scene};
   _primitive = makePrimitive(_defaultMeshes.find("Box"));
-  _box->addComponent(_primitive);
+  _box->addComponent(_primitive);*/
 }
 
 void
@@ -54,35 +83,91 @@ P2::hierarchyWindow()
     ImGui::OpenPopup("CreateObjectPopup");
   if (ImGui::BeginPopup("CreateObjectPopup"))
   {
-    ImGui::MenuItem("Empty Object");
-    if (ImGui::BeginMenu("3D Object"))
-    {
-      if (ImGui::MenuItem("Box"))
-      {
-        // TODO: create a new box.
-      }
-      ImGui::EndMenu();
-    }
-    ImGui::EndPopup();
+	  if (ImGui::MenuItem("New Empty Object"))
+	  {
+		  cg::SceneObject *newBox;
+		  cg::Scene *currentScene = _scene;
+
+		  std::string objectIndex("Object ");
+		  static int i = 1;
+		  objectIndex += std::to_string(i++);
+
+		  std::cout << "Create new Empty Object\n";
+		  if (_current == nullptr || _current == _scene)
+		  {
+			  std::cout << "\tCria raiz\n";
+			  newBox = new cg::SceneObject{ objectIndex.c_str(), *currentScene };
+			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
+			  it->setMyIterator(it); // criando nova raíz
+		  }
+		  else
+		  {
+			  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+			  std::cout << "\tCria com pai\n";
+			  newBox = new cg::SceneObject{ objectIndex.c_str(), *currentScene };
+			  newBox->setParent(currentBox);
+			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
+			  it->setMyIterator(it); // criando child
+		  }
+	  }
+	  if (ImGui::BeginMenu("New 3D Object"))
+	  {
+		  if (ImGui::MenuItem("Box"))
+		  {
+			  cg::SceneObject *newBox;
+			  cg::Scene *currentScene = _scene;
+
+			  std::string boxIndex("Box ");
+			  static int index = 1;
+			  boxIndex += std::to_string(index++);
+
+			  std::cout << "Create new 3D Box\n";
+			  if (_current == nullptr || _current == _scene)
+			  {
+				  std::cout << "\tCria raiz\n";
+				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+				  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
+				  it->setMyIterator(it); // criando nova raíz
+			  }
+			  else
+			  {
+				  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+				  std::cout << "\tCria com pai\n";
+				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+				  newBox->setParent(currentBox);
+				  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
+				  it->setMyIterator(it); // criando child
+			  }
+		  }
+		  ImGui::EndMenu();
+	  }
+	  if (ImGui::MenuItem("Delete", "Ctrl+Del"))
+	  {
+		  if (_current != nullptr && _current != _scene)
+		  {
+			  std::cout << "Apaga objeto e hierarquia do objeto selecionado\n";
+			  cg::SceneObject *currentObject = (cg::SceneObject*)_current;
+			  _current = currentObject->autoDelete();
+		  }
+	  }
+	  ImGui::EndPopup();
   }
   ImGui::Separator();
 
-  ImGuiTreeNodeFlags flag{ImGuiTreeNodeFlags_OpenOnArrow};
+  ImGuiTreeNodeFlags flag{ ImGuiTreeNodeFlags_OpenOnArrow };
   auto open = ImGui::TreeNodeEx(_scene,
-    _current == _scene ? flag | ImGuiTreeNodeFlags_Selected : flag,
-    _scene->name());
+	  _current == _scene ? flag | ImGuiTreeNodeFlags_Selected : flag,
+	  _scene->name());
 
   if (ImGui::IsItemClicked())
-    _current = _scene;
+	  _current = _scene;
   if (open)
   {
-    flag |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-    ImGui::TreeNodeEx(_box,
-      _current == _box ? flag | ImGuiTreeNodeFlags_Selected : flag,
-      _box->name());
-    if (ImGui::IsItemClicked())
-      _current = _box;
-    ImGui::TreePop();
+
+	  for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+		  _current = it->show(flag, _current);
+
+	  ImGui::TreePop(); // fecha a cena
   }
   ImGui::End();
 }
@@ -199,8 +284,14 @@ P2::sceneObjectGui()
   ImGui::Separator();
   if (ImGui::CollapsingHeader(object->transform()->typeName()))
     ImGui::TransformEdit(object->transform());
-  if (ImGui::CollapsingHeader(_primitive->typeName()))
-    inspectPrimitive(*_primitive);
+  if (object->primitive() != nullptr)
+  {
+	  if (ImGui::CollapsingHeader(object->primitive()->typeName()))
+	  {
+		  auto m = object->primitive();
+		  inspectPrimitive(*m);
+	  }
+  }
 }
 
 inline void
@@ -455,8 +546,8 @@ P2::render()
 
   glClearColor(bc.r, bc.g, bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  if (!_box->visible)
-    return;
+  /*if (!_box->visible)
+    return;*/
   if (_moveFlags)
   {
     const auto delta = _camera->distance() * CAMERA_RES;
@@ -480,12 +571,16 @@ P2::render()
   _program.setUniformVec4("ambientLight", _scene->ambientLight);
   _program.setUniformVec3("lightPosition", _camera->position());
 
-  auto m = glMesh(_primitive->mesh());
+  //auto m = glMesh(_primitive->mesh());
 
-  if (nullptr == m)
-    return;
+  /*if (nullptr == m)
+    return;*/
 
-  auto t = _primitive->transform();
+  // New
+  for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+	  it->render(&_program);
+
+  /*auto t = _primitive->transform();
   auto normalMatrix = mat3f{t->worldToLocalMatrix()}.transposed();
 
   _program.setUniformMat4("transform", t->localToWorldMatrix());
@@ -495,10 +590,26 @@ P2::render()
   m->bind();
   renderMesh(m, GL_FILL);
   if (_current != _box)
-    return;
-  _program.setUniformVec4("color", _selectedWireframeColor);
-  _program.setUniform("flatMode", (int)1);
-  renderMesh(m, GL_LINE);
+    return;*/
+  if (_current != _scene) // desenha o selecionado
+  {
+	  cg::SceneObject *object = (cg::SceneObject*)_current;
+	  if (object->visible && object->primitive() != nullptr)
+	  {
+		  cg::GLMesh * m;
+		  cg::Transform *t = object->transform();
+		  _program.setUniformMat4("transform", t->localToWorldMatrix());
+
+		  m = glMesh((object->primitive())->mesh());
+		  m->bind();
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		  glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+
+		  _program.setUniformVec4("color", _selectedWireframeColor);
+		  _program.setUniform("flatMode", (int)1);
+		  renderMesh(m, GL_LINE);
+	  }
+  }
 }
 
 bool
@@ -533,6 +644,20 @@ P2::keyInputEvent(int key, int action, int mods)
     case GLFW_KEY_Z:
       _moveFlags.enable(MoveBits::Down, active);
       break;
+  }
+
+  if (action == GLFW_PRESS)
+  {
+	  if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_DELETE)
+	  {
+		  std::cout << "Deleteando hierarquia do objeto selecionado\n";
+		  if (_current != nullptr && _current != _scene)
+		  {
+			  cg::SceneObject *currentObject = (cg::SceneObject*)_current;
+			  _current = currentObject->autoDelete();
+		  }
+		  return true;
+	  }
   }
   return false;
 }

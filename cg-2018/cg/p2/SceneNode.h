@@ -34,33 +34,55 @@
 #define __SceneNode_h
 
 #include "core/NameableObject.h"
+#include <string>
+#include <list>
 
 namespace cg
 { // begin namespace cg
-
 
 /////////////////////////////////////////////////////////////////////
 //
 // SceneNode: generic scene node class
 // =========
-class SceneNode: public NameableObject
-{
-public:
-  using NameableObject::NameableObject;
+	class SceneNode : public NameableObject
+	{
+	public:
+		using NameableObject::NameableObject;
 
-  template <typename T>
-  T* as()
-  {
-    return dynamic_cast<T*>(this);
-  }
+		template <typename T>
+		T* as()
+		{
+			return dynamic_cast<T*>(this);
+		}
 
-  template <typename T>
-  const T* as() const
-  {
-    return dynamic_cast<const T*>(this);
-  }
+		template <typename T>
+		const T* as() const
+		{
+			return dynamic_cast<const T*>(this);
+		}
+		/// Returns the name of this scene node.
+		auto name() const
+		{
+			return _name.c_str();
+		}
 
-}; // SceneNode
+		/// Sets the name of this scene node.
+		void setName(const char* format, ...);
+
+
+	protected:
+		SceneNode() = default;
+
+		SceneNode(const char* name) :
+			_name{ name }
+		{
+			// do nothing
+		}
+
+	private:
+		std::string _name;
+
+	}; // SceneNode
 
 } // end namespace cg
 
