@@ -290,9 +290,9 @@ public:
   HOST DEVICE
   mat3 transposed() const
   {
-    const auto b0(v0.x, v1.x, v2.x);
-    const auto b1(v0.y, v1.y, v2.y);
-    const auto b2(v0.z, v1.z, v2.z);
+    const vec3 b0{v0.x, v1.x, v2.x};
+    const vec3 b1{v0.y, v1.y, v2.y};
+    const vec3 b2{v0.z, v1.z, v2.z};
 
     return mat3{b0, b1, b2};
   }

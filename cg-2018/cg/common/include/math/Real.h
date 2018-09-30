@@ -62,6 +62,14 @@ abs(real x)
   return fabs(x);
 }
 
+/// Returns the signal of x.
+template <typename real>
+HOST DEVICE inline real
+sign(real x)
+{
+  return static_cast<real>(x > 0 ? 1 : (x < 0 ? -1 : 0));
+}
+
 /// Returns true if x is close to zero.
 template <typename real>
 HOST DEVICE inline bool

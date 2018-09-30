@@ -557,9 +557,9 @@ template <typename real>
 HOST DEVICE inline void
 Matrix3x3<real>::set(const Matrix4x4<real>& m) // declared in Matrix3x3.h
 {
-  v0 = m.v0;
-  v1 = m.v1;
-  v2 = m.v2;
+  v0 = m[0];
+  v1 = m[1];
+  v2 = m[2];
 }
 
 } // end namespace cg

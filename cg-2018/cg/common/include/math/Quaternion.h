@@ -60,12 +60,6 @@ toDegrees3(const Vector3<real>& v)
   real y = math::toDegrees(v.y);
   real z = math::toDegrees(v.z);
 
-  if (x < 0)
-    x += real(360);
-  if (y < 0)
-    y += real(360);
-  if (z < 0)
-    z += real(360);
   return Vector3<real>{x, y, z};
 }
 

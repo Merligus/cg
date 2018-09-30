@@ -92,24 +92,27 @@ GLWindow::scrollEvent(double xOffset, double yOffset)
 bool
 GLWindow::windowResizeEvent(int width, int height)
 {
-  _width = width;
-  _height = height;
-  return true;
+  (void)width;
+  (void)height;
+  return false;
 }
 
 bool
 GLWindow::keyInputEvent(int key, int action, int mods)
 {
-  if (action == GLFW_PRESS)
+  (void)key;
+  (void)action;
+  (void)mods;
+  /*if (action == GLFW_PRESS)
   {
-    if (mods == GLFW_MOD_ALT && key == GLFW_KEY_F4)
-    {
-      glfwSetWindowShouldClose(_window, GL_TRUE);
-      return true;
-    }
-    if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_P && !_paused)
-      return _paused = true;
-  }
+	  if (mods == GLFW_MOD_ALT && key == GLFW_KEY_F4)
+	  {
+		  glfwSetWindowShouldClose(_window, GL_TRUE);
+		  return true;
+	  }
+	  if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_P && !_paused)
+		  return _paused = true;
+  }*/
   return false;
 }
 
@@ -194,7 +197,9 @@ GLWindow::mainLoop()
     else
     {
       ImGui::OpenPopup("Paused");
-      if (ImGui::BeginPopupModal("Paused", nullptr, ImGuiWindowFlags_NoTitleBar))
+      if (ImGui::BeginPopupModal("Paused",
+        nullptr,
+        ImGuiWindowFlags_NoTitleBar))
       {
         ImGui::Text("Application '%s' is paused.", _title.c_str());
         ImGui::Separator();
@@ -205,7 +210,7 @@ GLWindow::mainLoop()
         }
         ImGui::SameLine();
         if (ImGui::Button("Exit"))
-          glfwSetWindowShouldClose(_window, GL_TRUE);
+          shutdown();
         ImGui::EndPopup();
       }
     }
@@ -238,7 +243,7 @@ GLWindow::show()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   _window = createGlfwWindow(_title.c_str(), _width, _height);
   if (_window == nullptr)
     Application::error("Unable to create GLFW window");
@@ -260,9 +265,9 @@ GLWindow::show()
   // Setup style.
   auto& style = ImGui::GetStyle();
 
-  style.FrameRounding = style.WindowRounding = 12.0f;
+  style.FrameRounding = style.WindowRounding = 0.0f;
   style.FrameBorderSize = 1.0f;
-  style.Alpha = 1.0f;
+  style.Alpha = 0.9f;
   ImGui::StyleColorsDark();
   // Clear error buffer.
   while (glGetError() != GL_NO_ERROR)
@@ -285,7 +290,11 @@ getWindow(GLFWwindow* window)
 void
 GLWindow::windowResizeCallBack(GLFWwindow* window, int width, int height)
 {
-  getWindow(window)->windowResizeEvent(width, height);
+  auto self = getWindow(window);
+  
+  self->_width = width;
+  self->_height = height;
+  self->windowResizeEvent(width, height);
 }
 
 void
@@ -295,15 +304,30 @@ GLWindow::keyInputCallBack(GLFWwindow* window,
   int action,
   int mods)
 {
-  if (!getWindow(window)->keyInputEvent(key, action, mods))
+  auto self = getWindow(window);
+
+  if (action == GLFW_PRESS)
+  {
+    if (mods == GLFW_MOD_ALT && key == GLFW_KEY_F4)
+    {
+      self->shutdown();
+      return;
+    }
+    if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_P && !self->_paused)
+    {
+      self->_paused = true;
+      return;
+    }
+  }
+  if (!self->keyInputEvent(key, action, mods))
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 }
 
 void
 GLWindow::scrollCallBack(GLFWwindow* window, double xOffSet, double yOffSet)
 {
-  if (!getWindow(window)->scrollEvent(xOffSet, yOffSet))
-    ImGui_ImplGlfw_ScrollCallback(window, xOffSet, yOffSet);
+  getWindow(window)->scrollEvent(xOffSet, yOffSet);
+  ImGui_ImplGlfw_ScrollCallback(window, xOffSet, yOffSet);
 }
 
 void

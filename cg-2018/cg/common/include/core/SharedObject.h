@@ -25,13 +25,31 @@
 //
 // OVERVIEW: SharedObject.h
 // ========
-// Class definition for SharedObject.
+// Class definition for shared object.
 //
 // Author: Paulo Pagliosa
 // Last revision: 23/08/2018
 
 #ifndef __SharedObject_h
 #define __SharedObject_h
+
+#include <type_traits>
+
+namespace cg
+{ // begin namespace cg
+
+//
+// Forward definition
+//
+class SharedObject;
+
+template <typename T>
+inline constexpr bool isSharedObject()
+{
+  return std::is_assignable<SharedObject, T>::value;
+}
+
+#define ASSERT_SHARED(T, msg) static_assert(isSharedObject<T>(), msg)
 
 
 /////////////////////////////////////////////////////////////////////
@@ -50,28 +68,30 @@ public:
     return _referenceCount;
   }
 
-protected:
-  /// Constructs an unreferenced object.
-  SharedObject() = default;
-
-private:
-  int _referenceCount{};
-
   template <typename T>
-  friend T* makeUse(T* ptr)
+  static T* makeUse(T* ptr)
   {
+    ASSERT_SHARED(T, "Pointer to shared object expected");
     if (ptr != nullptr)
       ++ptr->_referenceCount;
     return ptr;
   }
 
   template <typename T>
-  friend void release(T* ptr)
+  static void release(T* ptr)
   {
+    ASSERT_SHARED(T, "Pointer to shared object expected");
     if (ptr != nullptr && --ptr->_referenceCount <= 0)
       delete ptr;
   }
 
+protected:
+  /// Constructs an unreferenced object.
+  SharedObject() = default;
+
+private:
+  int _referenceCount{};
+  
 }; // SharedObject
 
 
@@ -92,20 +112,20 @@ public:
   }
 
   Reference(const reference& other):
-    _ptr{makeUse(other._ptr)}
+    _ptr{SharedObject::makeUse(other._ptr)}
   {
     // do nothing
   }
 
   Reference(T* ptr):
-    _ptr{makeUse(ptr)}
+    _ptr{SharedObject::makeUse(ptr)}
   {
     // do nothing
   }
 
   ~Reference()
   {
-    release(_ptr);
+    SharedObject::release(_ptr);
   }
 
   reference& operator =(const reference& other)
@@ -115,14 +135,14 @@ public:
 
   reference& operator =(T* ptr)
   {
-    release(_ptr);
-    _ptr = makeUse(ptr);
+    SharedObject::release(_ptr);
+    _ptr = SharedObject::makeUse(ptr);
     return *this;
   }
 
   bool operator ==(const reference& other) const
   {
-    return operator=(other._ptr);
+    return operator ==(other._ptr);
   }
 
   bool operator ==(const T* ptr) const
@@ -159,5 +179,7 @@ private:
   T* _ptr;
 
 }; // Reference
+
+} // end namespace cg
 
 #endif // __SharedObject_h

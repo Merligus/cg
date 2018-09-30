@@ -36,6 +36,7 @@
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
 #else
+#define NOMINMAX
 #include <GL/gl3w.h>
 #endif
 #include <GLFW/glfw3.h>

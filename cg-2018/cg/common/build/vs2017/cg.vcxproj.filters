@@ -24,6 +24,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{2027e941-5fd6-45d4-b5e7-6aff56aa9e69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{da76f585-9db5-471d-a8b5-98eaedde5fd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\geometry">
+      <UniqueIdentifier>{5ab0c8d9-507e-4cd0-848d-d3d6619af951}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\math\RealLimits.h">
@@ -59,14 +65,32 @@
     <ClInclude Include="..\..\include\graphics\GLWindow.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\graphics\GLMeshArray.h">
-      <Filter>Header Files\graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\graphics\GLProgram.h">
       <Filter>Header Files\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\core\SharedObject.h">
       <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\utils\MeshReader.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\Bounds3.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\Ray.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\TriangleMesh.h">
+      <Filter>Header Files\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\Flags.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\core\NameableObject.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\graphics\GLMesh.h">
+      <Filter>Header Files\graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +120,15 @@
     </ClCompile>
     <ClCompile Include="..\..\externals\src\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\MeshReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\NameableObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TriangleMesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

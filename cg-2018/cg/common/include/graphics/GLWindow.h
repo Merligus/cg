@@ -57,6 +57,18 @@ public:
     return _title;
   }
 
+  /// Returns the width of this window.
+  auto width() const
+  {
+    return _width;
+  }
+
+  /// Returns the height of this window.
+  auto height() const
+  {
+    return _height;
+  }
+
 protected:
   Color backgroundColor{Color::gray};
 
@@ -93,6 +105,28 @@ protected:
   auto deltaTime() const
   {
     return _deltaTime;
+  }
+
+  /// Returns the cursor position on this window.
+  void cursorPosition(int& x, int& y) const
+  {
+    double xpos;
+    double ypos;
+
+    glfwGetCursorPos(_window, &xpos, &ypos);
+    x = (int)xpos;
+    y = (int)ypos;
+  }
+
+  /// Returns true if \c key is pressed.
+  bool isKeyPressed(int key) const
+  {
+    return glfwGetKey(_window, key) == GLFW_PRESS;
+  }
+
+  void shutdown()
+  {
+    glfwSetWindowShouldClose(_window, GL_TRUE);
   }
 
 private:

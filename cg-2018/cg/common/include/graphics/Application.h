@@ -34,6 +34,7 @@
 #define __Application_h
 
 #include "graphics/GLWindow.h"
+#include "utils/MeshReader.h"
 
 namespace cg
 { // begin namespace cg
@@ -74,6 +75,12 @@ public:
   static void loadShaders(GLSL::Program& p, const char* vs, const char* fs)
   {
     p.loadShaders(assetFilePath(vs), assetFilePath(fs));
+  }
+
+  /// Loads a mesh from an OBJ file.
+  static TriangleMesh* loadMesh(const char* filename)
+  {
+    return MeshReader::readOBJ(assetFilePath(filename).c_str());
   }
 
 private:

@@ -1,0 +1,11 @@
+﻿  Assets.cpp
+  Camera.cpp
+  imgui_demo.cpp
+  Main.cpp
+  MeshSweeper.cpp
+  Renderer.cpp
+  P2.cpp
+  SceneObject.cpp
+  Transform.cpp
+  Gerando Código...
+  p2.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\p2\build\vs2017\..\..\p2.exe
