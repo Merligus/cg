@@ -92,6 +92,9 @@ public:
   void translate(float dx, float dy, float dz);
   void translate(const vec3f& d);
 
+  void updateProjectionMatrix();
+  void updateViewMatrix();
+
   mat4f worldToCameraMatrix() const;
   mat4f cameraToWorldMatrix() const;
   mat4f projectionMatrix() const;

@@ -70,18 +70,50 @@ Camera::setPosition(const vec3f& value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_position = value;
+
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
+
+	_focalPoint = _distance * Front;
+	updateViewMatrix();
 }
 
 void
 Camera::setEulerAngles(const vec3f& value)
 {
   // TODO
+	_eulerAngles = value;
+
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
+
+	_focalPoint = _distance * Front;
+	updateViewMatrix();
 }
 
 void
 Camera::setRotation(const quatf& value)
 {
   // TODO
+	_rotation = value;
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
+
+	_focalPoint = _distance * Front;
+	updateViewMatrix();
 }
 
 void
@@ -91,6 +123,9 @@ Camera::setProjectionType(ProjectionType value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_projectionType = value;
+
+	updateProjectionMatrix();
 }
 
 void
@@ -104,6 +139,15 @@ Camera::setDistance(float value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
+
+	_focalPoint = value*Front;
+	_distance = value;
 }
 
 void
@@ -113,6 +157,7 @@ Camera::setViewAngle(float value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_viewAngle = value;
 }
 
 void
@@ -122,6 +167,9 @@ Camera::setHeight(float value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_height = value;
+	_position.z = _height + _focalPoint.z;
+	_distance = (_focalPoint - _position).length();
 }
 
 void
@@ -131,6 +179,7 @@ Camera::setAspectRatio(float value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_aspectRatio = value;
 }
 
 void
@@ -140,6 +189,8 @@ Camera::setClippingPlanes(float F, float B)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_F = F;
+	_B = B;
 }
 
 void
@@ -154,6 +205,35 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 //[]---------------------------------------------------[]
 {
   // TODO
+	if (orbit == true)
+	{
+		_eulerAngles.x = _eulerAngles.x - ay;
+		_eulerAngles.y = _eulerAngles.y - ax;
+
+		mat4f::vec3 front, Front, eulerAnglesInRadians;
+		eulerAnglesInRadians = toRadians3(_eulerAngles);
+		front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+		front.y = sin(eulerAnglesInRadians.y);
+		front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+		Front = front.versor();
+
+		_position = _focalPoint -_distance * Front;
+	}
+	else
+	{
+		_eulerAngles.x = _eulerAngles.x + ay;
+		_eulerAngles.y = _eulerAngles.y + ax;
+
+		mat4f::vec3 front, Front, eulerAnglesInRadians;
+		eulerAnglesInRadians = toRadians3(_eulerAngles);
+		front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+		front.y = sin(eulerAnglesInRadians.y);
+		front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+		Front = front.versor();
+
+		_focalPoint = _distance * Front;
+	}
+	updateViewMatrix();
 }
 
 void
@@ -168,6 +248,12 @@ Camera::zoom(float zoom)
 //[]---------------------------------------------------[]
 {
   // TODO
+	if (_projectionType == Parallel)
+		setHeight(_height / zoom);
+	else
+		setViewAngle(_viewAngle / zoom);
+
+	updateProjectionMatrix();
 }
 
 void
@@ -177,6 +263,15 @@ Camera::translate(float dx, float dy, float dz)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_position.x += dx;
+	_position.y += dy;
+	_position.z += dz;
+
+	_focalPoint.x += dx;
+	_focalPoint.y += dy;
+	_focalPoint.z += dz;
+
+	updateViewMatrix();
 }
 
 void
@@ -187,6 +282,7 @@ Camera::setDefaultView(float aspect)
 {
   _position.set(0.0f, 0.0f, 10.0f);
   _eulerAngles.set(0.0f);
+  _eulerAngles.x = -90.0f;
   _rotation = quatf::identity();
   _focalPoint.set(0.0f, 0.0f, 0.0f);
   _distance = 10.0f;
@@ -197,6 +293,35 @@ Camera::setDefaultView(float aspect)
   _F = 0.01f;
   _B = 1000.0f;
   // TODO: update view and projection matrices.
+  updateViewMatrix();
+  updateProjectionMatrix();
+}
+
+void 
+Camera::updateProjectionMatrix()
+{
+	if (_projectionType == Perspective)
+		_projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
+	else
+		_projectionMatrix = mat4f::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _F, _B);
+}
+
+void
+Camera::updateViewMatrix()
+{
+	mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), Right, Up;
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
+
+	Right = Front.cross(WorldUp).versor();
+	Up = Right.cross(Front).versor();
+
+	_inverseMatrix = _matrix = mat4f::lookAt(_position, _focalPoint, Up);
+	_inverseMatrix.inverse(_matrix);
 }
 
 } // end namespace cg
