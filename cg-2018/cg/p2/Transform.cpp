@@ -169,7 +169,8 @@ namespace cg
 		else
 			_inverseMatrix = inverseLocalMatrix();
 		// TODO: update the transform of all scene object's children.
-		for (std::list<cg::SceneObject>::iterator it = sceneObject()->childrenBegin(); it != sceneObject()->childrenEnd(); ++it)
+		SceneObject* sceneO = sceneObject()->mySelf();
+		for (std::list<cg::SceneObject>::iterator it = sceneO->childrenBegin(); it != sceneO->childrenEnd(); ++it)
 			it->transform()->update();
 	}
 

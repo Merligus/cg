@@ -58,13 +58,6 @@ Camera::Camera():
 }
 
 void
-Camera::setFocalPoint(const vec3f& value)
-{
-	_focalPoint = value;
-	updateViewMatrix();
-}
-
-void
 Camera::setPosition(const vec3f& value)
 //[]---------------------------------------------------[]
 //|  Set the camera's position                          |
@@ -95,6 +88,10 @@ Camera::setEulerAngles(const vec3f& value)
 {
   // TODO
 	_eulerAngles = value;
+	if (_eulerAngles.y > 89.0f)
+		_eulerAngles.y = 89.0f;
+	if (_eulerAngles.y < -89.0f)
+		_eulerAngles.y = -89.0f;
 
 	mat4f::vec3 front, Front, eulerAnglesInRadians;
 	eulerAnglesInRadians = toRadians3(_eulerAngles);
@@ -104,7 +101,6 @@ Camera::setEulerAngles(const vec3f& value)
 	Front = front.versor();
 
 	_focalPoint = _distance * Front + _position;
-	std::cout << _focalPoint.x << " " << _focalPoint.y << " " << _focalPoint.z << std::endl;
 	updateViewMatrix();
 }
 
