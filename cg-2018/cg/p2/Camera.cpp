@@ -284,13 +284,43 @@ Camera::translate(float dx, float dy, float dz)
 //[]---------------------------------------------------[]
 {
   // TODO
-	_position.x += dx;
-	_position.y += dy;
-	_position.z += dz;
+	mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), Right, Up;
+	mat4f::vec3 front, Front, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	front.y = sin(eulerAnglesInRadians.y);
+	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	Front = front.versor();
 
-	_focalPoint.x += dx;
-	_focalPoint.y += dy;
-	_focalPoint.z += dz;
+	Right = (Front.cross(WorldUp)).versor();
+
+
+	if (dz < 0)
+	{
+		_position.x -= Front.x * dz;
+		_position.z -= Front.z * dz;
+		_focalPoint.x -= Front.x * dz;
+		_focalPoint.z -= Front.z * dz;
+	}
+	if (dz > 0)
+	{
+		_position.x -= Front.x * dz;
+		_position.z -= Front.z * dz;
+		_focalPoint.x -= Front.x * dz;
+		_focalPoint.z -= Front.z * dz;
+	}
+	if (dx < 0)
+	{
+		_position += Right * dx;
+		_focalPoint += Right * dx;
+	}
+	if (dx > 0)
+	{
+		_position += Right * dx;
+		_focalPoint += Right * dx;
+	}
+	_position.y += dy;
+	_focalPoint.y += dy * Front.y;
 
 	updateViewMatrix();
 }
