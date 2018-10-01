@@ -46,8 +46,6 @@ P2::buildScene()
 	it = currentBox->appendChildren(*newBox);
 	it->setMyIterator(it);
 
-	_box = currentBox;
-
   /*_current = _scene = new Scene{"Scene 1"};
   _box = new SceneObject{"Box 1", *_scene};
   _primitive = makePrimitive(_defaultMeshes.find("Box"));
@@ -213,10 +211,10 @@ TransformEdit(Transform* transform)
     transform->setLocalPosition(temp);
   temp = transform->localEulerAngles();
   if (ImGui::DragVec3("Rotation", temp))
-    transform->setLocalEulerAngles(temp);
+	  transform->setLocalEulerAngles(temp);
   temp = transform->localScale();
   if (ImGui::DragVec3("Scale", temp))
-    transform->setLocalScale(temp);
+	  transform->setLocalScale(temp);
 }
 
 } // end namespace ImGui

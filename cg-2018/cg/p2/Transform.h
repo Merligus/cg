@@ -101,21 +101,29 @@ namespace cg
 		/// Sets the local Euler angles (in degrees) of this transform.
 		void setLocalEulerAngles(const vec3f& angles)
 		{
-			_localEulerAngles = angles;
-			_localRotation = quatf::eulerAngles(angles);
+			vec3f aux = angles;
+			if (angles.y > 89.0f)
+				aux.y = 89.0f;
+			if (angles.y < -89.0f)
+				aux.y = -89.0f;
+			_localEulerAngles = aux;
+			_localRotation = quatf::eulerAngles(aux);
 			update();
 		}
 		
 		/// Sets the local scale of this transform.
 		void setLocalScale(const vec3f& scale)
 		{
-			_localScale = scale;
+			_localScale.x = scale.x < 0.001 ? 0.001 : scale.x;
+			_localScale.y = scale.y < 0.001 ? 0.001 : scale.y;
+			_localScale.z = scale.z < 0.001 ? 0.001 : scale.z;
 			update();
 		}
 
 		/// Sets the local uniform scale of this transform.
 		void setLocalScale(float scale)
 		{
+			scale = scale < 0.001 ? 0.001 : scale;
 			setLocalScale(vec3f{ scale });
 		}
 

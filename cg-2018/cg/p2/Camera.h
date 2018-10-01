@@ -36,6 +36,7 @@
 #include "core/Flags.h"
 #include "core/NameableObject.h"
 #include "math/Matrix4x4.h"
+#include <iostream>
 
 namespace cg
 { // begin namespace cg
@@ -75,6 +76,7 @@ public:
   vec3f focalPoint() const;
   float distance() const;
 
+  void setFocalPoint(const vec3f& value);
   void setPosition(const vec3f& value);
   void setEulerAngles(const vec3f& value);
   void setRotation(const quatf& value);
@@ -83,7 +85,7 @@ public:
   void setAspectRatio(float value);
   void setClippingPlanes(float F, float B);
   void setProjectionType(ProjectionType value);
-  void setDistance(float value);
+  void setDistance(float value);  
 
   void setDefaultView(float aspect = 1.0f);
 

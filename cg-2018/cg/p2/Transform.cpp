@@ -154,12 +154,23 @@ namespace cg
 	{
 		auto p = parent();
 
-		_matrix = p->_matrix * localMatrix();
+		if (p != nullptr)
+			_matrix = p->_matrix * localMatrix();
+		else
+			_matrix = localMatrix();
 		_position = translation(_matrix);
-		_rotation = p->_rotation * _localRotation;
+		if (p != nullptr)
+			_rotation = p->_rotation * _localRotation;
+		else
+			_rotation = _localRotation;
 		_lossyScale = scale(_rotation, _matrix);
-		_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		if (p != nullptr)
+			_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		else
+			_inverseMatrix = inverseLocalMatrix();
 		// TODO: update the transform of all scene object's children.
+		for (std::list<cg::SceneObject>::iterator it = sceneObject()->childrenBegin(); it != sceneObject()->childrenEnd(); ++it)
+			it->transform()->update();
 	}
 
 	void
@@ -169,13 +180,24 @@ namespace cg
 		auto m = p->_inverseMatrix * _matrix;
 
 		_localPosition = translation(m);
-		_localRotation = p->_rotation.inverse() * _rotation;
+		if (p != nullptr)
+			_localRotation = p->_rotation.inverse() * _rotation;
+		else
+			_localRotation = _rotation;
 		_localEulerAngles = _localRotation.eulerAngles();
 		_localScale = scale(_localRotation, m);
-		_matrix = p->_matrix * localMatrix();
+		if (p != nullptr)
+			_matrix = p->_matrix * localMatrix();
+		else
+			_matrix = localMatrix();
 		_lossyScale = scale(_rotation, _matrix);
-		_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		if (p != nullptr)
+			_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		else
+			_inverseMatrix = inverseLocalMatrix();
 		// TODO: update the transform of all scene object's children.
+		for (std::list<cg::SceneObject>::iterator it = sceneObject()->childrenBegin(); it != sceneObject()->childrenEnd(); ++it)
+			it->transform()->update();
 	}
 
 	void

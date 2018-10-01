@@ -58,6 +58,13 @@ Camera::Camera():
 }
 
 void
+Camera::setFocalPoint(const vec3f& value)
+{
+	_focalPoint = value;
+	updateViewMatrix();
+}
+
+void
 Camera::setPosition(const vec3f& value)
 //[]---------------------------------------------------[]
 //|  Set the camera's position                          |
@@ -79,7 +86,7 @@ Camera::setPosition(const vec3f& value)
 	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 	Front = front.versor();
 
-	_focalPoint = _distance * Front;
+	_focalPoint = _distance * Front + _position;
 	updateViewMatrix();
 }
 
@@ -96,7 +103,8 @@ Camera::setEulerAngles(const vec3f& value)
 	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 	Front = front.versor();
 
-	_focalPoint = _distance * Front;
+	_focalPoint = _distance * Front + _position;
+	std::cout << _focalPoint.x << " " << _focalPoint.y << " " << _focalPoint.z << std::endl;
 	updateViewMatrix();
 }
 
@@ -112,7 +120,7 @@ Camera::setRotation(const quatf& value)
 	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 	Front = front.versor();
 
-	_focalPoint = _distance * Front;
+	_focalPoint = _distance * Front + _position;
 	updateViewMatrix();
 }
 
@@ -146,8 +154,9 @@ Camera::setDistance(float value)
 	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 	Front = front.versor();
 
-	_focalPoint = value*Front;
+	_focalPoint = value*Front + _position;
 	_distance = value;
+	updateViewMatrix();
 }
 
 void
@@ -158,6 +167,7 @@ Camera::setViewAngle(float value)
 {
   // TODO
 	_viewAngle = value;
+	updateProjectionMatrix();
 }
 
 void
@@ -170,6 +180,7 @@ Camera::setHeight(float value)
 	_height = value;
 	_position.z = _height + _focalPoint.z;
 	_distance = (_focalPoint - _position).length();
+	updateProjectionMatrix();
 }
 
 void
@@ -180,6 +191,7 @@ Camera::setAspectRatio(float value)
 {
   // TODO
 	_aspectRatio = value;
+	updateProjectionMatrix();
 }
 
 void
@@ -191,6 +203,7 @@ Camera::setClippingPlanes(float F, float B)
   // TODO
 	_F = F;
 	_B = B;
+	updateProjectionMatrix();
 }
 
 void
@@ -207,8 +220,12 @@ Camera::rotateYX(float ay, float ax, bool orbit)
   // TODO
 	if (orbit == true)
 	{
-		_eulerAngles.x = _eulerAngles.x - ay;
-		_eulerAngles.y = _eulerAngles.y - ax;
+		_eulerAngles.x = _eulerAngles.x + ay;
+		_eulerAngles.y = _eulerAngles.y + ax;
+		if (_eulerAngles.y > 89.0f)
+			_eulerAngles.y = 89.0f;
+		if (_eulerAngles.y < -89.0f)
+			_eulerAngles.y = -89.0f;
 
 		mat4f::vec3 front, Front, eulerAnglesInRadians;
 		eulerAnglesInRadians = toRadians3(_eulerAngles);
@@ -223,6 +240,10 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 	{
 		_eulerAngles.x = _eulerAngles.x + ay;
 		_eulerAngles.y = _eulerAngles.y + ax;
+		if (_eulerAngles.y > 89.0f)
+			_eulerAngles.y = 89.0f;
+		if (_eulerAngles.y < -89.0f)
+			_eulerAngles.y = -89.0f;
 
 		mat4f::vec3 front, Front, eulerAnglesInRadians;
 		eulerAnglesInRadians = toRadians3(_eulerAngles);
@@ -231,7 +252,7 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 		front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 		Front = front.versor();
 
-		_focalPoint = _distance * Front;
+		_focalPoint = _distance * Front + _position;
 	}
 	updateViewMatrix();
 }
@@ -303,7 +324,7 @@ Camera::updateProjectionMatrix()
 	if (_projectionType == Perspective)
 		_projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
 	else
-		_projectionMatrix = mat4f::ortho(-1.0f, 1.0f, -1.0f, 1.0f, _F, _B);
+		_projectionMatrix = mat4f::ortho(-1.0f/_height/_height, 1.0f/_height, -1.0f/_height, 1.0f/_height, _F, _B);
 }
 
 void
@@ -317,11 +338,13 @@ Camera::updateViewMatrix()
 	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
 	Front = front.versor();
 
-	Right = Front.cross(WorldUp).versor();
-	Up = Right.cross(Front).versor();
+	Right = (Front.cross(WorldUp)).versor();
+	Up = (Right.cross(Front)).versor();
 
-	_inverseMatrix = _matrix = mat4f::lookAt(_position, _focalPoint, Up);
-	_inverseMatrix.inverse(_matrix);
+	/*_inverseMatrix = _matrix = mat4f::lookAt(_position, _position + Front, Up);*/
+	_matrix = mat4f::lookAt(_position, _position + Front, Up);
+	_inverseMatrix = mat4f::lookAt(_position, _position + Front, Up);
+	_inverseMatrix.inverse(_inverseMatrix);
 }
 
 } // end namespace cg
