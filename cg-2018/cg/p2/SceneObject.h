@@ -65,7 +65,6 @@ namespace cg
 			_components.push_back(new Transform());
 			std::list<Component*>::iterator begin = _components.begin();
 			makeUse((Transform*)(*begin)->mySelf());
-			addComponent((Transform*)(*begin)->mySelf());
 		}
 
 		/// Constructs defined scene object.
@@ -77,12 +76,10 @@ namespace cg
 			_components.push_back(new Transform());
 			std::list<Component*>::iterator begin = _components.begin();
 			makeUse((Transform*)(*begin)->mySelf());
-			addComponent((Transform*)(*begin)->mySelf());
 
 			_components.push_back(p);
 			_primitiveInUse = --_components.end();
 			(*_primitiveInUse)->setMyIterator(_primitiveInUse);
-			addComponent((Primitive*)(*_primitiveInUse)->mySelf());
 		}
 
 		/// Returns the scene which this scene object belong to.
@@ -105,8 +102,10 @@ namespace cg
 
 		void addComponent(Component* component)
 		{
-			component->_sceneObject = this;
+			component->_sceneObject = _myIterator;
 			// TODO
+			Transform* t = (Transform*)(*_components.begin())->mySelf();
+			t->update();
 		}
 
 		Primitive * primitive()

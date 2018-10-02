@@ -88,7 +88,7 @@ namespace cg
 
 	private:
 		const char* const _typeName;
-		SceneObject* _sceneObject{};
+		std::list<SceneObject>::iterator _sceneObject;
 		std::list<Component*>::iterator _myIterator;
 
 		friend class SceneObject;
