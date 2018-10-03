@@ -174,8 +174,6 @@ Camera::setHeight(float value)
 {
   // TODO
 	_height = value;
-	_position.z = _height + _focalPoint.z;
-	_distance = (_focalPoint - _position).length();
 	updateProjectionMatrix();
 }
 
@@ -217,7 +215,7 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 	if (orbit == true)
 	{
 		_eulerAngles.x = _eulerAngles.x + ay;
-		_eulerAngles.y = _eulerAngles.y + ax;
+		_eulerAngles.y = _eulerAngles.y - ax;
 		if (_eulerAngles.y > 89.0f)
 			_eulerAngles.y = 89.0f;
 		if (_eulerAngles.y < -89.0f)
@@ -235,7 +233,7 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 	else
 	{
 		_eulerAngles.x = _eulerAngles.x + ay;
-		_eulerAngles.y = _eulerAngles.y + ax;
+		_eulerAngles.y = _eulerAngles.y - ax;
 		if (_eulerAngles.y > 89.0f)
 			_eulerAngles.y = 89.0f;
 		if (_eulerAngles.y < -89.0f)
@@ -350,7 +348,10 @@ Camera::updateProjectionMatrix()
 	if (_projectionType == Perspective)
 		_projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
 	else
-		_projectionMatrix = mat4f::ortho(-1.0f/_height/_height, 1.0f/_height, -1.0f/_height, 1.0f/_height, _F, _B);
+	{
+		float W = _height * _aspectRatio;
+		_projectionMatrix = mat4f::ortho(-W / 2.0f, W / 2.0f, -_height / 2.0f, _height / 2.0f, _F, _B);
+	}
 }
 
 void

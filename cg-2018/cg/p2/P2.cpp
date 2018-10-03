@@ -88,9 +88,9 @@ inline void
 P2::hierarchyWindow()
 {
   ImGui::Begin("Hierarchy");
-  if (ImGui::Button("Create###object"))
-    ImGui::OpenPopup("CreateObjectPopup");
-  if (ImGui::BeginPopup("CreateObjectPopup"))
+  if (ImGui::Button("Options###object"))
+    ImGui::OpenPopup("OptionsObjectPopup");
+  if (ImGui::BeginPopup("OptionsObjectPopup"))
   {
 	  if (ImGui::MenuItem("New Empty Object"))
 	  {
@@ -231,7 +231,7 @@ ColorEdit3(const char* label, Color& color)
 inline bool
 DragVec3(const char* label, vec3f& v)
 {
-  return DragFloat3(label, (float*)&v, 0.1f, 0.0f, 0.0f, "%.2g");
+  return DragFloat3(label, (float*)&v, 0.1f, 0.0f, 0.0f, "%.2f");
 }
 
 void
@@ -391,7 +391,7 @@ P2::cameraGui()
       MAX_ANGLE,
       "%.0f deg",
       1.0f))
-      _camera->setViewAngle(fov <= MIN_ANGLE ? MIN_ANGLE : fov);
+      _camera->setViewAngle(fov <= MIN_ANGLE ? MIN_ANGLE : (fov >= MAX_ANGLE ? MAX_ANGLE : fov) );
   }
   else
   {
@@ -601,26 +601,10 @@ P2::render()
   _program.setUniformVec4("ambientLight", _scene->ambientLight);
   _program.setUniformVec3("lightPosition", _camera->position());
 
-  //auto m = glMesh(_primitive->mesh());
-
-  /*if (nullptr == m)
-    return;*/
-
   // New
   for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
 	  it->render(&_program);
 
-  /*auto t = _primitive->transform();
-  auto normalMatrix = mat3f{t->worldToLocalMatrix()}.transposed();
-
-  _program.setUniformMat4("transform", t->localToWorldMatrix());
-  _program.setUniformMat3("normalMatrix", normalMatrix);
-  _program.setUniformVec4("color", _primitive->color);
-  _program.setUniform("flatMode", (int)0);
-  m->bind();
-  renderMesh(m, GL_FILL);
-  if (_current != _box)
-    return;*/
   if (_current != _scene) // desenha o selecionado
   {
 	  cg::SceneObject *object = (cg::SceneObject*)_current;
