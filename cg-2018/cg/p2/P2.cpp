@@ -364,6 +364,15 @@ P2::cameraGui()
   if (ImGui::DragVec3("Rotation", temp))
     _camera->setEulerAngles(temp);
 
+  auto d = _camera->distance();
+
+  if (ImGui::DragFloat("Distance",
+	  &d,
+	  MIN_DISTANCE * 10.0f,
+	  MIN_DISTANCE,
+	  math::Limits<float>::inf()))
+	  _camera->setDistance(d <= MIN_DISTANCE ? MIN_DISTANCE : d);
+
   static const char* projectionNames[]{"Perspective", "Orthographic"};
   auto cp = _camera->projectionType();
 
@@ -402,7 +411,7 @@ P2::cameraGui()
       MIN_HEIGHT * 10.0f,
       MIN_HEIGHT,
       math::Limits<float>::inf()))
-      _camera->setHeight(h <= 0 ? MIN_HEIGHT : h);
+      _camera->setHeight(h <= MIN_HEIGHT ? MIN_HEIGHT : h);
   }
 
   float n;

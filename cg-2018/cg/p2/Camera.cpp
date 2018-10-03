@@ -135,14 +135,12 @@ Camera::setDistance(float value)
 //[]---------------------------------------------------[]
 {
   // TODO
-	mat4f::vec3 front, Front, eulerAnglesInRadians;
-	eulerAnglesInRadians = toRadians3(_eulerAngles);
-	front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-	front.y = sin(eulerAnglesInRadians.y);
-	front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-	Front = front.versor();
+	mat4f::vec3 DOP;
+	DOP = vec3f((_focalPoint.x - _position.x) / _distance,
+		(_focalPoint.y - _position.y) / _distance,
+		(_focalPoint.z - _position.z) / _distance);
 
-	_focalPoint = value*Front + _position;
+	_focalPoint = value * DOP + _position;
 	_distance = value;
 	updateViewMatrix();
 }

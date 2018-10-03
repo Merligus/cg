@@ -1,2 +1,20 @@
 ﻿  Camera.cpp
+  P2.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(117): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(118): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(119): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(126): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  Gerando Código...
   p2.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\p2\build\vs2017\..\..\p2.exe
