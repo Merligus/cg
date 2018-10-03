@@ -101,6 +101,25 @@ namespace cg
 			//auto open = ImGui::TreeNode(this, this->name());
 			if (ImGui::IsItemClicked())
 				current = this;
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (auto* payload = ImGui::AcceptDragDropPayload("Objeto"))
+				{
+					auto mit = *(std::list<SceneObject>::iterator*)payload->Data;
+					mit->setParent(this);
+					auto it2 = --this->childrenEnd();
+					mit->autoDelete();
+					current = it2->mySelf();
+				}
+				ImGui::EndDragDropTarget();
+			}
+			if (ImGui::BeginDragDropSource())
+			{
+				auto mit = _myIterator;
+				ImGui::SetDragDropPayload("Objeto", &mit, sizeof(mit));
+				ImGui::Text("Move %s", _myIterator->name());
+				ImGui::EndDragDropSource();
+			}
 			if (open)
 			{
 				for (std::list<SceneObject>::iterator it = _children.begin(); it != _children.end(); ++it)
@@ -117,8 +136,47 @@ namespace cg
 				this->name());
 			if (ImGui::IsItemClicked())
 				current = this;
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (auto* payload = ImGui::AcceptDragDropPayload("Objeto"))
+				{
+					auto mit = *(std::list<SceneObject>::iterator*)payload->Data;
+					mit->setParent(this);
+					auto it2 = --(this->childrenEnd());
+					mit->autoDelete();
+					current = it2->mySelf();
+				}
+				ImGui::EndDragDropTarget();
+			}
+			if (ImGui::BeginDragDropSource())
+			{
+				auto mit = _myIterator;
+				ImGui::SetDragDropPayload("Objeto", &mit, sizeof(mit));
+				ImGui::Text("Move %s", _myIterator->name());
+				ImGui::EndDragDropSource();
+			}
 		}
 		return current;
+	}
+
+	void
+		SceneObject::atualizaArvore(std::list<SceneObject>::iterator velho)
+	{
+		_children.clear();
+		for (std::list<SceneObject>::iterator it = velho->childrenBegin(); it != velho->childrenEnd(); ++it) // copia _children
+		{
+			std::list<cg::SceneObject>::iterator it3 = _myIterator->appendChildren(*it);
+			it3->setParent(_myIterator->mySelf(), false);
+			it3->transform()->_sceneObject = it3;
+			it3->transform()->setMyIterator(it3->componentsBegin());
+			if (it3->componentsSize() > 1)
+			{
+				it3->setPrimitiveInUse(--it3->componentsEnd());
+				it3->primitive()->_sceneObject = it3;
+				it3->primitive()->setMyIterator(--it3->componentsEnd());
+			}
+			it3->atualizaArvore(it);
+		}
 	}
 
 	void
@@ -165,7 +223,7 @@ namespace cg
 		return _components.end();
 	}
 
-	auto
+	unsigned int
 		SceneObject::componentsSize()
 	{
 		return _components.size();

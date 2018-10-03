@@ -94,18 +94,55 @@ namespace cg
 	}; // Scene
 
 	inline void
-		SceneObject::setParent(SceneObject* parent)
+		SceneObject::setParent(SceneObject* parent, bool flag)
 	{
 		std::cout << "Atualiza pai" << std::endl;
 		// atualiza a lista do antigo pai
-		if (myIteratorSet)
+		if (myIteratorSet && flag)
 		{
-			if (_parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
-				_scene->remove(_myIterator);
+			if (parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
+			{
+				// copia transform primitive e children
+				auto newBox = new cg::SceneObject{ name(), *_scene };
+				newBox->setParent(parent, false);
+				auto it2 = _scene->append(*newBox);
+				SceneObject* aux = _myIterator->parent();
+				_parent = parent;
+				transform()->parentChanged();
+				_parent = aux;
+				it2->addComponent(transform()); // copia transform
+				it2->transform()->setMyIterator(it2->componentsBegin());
+				if (componentsSize() > 1) // Quer dizer que nao eh empty object
+				{
+					auto p = it2->addComponent(primitive());
+					it2->setPrimitiveInUse(p);
+					(*p)->setMyIterator(p);
+				}
+				it2->atualizaArvore(_myIterator);
+			}
 			else // atualizar a lista do pai atual e inserir no novo pai
-				_parent->removeChildren(_myIterator); // retira do pai antigo
+			{
+				// copia transform primitive e children
+				auto newBox = new cg::SceneObject{ name(), *_scene };
+				newBox->setParent(parent, false);
+				auto it2 = parent->appendChildren(*newBox);
+				SceneObject* aux = _myIterator->parent();
+				_parent = parent;
+				transform()->parentChanged();
+				_parent = aux;
+				it2->addComponent(transform()); // copia transform
+				it2->transform()->setMyIterator(it2->componentsBegin());
+				if (componentsSize() > 1) // Quer dizer que nao eh empty object
+				{
+					auto p = it2->addComponent(primitive());
+					it2->setPrimitiveInUse(p);
+					(*p)->setMyIterator(p);
+				}
+				it2->atualizaArvore(_myIterator);
+			}
 		}
-		_parent = parent; // atualiza o novo pai
+		else
+			_parent = parent; // atualiza o novo pai
 	}
 
 	inline SceneNode*

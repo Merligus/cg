@@ -25,37 +25,37 @@ P2::buildScene()
 	cg::Scene *currentScene = _scene;
 	cg::SceneObject *newBox, *currentBox;
 	std::list<cg::SceneObject>::iterator it;
-	std::list<Component*>::iterator begin;
+	std::list<Component*>::iterator p;
 
 	newBox = new cg::SceneObject{ "Object 1", *currentScene }; // criando box nivel 1
 	it = currentScene->append(*newBox);
 	it->setMyIterator(it);
-	begin = it->componentsBegin();
-	it->addComponent((Transform*)(*begin)->mySelf());
+	it->addComponent(new Transform());
 
 	currentBox = it->mySelf(); // criando box nivel 2
-	newBox = new cg::SceneObject{ "Box 1.1", *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+	newBox = new cg::SceneObject{ "Box 1.1", *currentScene };
 	newBox->setParent(currentBox);
 	it = currentBox->appendChildren(*newBox);
 	it->setMyIterator(it);
-	begin = it->componentsBegin();
-	it->addComponent((Transform*)(*begin)->mySelf());
-	it->addComponent((Primitive*)it->primitive());
+	it->addComponent(new Transform());
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+	it->setPrimitiveInUse(p);
+	(*p)->setMyIterator(p);
 
 	newBox = new cg::SceneObject{ "Object 2", *currentScene }; // criando object nivel 1
 	it = currentScene->append(*newBox);
 	it->setMyIterator(it);
-	begin = it->componentsBegin();
-	it->addComponent((Transform*)(*begin)->mySelf());
+	it->addComponent(new Transform());
 
 	currentBox = it->mySelf(); // criando box nivel 2
-	newBox = new cg::SceneObject{ "Box 2.1", *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+	newBox = new cg::SceneObject{ "Box 2.1", *currentScene };
 	newBox->setParent(currentBox);
 	it = currentBox->appendChildren(*newBox);
 	it->setMyIterator(it);
-	begin = it->componentsBegin();
-	it->addComponent((Transform*)(*begin)->mySelf());
-	it->addComponent((Primitive*)it->primitive());
+	it->addComponent(new Transform());
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+	it->setPrimitiveInUse(p);
+	(*p)->setMyIterator(p);
 
   /*_current = _scene = new Scene{"Scene 1"};
   _box = new SceneObject{"Box 1", *_scene};
@@ -96,7 +96,6 @@ P2::hierarchyWindow()
 	  {
 		  cg::SceneObject *newBox;
 		  cg::Scene *currentScene = _scene;
-		  std::list<Component*>::iterator begin;
 
 		  std::string objectIndex("Object ");
 		  static int i = 1;
@@ -109,8 +108,7 @@ P2::hierarchyWindow()
 			  newBox = new cg::SceneObject{ objectIndex.c_str(), *currentScene };
 			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
 			  it->setMyIterator(it); // criando nova raíz
-			  begin = it->componentsBegin();
-			  it->addComponent((Transform*)(*begin)->mySelf());
+			  it->addComponent(new Transform());
 		  }
 		  else
 		  {
@@ -120,8 +118,7 @@ P2::hierarchyWindow()
 			  newBox->setParent(currentBox);
 			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
 			  it->setMyIterator(it); // criando child
-			  begin = it->componentsBegin();
-			  it->addComponent((Transform*)(*begin)->mySelf());
+			  it->addComponent(new Transform());
 		  }
 	  }
 	  if (ImGui::BeginMenu("New 3D Object"))
@@ -130,7 +127,7 @@ P2::hierarchyWindow()
 		  {
 			  cg::SceneObject *newBox;
 			  cg::Scene *currentScene = _scene;
-			  std::list<Component*>::iterator begin;
+			  std::list<Component*>::iterator p;
 
 			  std::string boxIndex("Box ");
 			  static int index = 1;
@@ -140,24 +137,26 @@ P2::hierarchyWindow()
 			  if (_current == nullptr || _current == _scene)
 			  {
 				  std::cout << "\tCria raiz\n";
-				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene };
 				  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
 				  it->setMyIterator(it); // criando nova raíz
-				  begin = it->componentsBegin();
-				  it->addComponent((Transform*)(*begin)->mySelf());
-				  it->addComponent((Primitive*)it->primitive());
+				  it->addComponent(new Transform());
+				  p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				  it->setPrimitiveInUse(p);
+				  (*p)->setMyIterator(p);
 			  }
 			  else
 			  {
 				  cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
 				  std::cout << "\tCria com pai\n";
-				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene, (cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")) };
+				  newBox = new cg::SceneObject{ boxIndex.c_str(), *currentScene };
 				  newBox->setParent(currentBox);
 				  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
 				  it->setMyIterator(it); // criando child
-				  begin = it->componentsBegin();
-				  it->addComponent((Transform*)(*begin)->mySelf());
-				  it->addComponent((Primitive*)it->primitive());
+				  it->addComponent(new Transform());
+				  p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				  it->setPrimitiveInUse(p);
+				  (*p)->setMyIterator(p);
 			  }
 		  }
 		  ImGui::EndMenu();
@@ -182,9 +181,20 @@ P2::hierarchyWindow()
 
   if (ImGui::IsItemClicked())
 	  _current = _scene;
+  if (ImGui::BeginDragDropTarget())
+  {
+	  if (auto* payload = ImGui::AcceptDragDropPayload("Objeto"))
+	  {
+		  auto mit = *(std::list<SceneObject>::iterator*)payload->Data;
+		  mit->setParent(nullptr);
+		  auto it2 = --_scene->containerEnd();
+		  mit->autoDelete();
+		  _current = it2->mySelf();
+	  }
+	  ImGui::EndDragDropTarget();
+  }
   if (open)
   {
-
 	  for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
 		  _current = it->show(flag, _current);
 
@@ -544,10 +554,9 @@ P2::gui()
   assetsWindow();
   rendererWindow();
 
-  /*
-  static bool demo = true;
-  ImGui::ShowDemoWindow(&demo);
-  */
+  
+  /*static bool demo = true;
+  ImGui::ShowDemoWindow(&demo);*/
 }
 
 inline void

@@ -62,24 +62,7 @@ namespace cg
 			_scene{ &scene },
 			_parent{}
 		{
-			_components.push_back(new Transform());
-			std::list<Component*>::iterator begin = _components.begin();
-			makeUse((Transform*)(*begin)->mySelf());
-		}
 
-		/// Constructs defined scene object.
-		SceneObject(const char* name, Scene& scene, Primitive * p) :
-			SceneNode{ name },
-			_scene{ &scene },
-			_parent{}
-		{
-			_components.push_back(new Transform());
-			std::list<Component*>::iterator begin = _components.begin();
-			makeUse((Transform*)(*begin)->mySelf());
-
-			_components.push_back(p);
-			_primitiveInUse = --_components.end();
-			(*_primitiveInUse)->setMyIterator(_primitiveInUse);
 		}
 
 		/// Returns the scene which this scene object belong to.
@@ -100,12 +83,20 @@ namespace cg
 			return (Transform*)((*_components.begin())->mySelf());
 		}
 
-		void addComponent(Component* component)
+		std::list<Component*>::iterator addComponent(Component* component)
 		{
 			component->_sceneObject = _myIterator;
 			// TODO
-			Transform* t = (Transform*)(*_components.begin())->mySelf();
-			t->update();
+			_components.push_back(component);
+
+			if (_components.size() == 1)
+			{
+				std::list<Component*>::iterator begin = _components.begin();
+				makeUse((Transform*)(*begin)->mySelf());
+				Transform* t = (Transform*)(*_components.begin())->mySelf();
+				t->update();
+			}
+			return --_components.end();
 		}
 
 		Primitive * primitive()
@@ -117,7 +108,7 @@ namespace cg
 		}
 
 		/// Sets the parent of this scene object.
-		void setParent(SceneObject* parent); /// implementado em Scene.h
+		void setParent(SceneObject* parent, bool flag = true); /// implementado em Scene.h
 		void setMyIterator(std::list<SceneObject>::iterator it);
 		SceneObject* mySelf();
 		SceneNode* autoDelete(); /// implementado em Scene.h
@@ -128,12 +119,13 @@ namespace cg
 		std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
 
 		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
+		void atualizaArvore(std::list<SceneObject>::iterator velho);
 		void render(GLSL::Program *program);
 
 		void setPrimitiveInUse(std::list<Component*>::iterator it);
 		std::list<Component*>::iterator componentsBegin();
 		std::list<Component*>::iterator componentsEnd();
-		auto componentsSize();
+		unsigned int componentsSize();
 		std::list<Component*>::iterator appendComponents(Component* novo);
 		std::list<Component*>::iterator removeComponents(std::list<Component*>::iterator it);
 

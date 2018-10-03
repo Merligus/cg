@@ -178,7 +178,11 @@ namespace cg
 		Transform::parentChanged()
 	{
 		auto p = parent();
-		auto m = p->_inverseMatrix * _matrix;
+		mat4f m;
+		if(p != nullptr)
+			m = p->_inverseMatrix * _matrix;
+		else
+			m = _matrix;
 
 		_localPosition = translation(m);
 		if (p != nullptr)
@@ -197,8 +201,9 @@ namespace cg
 		else
 			_inverseMatrix = inverseLocalMatrix();
 		// TODO: update the transform of all scene object's children.
-		for (std::list<cg::SceneObject>::iterator it = sceneObject()->childrenBegin(); it != sceneObject()->childrenEnd(); ++it)
-			it->transform()->update();
+		SceneObject* sceneO = sceneObject()->mySelf();
+		for (std::list<cg::SceneObject>::iterator it = sceneO->childrenBegin(); it != sceneO->childrenEnd(); ++it)
+			it->transform()->parentChanged();
 	}
 
 	void
