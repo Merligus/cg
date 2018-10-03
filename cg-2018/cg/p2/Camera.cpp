@@ -88,6 +88,7 @@ Camera::setEulerAngles(const vec3f& value)
 {
   // TODO
 	_eulerAngles = value;
+	_eulerAngles = vec3f((float)((int)(_eulerAngles.x*100)%36000)/100, (float)((int)(_eulerAngles.y*100)%36000)/100, (float)((int)(_eulerAngles.z*100)%36000)/100);
 	if (_eulerAngles.y > 89.0f)
 		_eulerAngles.y = 89.0f;
 	if (_eulerAngles.y < -89.0f)
@@ -212,42 +213,24 @@ Camera::rotateYX(float ay, float ax, bool orbit)
 //[]---------------------------------------------------[]
 {
   // TODO
+	_eulerAngles.x = _eulerAngles.x + ay;
+	_eulerAngles.y = _eulerAngles.y - ax;
+	if (_eulerAngles.y > 89.0f)
+		_eulerAngles.y = 89.0f;
+	if (_eulerAngles.y < -89.0f)
+		_eulerAngles.y = -89.0f;
+	_eulerAngles = vec3f((float)((int)(_eulerAngles.x * 100) % 36000) / 100, _eulerAngles.y, _eulerAngles.z);
+	mat4f::vec3 DOP, eulerAnglesInRadians;
+	eulerAnglesInRadians = toRadians3(_eulerAngles);
+	DOP.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	DOP.y = sin(eulerAnglesInRadians.y);
+	DOP.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
+	DOP = DOP.versor();
+	
 	if (orbit == true)
-	{
-		_eulerAngles.x = _eulerAngles.x + ay;
-		_eulerAngles.y = _eulerAngles.y - ax;
-		if (_eulerAngles.y > 89.0f)
-			_eulerAngles.y = 89.0f;
-		if (_eulerAngles.y < -89.0f)
-			_eulerAngles.y = -89.0f;
-
-		mat4f::vec3 front, Front, eulerAnglesInRadians;
-		eulerAnglesInRadians = toRadians3(_eulerAngles);
-		front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-		front.y = sin(eulerAnglesInRadians.y);
-		front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-		Front = front.versor();
-
-		_position = _focalPoint -_distance * Front;
-	}
+		_position = _focalPoint -_distance * DOP;
 	else
-	{
-		_eulerAngles.x = _eulerAngles.x + ay;
-		_eulerAngles.y = _eulerAngles.y - ax;
-		if (_eulerAngles.y > 89.0f)
-			_eulerAngles.y = 89.0f;
-		if (_eulerAngles.y < -89.0f)
-			_eulerAngles.y = -89.0f;
-
-		mat4f::vec3 front, Front, eulerAnglesInRadians;
-		eulerAnglesInRadians = toRadians3(_eulerAngles);
-		front.x = cos(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-		front.y = sin(eulerAnglesInRadians.y);
-		front.z = sin(eulerAnglesInRadians.x) * cos(eulerAnglesInRadians.y);
-		Front = front.versor();
-
-		_focalPoint = _distance * Front + _position;
-	}
+		_focalPoint = _distance * DOP + _position;
 	updateViewMatrix();
 }
 
@@ -314,7 +297,7 @@ Camera::translate(float dx, float dy, float dz)
 		_focalPoint += Right * dx;
 	}
 	_position.y += dy;
-	_focalPoint.y += dy * Front.y;
+	_focalPoint.y += dy;
 
 	updateViewMatrix();
 }

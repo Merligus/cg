@@ -42,7 +42,7 @@ namespace cg
 // SceneNode implementation
 // =========
 	void
-		SceneNode::setName(const char* format, ...)
+		NameableObject::setName(const char* format, ...)
 	{
 		const int bufferSize{ 128 };
 		char buffer[bufferSize];

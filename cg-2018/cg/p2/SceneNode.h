@@ -61,26 +61,25 @@ namespace cg
 			return dynamic_cast<const T*>(this);
 		}
 		/// Returns the name of this scene node.
-		auto name() const
+		/*auto name() const
 		{
 			return _name.c_str();
 		}
 
 		/// Sets the name of this scene node.
-		void setName(const char* format, ...);
+		void setName(const char* format, ...);*/
 
 
 	protected:
 		SceneNode() = default;
 
-		SceneNode(const char* name) :
-			_name{ name }
+		SceneNode(const char* name)
 		{
-			// do nothing
+			NameableObject::setName(name);
 		}
 
-	private:
-		std::string _name;
+	/*private:
+		std::string _name;*/
 
 	}; // SceneNode
 

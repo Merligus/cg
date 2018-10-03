@@ -219,7 +219,7 @@ ObjectNameInput(NameableObject* object)
     current = object;
   }
   if (ImGui::InputText("Name", buffer, bufferSize))
-    object->setName(buffer);
+	  object->setName(buffer);
 }
 
 inline bool
@@ -244,10 +244,10 @@ TransformEdit(Transform* transform)
     transform->setLocalPosition(temp);
   temp = transform->localEulerAngles();
   if (ImGui::DragVec3("Rotation", temp))
-	  transform->setLocalEulerAngles(temp);
+    transform->setLocalEulerAngles(temp);
   temp = transform->localScale();
   if (ImGui::DragVec3("Scale", temp))
-	  transform->setLocalScale(temp);
+    transform->setLocalScale(temp);
 }
 
 } // end namespace ImGui
