@@ -20,13 +20,35 @@ Gustavo de Jesus Merli
 	ao ponto de foco da câmera. Ela também muda a rapidez da movimentação da câmera.
 	- Opção delete.
 
-5. Objetos de cena
-	male base (Human.obj) -> https://free3d.com/3d-model/male-base-mesh-6682.html
-	iron man (IronMan.obj) -> https://free3d.com/3d-model/ironman-rigged-original-model--98611.html
-	house (House15.obj) -> https://free3d.com/3d-model/house-15-71141.html
-	bmw (BMW X5 4.obj) -> https://free3d.com/3d-model/bmw-x5-1542.html
-	resident building (Residential Buildings 0##.obj) -> https://free3d.com/3d-model/array-house-example-3033.html
-	lamborghini (Avent.obj) -> https://free3d.com/3d-model/lamborghini-aventador-42591.html
-	grass (Gras_0#.obj) -> https://free3d.com/3d-model/grass-pack-71861.html
-	tree (Tree.obj) -> https://free3d.com/3d-model/tree-74556.html
-	knight (knight.obj) -> https://free3d.com/3d-model/knight-13720.html
+5. Explicação matemática
+	- A1, métodos para cálculo das matrizes de projeção, visão e sa inversa: 
+		No método para a matriz de projeção (updateProjectionMatrix), se a opção de projeção ortográfica
+	fosse selecionada, a função ortho() com seus devidos parâmetros era chamada apenas calculando
+	o "width" utilizando o atributo "\_height" e "\_aspectRatio", e caso a opção de projeção perspectiva
+	fosse selecionada, a função perspective() era chamada com seus devidos parâmetros. 
+		No método para a matriz de visão e sua inversa (updateViewMatrix), foram utilizadas 4 variáveis
+	para calcular as matrizes: 
+		- WorldUp que é o vetor que aponta para cima e não precisa ser calculado já que é uma constante 
+		do tipo vetor (0, 1, 0);
+		- DOP (Direction Of Projection) que aponta para onde a câmera está olhando e é a terceira coluna
+		da matriz 3x3 de rotação onde essa matriz é calculada a partir da conversão do atributo quatérnio
+		"rotation" para uma matriz 3x3;
+		- Right que aponta para a direita da câmera é calculada fazendo o produto vetorial DOP x WorldUp;
+		- VUP (View Up) que aponta para cima da câmera e é calculada fazendo o produto vetorial Right x DOP.
+
+		Além do atributo "position" as variáveis DOP e VUP foram passadas como parâmetro na função lookat()
+	que calcula a matriz de visão. A sua inversa foi calculada usando a função inverse().
+	- A2, setPosition(p), setEulerAngles(a), setRotation(q):
+		No método para o cálculo da posição a variável DOP foi calculada a partir dos atributos "focalPoint"
+		e "\_position" e 
+
+6. Objetos de cena
+	- male base (Human.obj) -> https://free3d.com/3d-model/male-base-mesh-6682.html
+	- iron man (IronMan.obj) -> https://free3d.com/3d-model/ironman-rigged-original-model--98611.html
+	- house (House15.obj) -> https://free3d.com/3d-model/house-15-71141.html
+	- bmw (BMW X5 4.obj) -> https://free3d.com/3d-model/bmw-x5-1542.html
+	- resident building (Residential Buildings 0##.obj) -> https://free3d.com/3d-model/array-house-example-3033.html
+	- lamborghini (Avent.obj) -> https://free3d.com/3d-model/lamborghini-aventador-42591.html
+	- grass (Gras_0#.obj) -> https://free3d.com/3d-model/grass-pack-71861.html
+	- tree (Tree.obj) -> https://free3d.com/3d-model/tree-74556.html
+	- knight (knight.obj) -> https://free3d.com/3d-model/knight-13720.html
