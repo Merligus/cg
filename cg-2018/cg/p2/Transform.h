@@ -102,10 +102,6 @@ namespace cg
 		void setLocalEulerAngles(const vec3f& angles)
 		{
 			vec3f aux = angles;
-			if (angles.y > 89.0f)
-				aux.y = 89.0f;
-			if (angles.y < -89.0f)
-				aux.y = -89.0f;
 			_localEulerAngles = aux;
 			_localRotation = quatf::eulerAngles(aux);
 			update();

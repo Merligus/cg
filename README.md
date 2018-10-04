@@ -39,8 +39,11 @@ Gustavo de Jesus Merli
 		Além do atributo "position" as variáveis DOP e VUP foram passadas como parâmetro na função lookat()
 	que calcula a matriz de visão. A sua inversa foi calculada usando a função inverse().
 	- A2, setPosition(p), setEulerAngles(a), setRotation(q):
-		No método para o cálculo da posição a variável DOP foi calculada a partir dos atributos "focalPoint"
-		e "\_position" e 
+			No método setPosition(p), o versor DOP foi calculada a partir dos atributos "\_focalPoint",
+		ântigo "\_position" e "\_distance" (DOP = (\_focalPoint - \position)/\_distance), em seguida a
+		posição era atualizada com "p" e depois o novo ponto focal era calculado fazendo
+		\_focalPoint = \_distance * DOP + \_position. 
+			No método setEulerAngles(a), 
 
 6. Objetos de cena
 	- male base (Human.obj) -> https://free3d.com/3d-model/male-base-mesh-6682.html
