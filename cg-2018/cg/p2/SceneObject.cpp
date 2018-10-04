@@ -184,7 +184,7 @@ namespace cg
 	{
 		if (this->visible)
 		{
-			if (this->primitive() != nullptr)
+			if (this->primitive()->mesh() != nullptr)
 			{
 				cg::GLMesh * m = glMesh((this->primitive())->mesh());
 				cg::Transform *t = transform();

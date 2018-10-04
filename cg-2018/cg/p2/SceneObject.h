@@ -101,8 +101,8 @@ namespace cg
 
 		Primitive * primitive()
 		{
-			if (_components.size() > 1)
-				return (Primitive*)((*_primitiveInUse)->mySelf());
+			if ((*_primitiveInUse) != nullptr)
+				return (Primitive*)(*_primitiveInUse)->mySelf();
 			else
 				return nullptr;
 		}

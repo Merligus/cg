@@ -31,6 +31,9 @@ P2::buildScene()
 	it = currentScene->append(*newBox);
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+	it->setPrimitiveInUse(p);
+	(*p)->setMyIterator(p);
 
 	currentBox = it->mySelf(); // criando box nivel 2
 	newBox = new cg::SceneObject{ "Box 1.1", *currentScene };
@@ -46,6 +49,9 @@ P2::buildScene()
 	it = currentScene->append(*newBox);
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+	it->setPrimitiveInUse(p);
+	(*p)->setMyIterator(p);
 
 	currentBox = it->mySelf(); // criando box nivel 2
 	newBox = new cg::SceneObject{ "Box 2.1", *currentScene };
@@ -109,6 +115,9 @@ P2::hierarchyWindow()
 			  std::list<cg::SceneObject>::iterator it = currentScene->append(*newBox);
 			  it->setMyIterator(it); // criando nova raíz
 			  it->addComponent(new Transform());
+			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+			  it->setPrimitiveInUse(p);
+			  (*p)->setMyIterator(p);
 		  }
 		  else
 		  {
@@ -119,6 +128,9 @@ P2::hierarchyWindow()
 			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(*newBox);
 			  it->setMyIterator(it); // criando child
 			  it->addComponent(new Transform());
+			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+			  it->setPrimitiveInUse(p);
+			  (*p)->setMyIterator(p);
 		  }
 	  }
 	  if (ImGui::BeginMenu("New 3D Object"))
@@ -617,7 +629,7 @@ P2::render()
   if (_current != _scene) // desenha o selecionado
   {
 	  cg::SceneObject *object = (cg::SceneObject*)_current;
-	  if (object->visible && object->primitive() != nullptr)
+	  if (object->visible && object->primitive()->mesh() != nullptr)
 	  {
 		  cg::GLMesh * m;
 		  cg::Transform *t = object->transform();
