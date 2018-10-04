@@ -99,3 +99,4 @@ Gustavo de Jesus Merli
 	- grass (Gras_0#.obj) -> https://free3d.com/3d-model/grass-pack-71861.html
 	- tree (Tree.obj) -> https://free3d.com/3d-model/tree-74556.html
 	- knight (knight.obj) -> https://free3d.com/3d-model/knight-13720.html
+	- torre eiffel (Torre_Eiffel.obj) -> https://www.yobi3d.com/c/esViilOvIu1P0Blk
