@@ -20,17 +20,19 @@ Gustavo de Jesus Merli
 	ao ponto de foco da câmera. Ela também muda a rapidez da movimentação da câmera.
 	- Opção delete.
 
-5. Explicação matemática
+5. Explicação matemática dos métodos
 	- A1, métodos para cálculo das matrizes de projeção, visão e sa inversa: 
+
 		No método para a matriz de projeção (updateProjectionMatrix), se a opção de projeção ortográfica
 	fosse selecionada, a função ortho() com seus devidos parâmetros era chamada apenas calculando
 	o "width" utilizando o atributo "\_height" e "\_aspectRatio", e caso a opção de projeção perspectiva
 	fosse selecionada, a função perspective() era chamada com seus devidos parâmetros. 
+
 		No método para a matriz de visão e sua inversa (updateViewMatrix), foram utilizadas 4 variáveis
 	para calcular as matrizes: 
 		- WorldUp que é o vetor que aponta para cima e não precisa ser calculado já que é uma constante 
 		do tipo vetor (0, 1, 0);
-		- DOP (Direction Of Projection) que aponta para onde a câmera está olhando e é a terceira coluna
+		- DOP (Direction Of Projection) que aponta para onde a câmera está olhando e é menos a terceira coluna
 		da matriz 3x3 de rotação onde essa matriz é calculada a partir da conversão do atributo quatérnio
 		"rotation" para uma matriz 3x3;
 		- Right que aponta para a direita da câmera é calculada fazendo o produto vetorial DOP x WorldUp;
@@ -39,11 +41,53 @@ Gustavo de Jesus Merli
 		Além do atributo "position" as variáveis DOP e VUP foram passadas como parâmetro na função lookat()
 	que calcula a matriz de visão. A sua inversa foi calculada usando a função inverse().
 	- A2, setPosition(p), setEulerAngles(a), setRotation(q):
+
 			No método setPosition(p), o versor DOP foi calculada a partir dos atributos "\_focalPoint",
 		ântigo "\_position" e "\_distance" (DOP = (\_focalPoint - \position)/\_distance), em seguida a
 		posição era atualizada com "p" e depois o novo ponto focal era calculado fazendo
 		\_focalPoint = \_distance * DOP + \_position. 
-			No método setEulerAngles(a), 
+
+			No método setEulerAngles(a), o vetor de ângulos "a" era atribuido a "\_eulerAngles", e 
+		em seguida era tratado fazendo módulo 360 para que não ficasse um ângulo muito grande.
+		O ângulo y que rotaciona em torno do eixo x era também tratado para que não passasse de 
+		89° ou -89° assim ele não invertia a imagem da visão. Caso o DOP fosse calculado a partir 
+		do ponto focal e posição da câmera, a configuração dos ângulos de euler não fariam efeito 
+		logo para o cálculo de DOP, os ângulos de euler no atributo "\_eulerAngles" eram convertidos 
+		para quaterniões e setados ao atributo "\_rotation" do tipo quatérnio, assim DOP era calculado 
+		usando a matriz 3x3 da conversão de quatérnio para matriz 3x3 do atributo "\_rotation". Assim 
+		o ponto focal era calculado fazendo \_focalPoint = \_distance * DOP + \_position.
+
+		No método setRotation(q), o quatérnio "q" era passado para o atributo de classe "_rotation" apenas.
+	- A3, setViewAngle(value), setHeight(value), setAspectRatio(value), setClippingPlanes(F, B), setProjectionType(value), setDistance(value):
+
+			Os métodos setViewAngle(value) setHeight(value), setAspectRatio(value), setClippingPlanes(F, B) 
+		e setProjectionType(value) apenas passavam os parâmetros para os respectivos atributos de classe.
+
+			O método setDistance(value) calculava DOP a partir do ponto focal e posição da câmera e 
+		calculava o novo ponto focal que seria mais distante além de passar o parâmetro "value" 
+		ao atributo "\_distance".
+	- A4, zoom(s), translate(dx, dy, dz), rotateYX(ay, ax, orbit):
+
+			O método zoom(s), caso o modo de projeção fosse paralelo, dividia o atributo "\_height" pelo
+		parâmetro "zoom" e caso o modo de projeção fosse perspectiva dividia o atributo "\_viewAngle" 
+		por "zoom".
+
+			O método translate(dx, dy, dz) usa as variáveis WorldUp, Right e VUP para calcular o ponto
+		focal e a posição da câmera. O WorldUp aponta sempre no sentido positivo do eixo y e é usado para 
+		calcular a variável Right que aponta para a direita da câmera (Right = DOP x WorldUp) e a variável 
+		VUP que aponta no sentido cima da câmera (VUP = Right x DOP). Com as variáveis DOP e dz é possível calcular 
+		a intensidade da movimentação no plano xz no sentido frente e trás da câmera. Com as variáveis Right
+		e dx é possível calcular a intensidade da movimentação no plano xz no sentido esquerda e direita da 
+		câmera. Com as variáveis VUP e dy é possível calcular a intensidade da movimentação no plano xy no 
+		sentido cima e baixo da câmera.
+
+			O método rotateYX(ay, ax, orbit), ay graus rotaciona no eixo y logo é somado ao atributo 
+		"\_eulerAngles.x" e e ax graus rotaciona no eixo x logo é somado ao atributo "\_eulerAngles.y". 
+		As variáveis x e y de "\_eulerAngles" são tratadas para não passar de +/- 360° e +/-89° respectivamente. 
+		Os ângulos de euler no atributo "\_eulerAngles" foram convertidos para quaterniões e setados ao 
+		atributo "\_rotation" do tipo quatérnio, assim DOP era calculado usando a matriz 3x3 da conversão 
+		de quatérnio para matriz 3x3 do atributo "\_rotation". Se o parâmetro "orbit" fosse verdadeiro 
+		apenas a posição era recalculada, caso contrário o ponto focal era recalculado.
 
 6. Objetos de cena
 	- male base (Human.obj) -> https://free3d.com/3d-model/male-base-mesh-6682.html

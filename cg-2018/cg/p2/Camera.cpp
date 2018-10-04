@@ -252,41 +252,26 @@ Camera::translate(float dx, float dy, float dz)
 //[]---------------------------------------------------[]
 {
   // TODO
-	mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), Right;
+	mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), Right, VUP;
 	vec3f DOP;
 	DOP = vec3f((_focalPoint.x - _position.x) / _distance,
 		(_focalPoint.y - _position.y) / _distance,
 		(_focalPoint.z - _position.z) / _distance);
 
 	Right = (DOP.cross(WorldUp)).versor();
+	VUP = (Right.cross(DOP)).versor();
 
+	_position.x -= DOP.x * dz;
+	_position.z -= DOP.z * dz;
 
-	if (dz < 0)
-	{
-		_position.x -= DOP.x * dz;
-		_position.z -= DOP.z * dz;
-		_focalPoint.x -= DOP.x * dz;
-		_focalPoint.z -= DOP.z * dz;
-	}
-	if (dz > 0)
-	{
-		_position.x -= DOP.x * dz;
-		_position.z -= DOP.z * dz;
-		_focalPoint.x -= DOP.x * dz;
-		_focalPoint.z -= DOP.z * dz;
-	}
-	if (dx < 0)
-	{
-		_position += Right * dx;
-		_focalPoint += Right * dx;
-	}
-	if (dx > 0)
-	{
-		_position += Right * dx;
-		_focalPoint += Right * dx;
-	}
-	_position.y += dy;
-	_focalPoint.y += dy;
+	_focalPoint.x -= DOP.x * dz;
+	_focalPoint.z -= DOP.z * dz;
+
+	_position += Right * dx;
+	_focalPoint += Right * dx;
+
+	_position.y += VUP.y * dy;
+	_focalPoint.y += VUP.y * dy;
 
 	updateViewMatrix();
 }
