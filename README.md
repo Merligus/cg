@@ -9,7 +9,7 @@ Gustavo de Jesus Merli
 2. Todas as atividades foram implementadas totalmente
 
 3. Manual
-	- Os atalhos são os mesmos implementados para o P2 com a adição do delete comentado anteriormente.
+	- Os atalhos são os mesmos implementados para o P2.
 	- A opção Delete que remove um objeto de cena junto de seus filhos pode ser feito com o comando 
 	Ctrl + Delete.
 	- A opção de mudança de pai na janela Hierarchy é feita clicando e arrastando a célula para o
@@ -21,7 +21,7 @@ Gustavo de Jesus Merli
 	- Opção delete.
 
 5. Explicação matemática dos métodos
-	- A1, métodos para cálculo das matrizes de projeção, visão e sa inversa: 
+	- A1, métodos para cálculo das matrizes de projeção, visão e sua inversa: 
 
 		No método para a matriz de projeção (updateProjectionMatrix), se a opção de projeção ortográfica
 	fosse selecionada, a função ortho() com seus devidos parâmetros era chamada apenas calculando
@@ -32,7 +32,7 @@ Gustavo de Jesus Merli
 	para calcular as matrizes: 
 		- WorldUp que é o vetor que aponta para cima e não precisa ser calculado já que é uma constante 
 		do tipo vetor (0, 1, 0);
-		- DOP (Direction Of Projection) que aponta para onde a câmera está olhando e é menos a terceira coluna
+		- DOP (Direction Of Projection) que aponta para onde a câmera está olhando onde seu valor é a negação da terceira coluna
 		da matriz 3x3 de rotação onde essa matriz é calculada a partir da conversão do atributo quatérnio
 		"rotation" para uma matriz 3x3;
 		- Right que aponta para a direita da câmera é calculada fazendo o produto vetorial DOP x WorldUp;
@@ -43,7 +43,7 @@ Gustavo de Jesus Merli
 	- A2, setPosition(p), setEulerAngles(a), setRotation(q):
 
 		No método setPosition(p), o versor DOP foi calculada a partir dos atributos "\_focalPoint",
-	ântigo "\_position" e "\_distance" (DOP = (\_focalPoint - \position)/\_distance), em seguida a
+	ântigo "\_position" e "\_distance" (DOP = (\_focalPoint - \_position)/\_distance), em seguida a
 	posição era atualizada com "p" e depois o novo ponto focal era calculado fazendo
 	\_focalPoint = \_distance * DOP + \_position. 
 
@@ -51,11 +51,11 @@ Gustavo de Jesus Merli
 	em seguida era tratado fazendo módulo 360 para que não ficasse um ângulo muito grande.
 	O ângulo y que rotaciona em torno do eixo x era também tratado para que não passasse de 
 	89° ou -89° assim ele não invertia a imagem da visão. Caso o DOP fosse calculado a partir 
-	do ponto focal e posição da câmera, a configuração dos ângulos de euler não fariam efeito 
+	do ponto focal e posição da câmera, a configuração dos ângulos de euler não fariam efeito,
 	logo para o cálculo de DOP, os ângulos de euler no atributo "\_eulerAngles" eram convertidos 
 	para quaterniões e setados ao atributo "\_rotation" do tipo quatérnio, assim DOP era calculado 
-	usando a matriz 3x3 da conversão de quatérnio para matriz 3x3 do atributo "\_rotation". Assim 
-	o ponto focal era calculado fazendo \_focalPoint = \_distance * DOP + \_position.
+	usando a matriz 3x3 da conversão de quatérnio para matriz 3x3 do atributo "\_rotation". O
+	ponto focal era recalculado fazendo \_focalPoint = \_distance * DOP + \_position.
 
 		No método setRotation(q), o quatérnio "q" era passado para o atributo de classe "_rotation" apenas.
 	- A3, setViewAngle(value), setHeight(value), setAspectRatio(value), setClippingPlanes(F, B), setProjectionType(value), setDistance(value):
@@ -85,8 +85,8 @@ Gustavo de Jesus Merli
 	"\_eulerAngles.x" e e ax graus rotaciona no eixo x logo é somado ao atributo "\_eulerAngles.y". 
 	As variáveis x e y de "\_eulerAngles" são tratadas para não passar de +/- 360° e +/-89° respectivamente. 
 	Os ângulos de euler no atributo "\_eulerAngles" foram convertidos para quaterniões e setados ao 
-	atributo "\_rotation" do tipo quatérnio, assim DOP era calculado usando a matriz 3x3 da conversão 
-	de quatérnio para matriz 3x3 do atributo "\_rotation". Se o parâmetro "orbit" fosse verdadeiro 
+	atributo "\_rotation" do tipo quatérnio e então convertido para matriz 3x3, assim DOP era igual 
+	a negação da terceira coluna da matriz 3x3 rotation. Se o parâmetro "orbit" fosse verdadeiro, 
 	apenas a posição era recalculada, caso contrário o ponto focal era recalculado.
 
 6. Objetos de cena
