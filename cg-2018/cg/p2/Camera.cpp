@@ -119,6 +119,8 @@ Camera::setProjectionType(ProjectionType value)
 //[]---------------------------------------------------[]
 {
   // TODO
+	if (_projectionType == Perspective && value == Parallel)
+		_height = _distance;
 	_projectionType = value;
 
 	updateProjectionMatrix();
@@ -308,7 +310,6 @@ Camera::updateProjectionMatrix()
 		_projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
 	else
 	{
-		_height = _distance;
 		float W = _height * _aspectRatio;
 		_projectionMatrix = mat4f::ortho(-W / 2.0f, W / 2.0f, -_height / 2.0f, _height / 2.0f, _F, _B);
 	}
