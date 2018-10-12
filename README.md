@@ -90,13 +90,13 @@ Gustavo de Jesus Merli
 	apenas a posição era recalculada, caso contrário o ponto focal era recalculado.
 
 6. Objetos de cena
+	- grass (Gras_0#.obj) -> https://free3d.com/3d-model/grass-pack-71861.html
+	- resident building (Residential Buildings 0##.obj) -> https://free3d.com/3d-model/array-house-example-3033.html
 	- male base (Human.obj) -> https://free3d.com/3d-model/male-base-mesh-6682.html
 	- iron man (IronMan.obj) -> https://free3d.com/3d-model/ironman-rigged-original-model--98611.html
 	- house (House15.obj) -> https://free3d.com/3d-model/house-15-71141.html
 	- bmw (BMW X5 4.obj) -> https://free3d.com/3d-model/bmw-x5-1542.html
-	- resident building (Residential Buildings 0##.obj) -> https://free3d.com/3d-model/array-house-example-3033.html
 	- lamborghini (Avent.obj) -> https://free3d.com/3d-model/lamborghini-aventador-42591.html
-	- grass (Gras_0#.obj) -> https://free3d.com/3d-model/grass-pack-71861.html
 	- tree (Tree.obj) -> https://free3d.com/3d-model/tree-74556.html
 	- knight (knight.obj) -> https://free3d.com/3d-model/knight-13720.html
 	- torre eiffel (Torre_Eiffel.obj) -> https://www.yobi3d.com/c/esViilOvIu1P0Blk

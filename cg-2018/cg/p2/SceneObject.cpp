@@ -171,7 +171,6 @@ namespace cg
 			it3->transform()->setMyIterator(it3->componentsBegin());
 			if (it3->componentsSize() > 1)
 			{
-				it3->setPrimitiveInUse(--it3->componentsEnd());
 				it3->primitive()->_sceneObject = it3;
 				it3->primitive()->setMyIterator(--it3->componentsEnd());
 			}
@@ -204,13 +203,7 @@ namespace cg
 		for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
 			it->render(program);
 	}
-
-	void
-		SceneObject::setPrimitiveInUse(std::list<Component*>::iterator it)
-	{
-		_primitiveInUse = it;
-	}
-
+	
 	std::list<Component*>::iterator
 		SceneObject::componentsBegin()
 	{

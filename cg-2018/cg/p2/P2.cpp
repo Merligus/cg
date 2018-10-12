@@ -32,7 +32,6 @@ P2::buildScene()
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-	it->setPrimitiveInUse(p);
 	(*p)->setMyIterator(p);
 
 	currentBox = it->mySelf(); // criando box nivel 2
@@ -42,7 +41,6 @@ P2::buildScene()
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-	it->setPrimitiveInUse(p);
 	(*p)->setMyIterator(p);
 
 	newBox = new cg::SceneObject{ "Object 2", *currentScene }; // criando object nivel 1
@@ -50,7 +48,6 @@ P2::buildScene()
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-	it->setPrimitiveInUse(p);
 	(*p)->setMyIterator(p);
 
 	currentBox = it->mySelf(); // criando box nivel 2
@@ -60,13 +57,7 @@ P2::buildScene()
 	it->setMyIterator(it);
 	it->addComponent(new Transform());
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-	it->setPrimitiveInUse(p);
 	(*p)->setMyIterator(p);
-
-  /*_current = _scene = new Scene{"Scene 1"};
-  _box = new SceneObject{"Box 1", *_scene};
-  _primitive = makePrimitive(_defaultMeshes.find("Box"));
-  _box->addComponent(_primitive);*/
 }
 
 void
@@ -116,7 +107,6 @@ P2::hierarchyWindow()
 			  it->setMyIterator(it); // criando nova raíz
 			  it->addComponent(new Transform());
 			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-			  it->setPrimitiveInUse(p);
 			  (*p)->setMyIterator(p);
 		  }
 		  else
@@ -129,7 +119,6 @@ P2::hierarchyWindow()
 			  it->setMyIterator(it); // criando child
 			  it->addComponent(new Transform());
 			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-			  it->setPrimitiveInUse(p);
 			  (*p)->setMyIterator(p);
 		  }
 	  }
@@ -154,7 +143,6 @@ P2::hierarchyWindow()
 				  it->setMyIterator(it); // criando nova raíz
 				  it->addComponent(new Transform());
 				  p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-				  it->setPrimitiveInUse(p);
 				  (*p)->setMyIterator(p);
 			  }
 			  else
@@ -167,7 +155,6 @@ P2::hierarchyWindow()
 				  it->setMyIterator(it); // criando child
 				  it->addComponent(new Transform());
 				  p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-				  it->setPrimitiveInUse(p);
 				  (*p)->setMyIterator(p);
 			  }
 		  }

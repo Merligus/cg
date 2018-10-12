@@ -115,7 +115,6 @@ namespace cg
 				if (componentsSize() > 1) // Quer dizer que nao eh empty object
 				{
 					auto p = it2->addComponent(primitive());
-					it2->setPrimitiveInUse(p);
 					(*p)->setMyIterator(p);
 				}
 				it2->atualizaArvore(_myIterator);
@@ -135,7 +134,6 @@ namespace cg
 				if (componentsSize() > 1) // Quer dizer que nao eh empty object
 				{
 					auto p = it2->addComponent(primitive());
-					it2->setPrimitiveInUse(p);
 					(*p)->setMyIterator(p);
 				}
 				it2->atualizaArvore(_myIterator);

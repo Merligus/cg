@@ -101,8 +101,12 @@ namespace cg
 
 		Primitive * primitive()
 		{
-			if ((*_primitiveInUse) != nullptr)
-				return (Primitive*)(*_primitiveInUse)->mySelf();
+			if (_components.size() > 1)
+			{
+				std::list<Component*>::iterator begin = _components.begin();
+				begin++;
+				return (Primitive*)(*begin)->mySelf();
+			}
 			else
 				return nullptr;
 		}
@@ -122,7 +126,6 @@ namespace cg
 		void atualizaArvore(std::list<SceneObject>::iterator velho);
 		void render(GLSL::Program *program);
 
-		void setPrimitiveInUse(std::list<Component*>::iterator it);
 		std::list<Component*>::iterator componentsBegin();
 		std::list<Component*>::iterator componentsEnd();
 		unsigned int componentsSize();
@@ -135,7 +138,6 @@ namespace cg
 		std::list<SceneObject> _children;
 		std::list<SceneObject>::iterator _myIterator;
 		std::list<Component*> _components;
-		std::list<Component*>::iterator _primitiveInUse;
 
 		friend class Scene;
 
