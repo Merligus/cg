@@ -119,8 +119,6 @@ Camera::setProjectionType(ProjectionType value)
 //[]---------------------------------------------------[]
 {
   // TODO
-	if (_projectionType == Perspective && value == Parallel)
-		_height = _distance;
 	_projectionType = value;
 
 	updateProjectionMatrix();
