@@ -1,2 +1,88 @@
-﻿  Camera.cpp
+﻿  Main.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  P2.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  Renderer.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  SceneObject.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\sceneobject.cpp(222): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
+  Transform.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  Gerando Código...
   p2.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\p2\build\vs2017\..\..\p2.exe
