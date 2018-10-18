@@ -25,7 +25,7 @@ P2::buildScene()
 	cg::Scene *currentScene = _scene;
 	cg::SceneObject *currentBox;
 	std::list<cg::SceneObject>::iterator it;
-	std::list<Component*>::iterator p;
+	std::list<Reference<Component>>::iterator p;
 
 	cg::SceneObject obj1("Object 1", *currentScene);
 	it = currentScene->append(obj1);
@@ -105,7 +105,7 @@ P2::hierarchyWindow()
 			  std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 			  it->setMyIterator(it); // criando nova raíz
 			  it->addComponent(new Transform());
-			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+			  std::list<Reference<Component>>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 			  (*p)->setMyIterator(p);
 		  }
 		  else
@@ -117,7 +117,7 @@ P2::hierarchyWindow()
 			  std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
 			  it->setMyIterator(it); // criando child
 			  it->addComponent(new Transform());
-			  std::list<Component*>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+			  std::list<Reference<Component>>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 			  (*p)->setMyIterator(p);
 		  }
 	  }
@@ -126,7 +126,7 @@ P2::hierarchyWindow()
 		  if (ImGui::MenuItem("Box"))
 		  {
 			  cg::Scene *currentScene = _scene;
-			  std::list<Component*>::iterator p;
+			  std::list<Reference<Component>>::iterator p;
 
 			  std::string boxIndex("Box ");
 			  static int index = 1;
@@ -582,8 +582,6 @@ P2::render()
 
   glClearColor(bc.r, bc.g, bc.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  /*if (!_box->visible)
-    return;*/
   if (_moveFlags)
   {
     const auto delta = _camera->distance() * CAMERA_RES;

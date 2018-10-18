@@ -83,7 +83,7 @@ namespace cg
 			return (Transform*)((*_components.begin())->mySelf());
 		}
 
-		std::list<Component*>::iterator addComponent(Component* component)
+		std::list<Reference<Component>>::iterator addComponent(Component* component)
 		{
 			component->_sceneObject = _myIterator;
 			// TODO
@@ -91,8 +91,7 @@ namespace cg
 
 			if (_components.size() == 1)
 			{
-				std::list<Component*>::iterator begin = _components.begin();
-				makeUse((Transform*)(*begin)->mySelf());
+				std::list<Reference<Component>>::iterator begin = _components.begin();
 				Transform* t = (Transform*)(*_components.begin())->mySelf();
 				t->update();
 			}
@@ -103,7 +102,7 @@ namespace cg
 		{
 			if (_components.size() > 1)
 			{
-				std::list<Component*>::iterator begin = _components.begin();
+				std::list<Reference<Component>>::iterator begin = _components.begin();
 				begin++;
 				return (Primitive*)(*begin)->mySelf();
 			}
@@ -116,28 +115,29 @@ namespace cg
 		void setMyIterator(std::list<SceneObject>::iterator it);
 		SceneObject* mySelf();
 		SceneNode* autoDelete(); /// implementado em Scene.h
+
 		std::list<SceneObject>::iterator childrenBegin();
 		std::list<SceneObject>::iterator childrenEnd();
-		auto childrenSize();
+		unsigned int childrenSize();
 		std::list<SceneObject>::iterator appendChildren(SceneObject novo);
 		std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
+
+		std::list<Reference<Component>>::iterator componentsBegin();
+		std::list<Reference<Component>>::iterator componentsEnd();
+		unsigned int componentsSize();
+		std::list<Reference<Component>>::iterator appendComponents(Component* novo);
+		std::list<Reference<Component>>::iterator removeComponents(std::list<Reference<Component>>::iterator it);
 
 		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
 		void atualizaArvore(std::list<SceneObject>::iterator velho);
 		void render(GLSL::Program *program);
-
-		std::list<Component*>::iterator componentsBegin();
-		std::list<Component*>::iterator componentsEnd();
-		unsigned int componentsSize();
-		std::list<Component*>::iterator appendComponents(Component* novo);
-		std::list<Component*>::iterator removeComponents(std::list<Component*>::iterator it);
-
+	
 	private:
 		Scene* _scene;
 		SceneObject* _parent;
 		std::list<SceneObject> _children;
 		std::list<SceneObject>::iterator _myIterator;
-		std::list<Component*> _components;
+		std::list<Reference<Component>> _components;
 
 		friend class Scene;
 

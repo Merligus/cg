@@ -70,7 +70,7 @@ namespace cg
 			return this;
 		}
 
-		void setMyIterator(std::list<Component*>::iterator it)
+		void setMyIterator(std::list<Reference<Component>>::iterator it)
 		{
 			_myIterator = it;
 			myIteratorSet = true;
@@ -89,7 +89,7 @@ namespace cg
 	private:
 		const char* const _typeName;
 		std::list<SceneObject>::iterator _sceneObject;
-		std::list<Component*>::iterator _myIterator;
+		std::list<Reference<Component>>::iterator _myIterator;
 
 		friend class SceneObject;
 

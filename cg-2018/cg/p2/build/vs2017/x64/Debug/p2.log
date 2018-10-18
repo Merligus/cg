@@ -66,6 +66,7 @@ c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transfor
               real=float
           ]
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\sceneobject.cpp(72): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\sceneobject.cpp(222): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
   Transform.cpp
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p2\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados

@@ -1,1 +1,7 @@
-﻿  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cgD.lib
+﻿  Application.cpp
+  GLWindow.cpp
+  MeshReader.cpp
+  NameableObject.cpp
+  TriangleMesh.cpp
+  Gerando Código...
+  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cgD.lib
