@@ -103,9 +103,9 @@ namespace cg
 			if (parent == nullptr) // se pai é nulo então ele é raíz, logo precisa ser atualizado na coleção da classe SceneNodes
 			{
 				// copia transform primitive e children
-				auto newBox = new cg::SceneObject{ name(), *_scene };
-				newBox->setParent(parent, false);
-				auto it2 = _scene->append(*newBox);
+				cg::SceneObject newBox(name(), *_scene);
+				newBox.setParent(parent, false);
+				auto it2 = _scene->append(newBox);
 				SceneObject* aux = _myIterator->parent();
 				_parent = parent;
 				transform()->parentChanged();
@@ -122,9 +122,9 @@ namespace cg
 			else // atualizar a lista do pai atual e inserir no novo pai
 			{
 				// copia transform primitive e children
-				auto newBox = new cg::SceneObject{ name(), *_scene };
-				newBox->setParent(parent, false);
-				auto it2 = parent->appendChildren(*newBox);
+				cg::SceneObject newBox(name(), *_scene);
+				newBox.setParent(parent, false);
+				auto it2 = parent->appendChildren(newBox);
 				SceneObject* aux = _myIterator->parent();
 				_parent = parent;
 				transform()->parentChanged();
