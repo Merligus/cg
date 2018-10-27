@@ -103,16 +103,6 @@ GLWindow::keyInputEvent(int key, int action, int mods)
   (void)key;
   (void)action;
   (void)mods;
-  /*if (action == GLFW_PRESS)
-  {
-	  if (mods == GLFW_MOD_ALT && key == GLFW_KEY_F4)
-	  {
-		  glfwSetWindowShouldClose(_window, GL_TRUE);
-		  return true;
-	  }
-	  if (mods == GLFW_MOD_CONTROL && key == GLFW_KEY_P && !_paused)
-		  return _paused = true;
-  }*/
   return false;
 }
 

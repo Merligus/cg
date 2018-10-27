@@ -1,0 +1,11 @@
+﻿  Assets.cpp
+  Camera.cpp
+  imgui_demo.cpp
+  Main.cpp
+  MeshSweeper.cpp
+  P3.cpp
+  Renderer.cpp
+  SceneObject.cpp
+  Transform.cpp
+  Gerando Código...
+  p3.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\cg\cg-2018\cg\p3\build\vs2017\..\..\p3.exe
