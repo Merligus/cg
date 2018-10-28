@@ -104,8 +104,9 @@ P3::hierarchyWindow()
 				cg::SceneObject newBox(objectIndex.c_str(), *currentScene);
 				std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 				it->setMyIterator(it); // criando nova raíz
-				it->addComponent(new Transform());
-				std::list<Reference<Component>>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 				(*p)->setMyIterator(p);
 			}
 			else
@@ -116,8 +117,9 @@ P3::hierarchyWindow()
 				newBox.setParent(currentBox);
 				std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
 				it->setMyIterator(it); // criando child
-				it->addComponent(new Transform());
-				std::list<Reference<Component>>::iterator p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 				(*p)->setMyIterator(p);
 			}
 		}
@@ -139,7 +141,8 @@ P3::hierarchyWindow()
 					cg::SceneObject newBox(boxIndex.c_str(), *currentScene);
 					std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 					it->setMyIterator(it); // criando nova raíz
-					it->addComponent(new Transform());
+					p = it->addComponent(new Transform());
+					(*p)->setMyIterator(p);
 					p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
 					(*p)->setMyIterator(p);
 				}
@@ -151,12 +154,67 @@ P3::hierarchyWindow()
 					newBox.setParent(currentBox);
 					std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
 					it->setMyIterator(it); // criando child
-					it->addComponent(new Transform());
+					p = it->addComponent(new Transform());
+					(*p)->setMyIterator(p);
 					p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
 					(*p)->setMyIterator(p);
 				}
 			}
 			ImGui::EndMenu();
+		}
+		if (ImGui::MenuItem("New Light Object"))
+		{
+			cg::Scene *currentScene = _scene;
+
+			std::string lightIndex("Light ");
+			static int i = 1;
+			lightIndex += std::to_string(i++);
+
+			std::cout << "Create new Empty Object\n";
+			if (_current == nullptr || _current == _scene)
+			{
+				std::cout << "\tCria raiz\n";
+				cg::SceneObject newBox(lightIndex.c_str(), *currentScene);
+				std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
+				it->setMyIterator(it); // criando nova raíz
+
+				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalScale(0.2f);
+
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient = Color::white;
+				it->primitive()->material.diffuse = Color::white;
+				it->primitive()->material.spot = Color::white;
+				it->primitive()->material.shine = 0.0f;
+
+				p = it->addComponent(new Light());
+				(*p)->setMyIterator(p);
+			}
+			else
+			{
+				cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+				std::cout << "\tCria com pai\n";
+				cg::SceneObject newBox(lightIndex.c_str(), *currentScene);
+				newBox.setParent(currentBox);
+				std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
+				it->setMyIterator(it); // criando child
+
+				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalScale(0.2f);
+
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient = Color::white;
+				it->primitive()->material.diffuse = Color::white;
+				it->primitive()->material.spot = Color::white;
+				it->primitive()->material.shine = 0.0f;
+
+				p = it->addComponent(new Light());
+				(*p)->setMyIterator(p);
+			}
 		}
 		if (ImGui::MenuItem("Delete", "Ctrl+Del"))
 		{
@@ -361,12 +419,6 @@ P3::inspectLight(Light& light)
 		temp2 = light.direction();
 		if (ImGui::DragVec3("Direction", temp2))
 			light.setDirection(temp2);
-	}
-	if (lt == Light::Type::Point)
-	{
-		temp2 = light.lightPosition();
-		if (ImGui::DragVec3("Light Position", temp2))
-			light.setLightPosition(temp2);
 	}
 }
 

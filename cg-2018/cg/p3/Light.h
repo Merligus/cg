@@ -57,7 +57,6 @@ public:
   Light() :
 	Component{ "Light" },
 	_type{ Point },
-	_lightPosition{ vec3f(0, 0, 0) },
 	_direction{ vec3f(0, 0, 0) },
 	_ambient{ Color::white },
 	_diffuse{ Color::white },
@@ -75,16 +74,6 @@ public:
   void setType(Type type)
   {
     _type = type;
-  }
-
-  vec3f lightPosition()
-  {
-	  return _lightPosition;
-  }
-
-  void setLightPosition(vec3f p)
-  {
-	  _lightPosition = p;
   }
 
   vec3f direction()
@@ -139,7 +128,6 @@ public:
 
 private:
 	Type _type;
-	vec3f _lightPosition;
 	vec3f _direction;
 	Color _ambient;
 	Color _diffuse;
