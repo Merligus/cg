@@ -1,6 +1,1 @@
-﻿  Application.cpp
-  GLWindow.cpp
-  MeshReader.cpp
-  NameableObject.cpp
-  TriangleMesh.cpp
-  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cg.lib
+﻿  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cg.lib

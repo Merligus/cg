@@ -35,83 +35,130 @@
 
 #include "SceneNode.h"
 #include "Transform.h"
+#include "Primitive.h"
+#include "imgui.h"
+#include <iostream>
+#include <string>
 
 namespace cg
 { // begin namespace cg
 
 // Forward definition
-class Scene;
+	class Scene;
+	
+	/////////////////////////////////////////////////////////////////////
+	//
+	// SceneObject: scene object class
+	// ===========
+	class SceneObject : public SceneNode
+	{
+	public:
+		bool visible{ true };
+		bool myIteratorSet{ false };
 
+		/// Constructs an empty scene object.
+		SceneObject(const char* name, Scene& scene) :
+			SceneNode{ name },
+			_scene{ &scene },
+			_parent{}
+		{
 
-/////////////////////////////////////////////////////////////////////
-//
-// SceneObject: scene object class
-// ===========
-class SceneObject: public SceneNode
-{
-public:
-  bool visible{true};
+		}
 
-  /// Constructs an empty scene object.
-  SceneObject(const char* name, Scene& scene):
-    SceneNode{name},
-    _scene{&scene},
-    _parent{}
-  {
-    makeUse(&_transform);
-  }
+		/// Returns the scene which this scene object belong to.
+		auto scene() const
+		{
+			return _scene;
+		}
 
-  /// Returns the scene which this scene object belong to.
-  auto scene() const
-  {
-    return _scene;
-  }
+		/// Returns the parent of this scene object.
+		auto parent() const
+		{
+			return _parent;
+		}
 
-  /// Returns the parent of this scene object.
-  auto parent() const
-  {
-    return _parent;
-  }
+		/// Returns the transform of this scene object.
+		auto transform()
+		{
+			return (Transform*)(&(**_components.begin()));
+		}
 
-  /// Sets the parent of this scene object.
-  void setParent(SceneObject* parent);
+		std::list<Reference<Component>>::iterator addComponent(Component* component)
+		{
+			for (auto it = _components.begin(); it != _components.end(); it++)
+				if (strcmp((*it)->typeName(), component->typeName()) == 0)
+					return it;
 
-  /// Returns the transform of this scene object.
-  auto transform()
-  {
-    return &_transform;
-  }
+			component->_sceneObject = _myIterator;
+			_components.push_back(component);
 
-  void addComponent(Component* component)
-  {
-    component->_sceneObject = this;
-    // TODO
-  }
+			if (_components.size() == 1)
+			{
+				Transform* t = (Transform*)&(**_components.begin());
+				t->update();
+			}
+			return --_components.end();
+		}
 
-private:
-  Scene* _scene;
-  SceneObject* _parent;
-  Transform _transform;
+		Primitive * primitive()
+		{
+			if (_components.size() > 1)
+			{
+				std::list<Reference<Component>>::iterator begin = _components.begin();
+				begin++;
+				return (Primitive*)&(**begin);
+			}
+			else
+				return nullptr;
+		}
 
-  friend class Scene;
+		/// Sets the parent of this scene object.
+		void setParent(SceneObject* parent, bool flag = true); /// implementado em Scene.h
+		void setMyIterator(std::list<SceneObject>::iterator it);
+		SceneNode* autoDelete() const; /// implementado em Scene.h
 
-}; // SceneObject
+		std::list<SceneObject>::iterator childrenBegin();
+		std::list<SceneObject>::iterator childrenEnd();
+		unsigned int childrenSize();
+		std::list<SceneObject>::iterator appendChildren(SceneObject novo);
+		std::list<SceneObject>::iterator removeChildren(std::list<SceneObject>::iterator it);
 
-/// Returns the transform of a component.
-inline Transform*
-Component::transform() // declared in Component.h
-{
-  return sceneObject()->transform();
-}
+		std::list<Reference<Component>>::iterator componentsBegin();
+		std::list<Reference<Component>>::iterator componentsEnd();
+		unsigned int componentsSize();
+		std::list<Reference<Component>>::iterator appendComponents(Component* novo);
+		std::list<Reference<Component>>::iterator removeComponents(std::list<Reference<Component>>::iterator it);
 
-/// Returns the parent of a transform.
-inline Transform*
-Transform::parent() const // declared in Transform.h
-{
-  if (auto p = sceneObject()->parent())
-    return p->transform();
-   return nullptr;
-}
+		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
+		void atualizaArvore(std::list<SceneObject>::iterator velho);
+		void render(GLSL::Program *program);
+
+	private:
+		Scene* _scene;
+		SceneObject* _parent;
+		std::list<SceneObject> _children;
+		std::list<SceneObject>::iterator _myIterator;
+		std::list<Reference<Component>> _components;
+
+		friend class Scene;
+
+	}; // SceneObject
+
+	/// Returns the transform of a component.
+	inline Transform*
+		Component::transform() // declared in Component.h
+	{
+		return sceneObject()->transform();
+	}
+
+	/// Returns the parent of a transform.
+	inline Transform*
+		Transform::parent() const // declared in Transform.h
+	{
+		if (auto p = sceneObject()->parent())
+			return p->transform();
+		return nullptr;
+	}
 
 } // end namespace cg
 
