@@ -285,22 +285,4 @@ namespace cg
 		return _components.size();
 	}
 
-	std::list<Reference<Component>>::iterator
-		SceneObject::appendComponents(Component* novo)
-	{
-		std::list<Reference<Component>>::iterator aux;
-		std::cout << "Adiciona componente no objeto de cena" << std::endl;
-		_components.push_back(novo); // insere na última posição
-		aux = --_components.end(); // pega o iterator para a última posição da lista
-		(*aux)->setMyIterator(aux); // atualiza o iterator do elemento da lista
-		return aux; // retorna o iterator pro "novo" na lista
-	}
-
-	std::list<Reference<Component>>::iterator
-		SceneObject::removeComponents(std::list<Reference<Component>>::iterator it)
-	{
-		std::cout << "Remove componente do objeto de cena" << std::endl;
-		return _components.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
-	}
-
 } // end namespace cg

@@ -36,6 +36,7 @@
 #include "SceneNode.h"
 #include "Transform.h"
 #include "Primitive.h"
+#include "Light.h"
 #include "imgui.h"
 #include <iostream>
 #include <string>
@@ -77,12 +78,6 @@ namespace cg
 			return _parent;
 		}
 
-		/// Returns the transform of this scene object.
-		auto transform()
-		{
-			return (Transform*)(&(**_components.begin()));
-		}
-
 		std::list<Reference<Component>>::iterator addComponent(Component* component)
 		{
 			for (auto it = _components.begin(); it != _components.end(); it++)
@@ -92,7 +87,7 @@ namespace cg
 			component->_sceneObject = _myIterator;
 			_components.push_back(component);
 
-			if (_components.size() == 1)
+			if (strcmp(component->typeName(),"Transform") == 0)
 			{
 				Transform* t = (Transform*)&(**_components.begin());
 				t->update();
@@ -100,16 +95,29 @@ namespace cg
 			return --_components.end();
 		}
 
+		/// Returns the transform of this scene object.
+		Transform * transform()
+		{
+			for (auto it = _components.begin(); it != _components.end(); it++)
+				if (strcmp((*it)->typeName(), "Transform") == 0)
+					return (Transform*)&(**it);
+			return nullptr;
+		}
+
 		Primitive * primitive()
 		{
-			if (_components.size() > 1)
-			{
-				std::list<Reference<Component>>::iterator begin = _components.begin();
-				begin++;
-				return (Primitive*)&(**begin);
-			}
-			else
-				return nullptr;
+			for (auto it = _components.begin(); it != _components.end(); it++)
+				if (strcmp((*it)->typeName(), "Primitive") == 0)
+					return (Primitive*)&(**it);
+			return nullptr;
+		}
+
+		Light * light()
+		{
+			for (auto it = _components.begin(); it != _components.end(); it++)
+				if (strcmp((*it)->typeName(), "Light") == 0)
+					return (Light*)&(**it);
+			return nullptr;
 		}
 
 		/// Sets the parent of this scene object.
@@ -126,8 +134,6 @@ namespace cg
 		std::list<Reference<Component>>::iterator componentsBegin();
 		std::list<Reference<Component>>::iterator componentsEnd();
 		unsigned int componentsSize();
-		std::list<Reference<Component>>::iterator appendComponents(Component* novo);
-		std::list<Reference<Component>>::iterator removeComponents(std::list<Reference<Component>>::iterator it);
 
 		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
 		void atualizaArvore(std::list<SceneObject>::iterator velho);

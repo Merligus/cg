@@ -53,12 +53,16 @@ public:
     Point,
     Spot
   };
-
-  Color color{Color::white};
-
-  Light():
-    Component{"Light"},
-    _type{Point}
+  
+  Light() :
+	Component{ "Light" },
+	_type{ Point },
+	_lightPosition{ vec3f(0, 0, 0) },
+	_direction{ vec3f(0, 0, 0) },
+	_ambient{ Color::white },
+	_diffuse{ Color::white },
+	_specular{ Color::white },
+	_falloff{ 2 }
   {
     // do nothing
   }
@@ -73,8 +77,74 @@ public:
     _type = type;
   }
 
+  vec3f lightPosition()
+  {
+	  return _lightPosition;
+  }
+
+  void setLightPosition(vec3f p)
+  {
+	  _lightPosition = p;
+  }
+
+  vec3f direction()
+  {
+	  return _direction;
+  }
+
+  void setDirection(vec3f d)
+  {
+	  _direction = d;
+  }
+
+  Color ambient()
+  {
+	  return _ambient;
+  }
+
+  void setAmbient(Color a)
+  {
+	  _ambient = a;
+  }
+
+  Color diffuse()
+  {
+	  return _diffuse;
+  }
+
+  void setDiffuse(Color d)
+  {
+	  _diffuse = d;
+  }
+
+  Color specular()
+  {
+	  return _specular;
+  }
+
+  void setSpecular(Color s)
+  {
+	  _specular = s;
+  }
+
+  int falloff()
+  {
+	  return _falloff;
+  }
+
+  void setFalloff(int f)
+  {
+	  _falloff = f;
+  }
+
 private:
-  Type _type;
+	Type _type;
+	vec3f _lightPosition;
+	vec3f _direction;
+	Color _ambient;
+	Color _diffuse;
+	Color _specular;
+	int _falloff;
 
 }; // Light
 

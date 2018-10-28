@@ -340,7 +340,34 @@ P3::inspectLight(Light& light)
 		ImGui::EndCombo();
 	}
 	light.setType(lt);
-	ImGui::ColorEdit3("Color", light.color);
+	Color temp;
+	vec3f temp2;
+	int falloff;
+	temp = light.ambient();
+	if (ImGui::ColorEdit3("Ambient Light", temp))
+		light.setAmbient(temp);
+	temp = light.diffuse();
+	if (ImGui::ColorEdit3("Diffuse Light", temp))
+		light.setDiffuse(temp);
+	temp = light.specular();
+	if (ImGui::ColorEdit3("Specular Light", temp))
+		light.setSpecular(temp);
+	falloff = light.falloff();
+	if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
+		light.setFalloff(falloff);
+	
+	if (lt == Light::Type::Directional)
+	{
+		temp2 = light.direction();
+		if (ImGui::DragVec3("Direction", temp2))
+			light.setDirection(temp2);
+	}
+	if (lt == Light::Type::Point)
+	{
+		temp2 = light.lightPosition();
+		if (ImGui::DragVec3("Light Position", temp2))
+			light.setLightPosition(temp2);
+	}
 }
 
 inline void
@@ -352,11 +379,19 @@ P3::addComponentButton(SceneObject& object)
 	{
 		if (ImGui::MenuItem("Primitive"))
 		{
-			// TODO
+			std::list<Reference<Component>>::iterator p;
+			cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+
+			p = currentBox->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+			(*p)->setMyIterator(p);
 		}
 		if (ImGui::MenuItem("Light"))
 		{
-			// TODO
+			std::list<Reference<Component>>::iterator l;
+			cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
+
+			l = currentBox->addComponent(new Light());
+			(*l)->setMyIterator(l);
 		}
 		ImGui::EndPopup();
 	}
@@ -373,13 +408,15 @@ P3::sceneObjectGui()
 	ImGui::SameLine();
 	ImGui::Checkbox("###visible", &object->visible);
 	ImGui::Separator();
-	if (ImGui::CollapsingHeader(object->transform()->typeName()))
-		ImGui::TransformEdit(object->transform());
-	if (ImGui::CollapsingHeader(object->primitive()->typeName()))
-		inspectPrimitive(*object->primitive());
-	if(object->componentsSize() > 2)
-		if (ImGui::CollapsingHeader(_light->typeName()))
-			inspectLight(*_light);
+	if (object->transform() != nullptr)
+		if (ImGui::CollapsingHeader(object->transform()->typeName()))
+			ImGui::TransformEdit(object->transform());
+	if (object->primitive() != nullptr)
+		if (ImGui::CollapsingHeader(object->primitive()->typeName()))
+			inspectPrimitive(*object->primitive());
+	if(object->light() != nullptr)
+		if (ImGui::CollapsingHeader(object->light()->typeName()))
+			inspectLight(*object->light());
 }
 
 inline void
