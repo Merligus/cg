@@ -135,6 +135,8 @@ P3::initialize()
 {
 	Application::loadShaders(_program[0], "shaders/p3.vs", "shaders/p3.fs");
 	Application::loadShaders(_program[1], "shaders/p3-smooth.vs", "shaders/p3-smooth.fs");
+	Application::loadShaders(_program[2], "shaders/p3-none.vs", "shaders/p3-none.fs");
+	Application::loadShaders(_program[3], "shaders/p3-flat.vs", "shaders/p3-flat.fs");
 	Assets::initialize();
 	buildDefaultMeshes();
 	buildScene();
@@ -144,7 +146,7 @@ P3::initialize()
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1.0f, 1.0f);
 	glEnable(GL_LINE_SMOOTH);
-	_program[0].use();
+	_program[2].use();
 }
 
 namespace ImGui
@@ -687,8 +689,14 @@ P3::renderModeGui()
 	switch (sm)
 	{
 	case 0:
+		if (_indexProgramaAtual != 2)
+			_program[2].use();
+		_indexProgramaAtual = 2;
 		break;
 	case 1:
+		if (_indexProgramaAtual != 3)
+			_program[3].use();
+		_indexProgramaAtual = 3;
 		break;
 	case 2:
 		if(_indexProgramaAtual != 0)
@@ -860,11 +868,13 @@ P3::render()
 		_camera->translate(d);
 	}
 	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
+	if(_indexProgramaAtual == 3)
+		_program[_indexProgramaAtual].setUniformMat4("view", _camera->worldToCameraMatrix());
 	_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
 
 	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
 	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
-		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex);
+		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex, _indexProgramaAtual);
 
 	_program[_indexProgramaAtual].setUniform("nLP", (int)luzPontualIndex);
 	_program[_indexProgramaAtual].setUniform("nLD", (int)luzDirecionalIndex);

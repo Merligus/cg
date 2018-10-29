@@ -15,7 +15,7 @@ class P3: public GLWindow
 public:
   P3(int width, int height):
     GLWindow{"cg2018 - P3", width, height},
-	_indexProgramaAtual{ 0 }
+	_indexProgramaAtual{ 2 }
   {
     // do nothing
   }
@@ -49,7 +49,7 @@ private:
   using SceneRef = Reference<Scene>;
   using CameraRef = Reference<Camera>;
 
-  GLSL::Program _program[2] = {"P3", "P3"};
+  GLSL::Program _program[4] = {"P3 - Gouraud", "P3 - Phong", "P3 - None", "P3 - Flat"};
   int _indexProgramaAtual;
   SceneRef _scene;
   CameraRef _camera;

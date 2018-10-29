@@ -243,7 +243,7 @@ namespace cg
 	}
 
 	void
-		SceneObject::render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex, int *luzSpotIndex)
+		SceneObject::render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex, int *luzSpotIndex, int indexPrograma)
 	{
 		if (this->visible)
 		{
@@ -287,7 +287,8 @@ namespace cg
 					cg::Transform *t = transform();
 					auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
 					program->setUniformMat4("transform", t->localToWorldMatrix());
-					program->setUniformMat3("normalMatrix", normalMatrix);
+					if(indexPrograma != 3)
+						program->setUniformMat3("normalMatrix", normalMatrix);
 					program->setUniformVec4("material.ambient", primitive()->material.ambient);
 					program->setUniformVec4("material.diffuse", primitive()->material.diffuse);
 					program->setUniformVec4("material.spot", primitive()->material.spot);
@@ -300,7 +301,7 @@ namespace cg
 			}
 		}
 		for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
-			it->render(program, luzPontualIndex, luzDirecionalIndex, luzSpotIndex);
+			it->render(program, luzPontualIndex, luzDirecionalIndex, luzSpotIndex, indexPrograma);
 	}
 
 	std::list<Reference<Component>>::iterator
