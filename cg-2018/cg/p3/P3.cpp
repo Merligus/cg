@@ -63,7 +63,8 @@ P3::buildScene()
 void
 P3::initialize()
 {
-	Application::loadShaders(_program, "shaders/p3.vs", "shaders/p3.fs");
+	Application::loadShaders(_program[0], "shaders/p3.vs", "shaders/p3.fs");
+	Application::loadShaders(_program[1], "shaders/p3-smooth.vs", "shaders/p3-smooth.fs");
 	Assets::initialize();
 	buildDefaultMeshes();
 	buildScene();
@@ -73,7 +74,7 @@ P3::initialize()
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1.0f, 1.0f);
 	glEnable(GL_LINE_SMOOTH);
-	_program.use();
+	_program[0].use();
 }
 
 namespace ImGui
@@ -97,10 +98,8 @@ P3::hierarchyWindow()
 			static int i = 1;
 			objectIndex += std::to_string(i++);
 
-			std::cout << "Create new Empty Object\n";
 			if (_current == nullptr || _current == _scene)
 			{
-				std::cout << "\tCria raiz\n";
 				cg::SceneObject newBox(objectIndex.c_str(), *currentScene);
 				std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 				it->setMyIterator(it); // criando nova raíz
@@ -112,7 +111,6 @@ P3::hierarchyWindow()
 			else
 			{
 				cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
-				std::cout << "\tCria com pai\n";
 				cg::SceneObject newBox(objectIndex.c_str(), *currentScene);
 				newBox.setParent(currentBox);
 				std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
@@ -134,10 +132,8 @@ P3::hierarchyWindow()
 				static int index = 1;
 				boxIndex += std::to_string(index++);
 
-				std::cout << "Create new 3D Box\n";
 				if (_current == nullptr || _current == _scene)
 				{
-					std::cout << "\tCria raiz\n";
 					cg::SceneObject newBox(boxIndex.c_str(), *currentScene);
 					std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 					it->setMyIterator(it); // criando nova raíz
@@ -149,7 +145,6 @@ P3::hierarchyWindow()
 				else
 				{
 					cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
-					std::cout << "\tCria com pai\n";
 					cg::SceneObject newBox(boxIndex.c_str(), *currentScene);
 					newBox.setParent(currentBox);
 					std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
@@ -170,10 +165,8 @@ P3::hierarchyWindow()
 			static int i = 1;
 			lightIndex += std::to_string(i++);
 
-			std::cout << "Create new Empty Object\n";
 			if (_current == nullptr || _current == _scene)
 			{
-				std::cout << "\tCria raiz\n";
 				cg::SceneObject newBox(lightIndex.c_str(), *currentScene);
 				std::list<cg::SceneObject>::iterator it = currentScene->append(newBox);
 				it->setMyIterator(it); // criando nova raíz
@@ -182,7 +175,7 @@ P3::hierarchyWindow()
 				(*p)->setMyIterator(p);
 				it->transform()->setLocalScale(0.2f);
 
-				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 				(*p)->setMyIterator(p);
 				it->primitive()->material.ambient = Color::white;
 				it->primitive()->material.diffuse = Color::white;
@@ -195,7 +188,6 @@ P3::hierarchyWindow()
 			else
 			{
 				cg::SceneObject *currentBox = (cg::SceneObject*)(_current);
-				std::cout << "\tCria com pai\n";
 				cg::SceneObject newBox(lightIndex.c_str(), *currentScene);
 				newBox.setParent(currentBox);
 				std::list<cg::SceneObject>::iterator it = currentBox->appendChildren(newBox);
@@ -203,9 +195,8 @@ P3::hierarchyWindow()
 
 				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
 				(*p)->setMyIterator(p);
-				it->transform()->setLocalScale(0.2f);
 
-				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 				(*p)->setMyIterator(p);
 				it->primitive()->material.ambient = Color::white;
 				it->primitive()->material.diffuse = Color::white;
@@ -410,15 +401,17 @@ P3::inspectLight(Light& light)
 	temp = light.specular();
 	if (ImGui::ColorEdit3("Specular Light", temp))
 		light.setSpecular(temp);
-	falloff = light.falloff();
-	if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
-		light.setFalloff(falloff);
-	
 	if (lt == Light::Type::Directional)
 	{
 		temp2 = light.direction();
 		if (ImGui::DragVec3("Direction", temp2))
 			light.setDirection(temp2);
+	}
+	if (lt == Light::Type::Point)
+	{
+		falloff = light.falloff();
+		if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
+			light.setFalloff(falloff);
 	}
 }
 
@@ -619,7 +612,25 @@ P3::renderModeGui()
 	static int sm;
 
 	ImGui::Combo("Shading Mode", &sm, "None\0Flat\0Gouraud\0Phong\0\0");
-	// TODO
+	switch (sm)
+	{
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		if(_indexProgramaAtual != 0)
+			_program[0].use();
+		_indexProgramaAtual = 0;
+		break;
+	case 3:
+		if (_indexProgramaAtual != 1)
+			_program[1].use();
+		_indexProgramaAtual = 1;
+		break;
+	default:
+		break;
+	}
 
 	static Color edgeColor;
 	static bool showEdges;
@@ -776,15 +787,15 @@ P3::render()
 			d.y -= delta;
 		_camera->translate(d);
 	}
-	_program.setUniformMat4("vpMatrix", vpMatrix(_camera));
-	_program.setUniformVec4("ambientLight", _scene->ambientLight);
-	_program.setUniformVec3("lightPosition", _camera->position());
-	_program.setUniformVec3("viewPos", _camera->position());
+	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
+	_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
 
-	// New
+	int luzPontualIndex = 0, luzDirecionalIndex = 0;
 	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
-		it->render(&_program);
+		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex);
 
+	_program[_indexProgramaAtual].setUniform("nLP", (int)luzPontualIndex);
+	_program[_indexProgramaAtual].setUniform("nLD", (int)luzDirecionalIndex);
 	if (_current != _scene) // desenha o selecionado
 	{
 		cg::SceneObject *object = (cg::SceneObject*)_current;
@@ -792,15 +803,15 @@ P3::render()
 		{
 			cg::GLMesh * m;
 			cg::Transform *t = object->transform();
-			_program.setUniformMat4("transform", t->localToWorldMatrix());
+			_program[_indexProgramaAtual].setUniformMat4("transform", t->localToWorldMatrix());
 
 			m = glMesh((object->primitive())->mesh());
 			m->bind();
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
 
-			_program.setUniformVec4("material.diffuse", _selectedWireframeColor);
-			_program.setUniform("flatMode", (int)1);
+			_program[_indexProgramaAtual].setUniformVec4("material.diffuse", _selectedWireframeColor);
+			_program[_indexProgramaAtual].setUniform("flatMode", (int)1);
 			renderMesh(m, GL_LINE);
 		}
 	}

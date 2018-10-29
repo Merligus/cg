@@ -59,13 +59,14 @@ namespace cg
 				_parent = parent;
 				transform()->parentChanged();
 				_parent = aux;
-				it2->addComponent(transform()); // copia transform
-				it2->transform()->setMyIterator(it2->componentsBegin());
-				if (componentsSize() > 1) // Quer dizer que nao eh empty object
+
+				std::list<Reference<Component>>::iterator comp;
+				for (auto it = _components.begin(); it != _components.end(); it++)
 				{
-					auto p = it2->addComponent(primitive());
-					(*p)->setMyIterator(p);
+					comp = it2->addComponent(&(**it));
+					(*comp)->setMyIterator(comp);
 				}
+
 				it2->atualizaArvore(_myIterator);
 			}
 			else // atualizar a lista do pai atual e inserir no novo pai
@@ -78,13 +79,14 @@ namespace cg
 				_parent = parent;
 				transform()->parentChanged();
 				_parent = aux;
-				it2->addComponent(transform()); // copia transform
-				it2->transform()->setMyIterator(it2->componentsBegin());
-				if (componentsSize() > 1) // Quer dizer que nao eh empty object
+
+				std::list<Reference<Component>>::iterator comp;
+				for (auto it = _components.begin(); it != _components.end(); it++)
 				{
-					auto p = it2->addComponent(primitive());
-					(*p)->setMyIterator(p);
+					comp = it2->addComponent(&(**it));
+					(*comp)->setMyIterator(comp);
 				}
+
 				it2->atualizaArvore(_myIterator);
 			}
 		}
@@ -242,10 +244,30 @@ namespace cg
 	}
 
 	void
-		SceneObject::render(GLSL::Program *program)
+		SceneObject::render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex)
 	{
 		if (this->visible)
 		{
+			if (light() != nullptr)
+			{
+				if (light()->type() == Light::Type::Directional && (*luzDirecionalIndex) < 8)
+				{
+					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].ambient")).c_str(), light()->ambient());
+					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].diffuse")).c_str(), light()->diffuse());
+					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].specular")).c_str(), light()->specular());
+					program->setUniformVec3((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].direction")).c_str(), transform()->position());
+					(*luzDirecionalIndex)++;
+				}
+				else if (light()->type() == Light::Type::Point && (*luzPontualIndex) < 8)
+				{
+					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].ambient")).c_str(), light()->ambient());
+					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].diffuse")).c_str(), light()->diffuse());
+					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].specular")).c_str(), light()->specular());
+					program->setUniform((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].falloff")).c_str(), (int)light()->falloff());
+					program->setUniformVec3((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].position")).c_str(), transform()->position());
+					(*luzPontualIndex)++;
+				}
+			}
 			if (this->primitive()->mesh() != nullptr)
 			{
 				cg::GLMesh * m = glMesh((this->primitive())->mesh());
@@ -264,7 +286,7 @@ namespace cg
 			}
 		}
 		for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
-			it->render(program);
+			it->render(program, luzPontualIndex, luzDirecionalIndex);
 	}
 
 	std::list<Reference<Component>>::iterator

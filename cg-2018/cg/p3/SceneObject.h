@@ -137,7 +137,7 @@ namespace cg
 
 		SceneNode* show(ImGuiTreeNodeFlags flag, SceneNode *current);
 		void atualizaArvore(std::list<SceneObject>::iterator velho);
-		void render(GLSL::Program *program);
+		void render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex);
 
 	private:
 		Scene* _scene;
