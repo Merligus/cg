@@ -26,13 +26,28 @@ struct LuzPontual {
 	int falloff;
 };
 
+struct LuzSpot {
+	vec3 direction;
+	vec3 position;
+
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+
+	int falloff;
+	float innerCutOff;
+	float outerCutOff;
+};
+
 uniform int flatMode;
 uniform vec3 viewPos;
 uniform Material material;
 uniform LuzPontual luzesPontuais[8];
 uniform LuzDirecional luzesDirecionais[8];
+uniform LuzSpot luzesSpots[8];
 uniform int nLP;
 uniform int nLD;
+uniform int nLS;
 
 in vec3 N;
 in vec4 P;
@@ -67,6 +82,23 @@ void main()
 		vec4 S = material.spot * luzesDirecionais[i].specular * pow(max(dot(R, V), 0), material.shine);
 
 		vertexColor = vertexColor + (A + D + S);
+	}
+
+	for(int i = 0; i < nLS; i++)
+	{
+		vec3 L = normalize(luzesSpots[i].position - vec3(P));
+		float theta = dot(normalize(-luzesSpots[i].direction), L);
+		float epsilon = luzesSpots[i].innerCutOff - luzesSpots[i].outerCutOff;
+		float intensity = clamp((theta - luzesSpots[i].outerCutOff) / epsilon, 0.0, 1.0);
+		vec3 R = reflect(-L, N);
+
+		vec4 A = luzesSpots[i].ambient * float(1 - flatMode) * material.ambient;
+		vec4 D = material.diffuse * luzesSpots[i].diffuse * max(dot(N, L), float(flatMode));
+		vec4 S = material.spot * luzesSpots[i].specular * pow(max(dot(R, V), 0), material.shine);
+
+		float dl = length(luzesSpots[i].position - vec3(P));
+
+		vertexColor = vertexColor + intensity * (A + D + S) / pow(dl, luzesSpots[i].falloff);
 	}
 	
 	fragmentColor = vertexColor;

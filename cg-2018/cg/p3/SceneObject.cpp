@@ -232,33 +232,32 @@ namespace cg
 		{
 			std::list<cg::SceneObject>::iterator it3 = _myIterator->appendChildren(*it);
 			it3->setParent(&(*_myIterator), false);
-			it3->transform()->_sceneObject = it3;
-			it3->transform()->setMyIterator(it3->componentsBegin());
-			if (it3->componentsSize() > 1)
+
+			for (auto comp = it3->componentsBegin(); comp != it3->componentsEnd(); comp++)
 			{
-				it3->primitive()->_sceneObject = it3;
-				it3->primitive()->setMyIterator(--it3->componentsEnd());
+				(*comp)->_sceneObject = it3;
+				(*comp)->setMyIterator(comp);
 			}
 			it3->atualizaArvore(it);
 		}
 	}
 
 	void
-		SceneObject::render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex)
+		SceneObject::render(GLSL::Program *program, int *luzPontualIndex, int *luzDirecionalIndex, int *luzSpotIndex)
 	{
 		if (this->visible)
 		{
 			if (light() != nullptr)
 			{
-				if (light()->type() == Light::Type::Directional && (*luzDirecionalIndex) < 8)
+				if (light()->type() == Light::Type::Directional && (*luzSpotIndex) + (*luzDirecionalIndex) + (*luzPontualIndex) < 8)
 				{
 					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].ambient")).c_str(), light()->ambient());
 					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].diffuse")).c_str(), light()->diffuse());
 					program->setUniformVec4((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].specular")).c_str(), light()->specular());
-					program->setUniformVec3((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].direction")).c_str(), transform()->position());
+					program->setUniformVec3((std::string("luzesDirecionais[") + std::to_string(*luzDirecionalIndex) + std::string("].direction")).c_str(), light()->direction());
 					(*luzDirecionalIndex)++;
 				}
-				else if (light()->type() == Light::Type::Point && (*luzPontualIndex) < 8)
+				else if (light()->type() == Light::Type::Point && (*luzSpotIndex) + (*luzDirecionalIndex) + (*luzPontualIndex) < 8)
 				{
 					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].ambient")).c_str(), light()->ambient());
 					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].diffuse")).c_str(), light()->diffuse());
@@ -267,26 +266,41 @@ namespace cg
 					program->setUniformVec3((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].position")).c_str(), transform()->position());
 					(*luzPontualIndex)++;
 				}
+				else if (light()->type() == Light::Type::Spot && (*luzSpotIndex) + (*luzDirecionalIndex) + (*luzPontualIndex) < 8)
+				{
+					program->setUniformVec4((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].ambient")).c_str(), light()->ambient());
+					program->setUniformVec4((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].diffuse")).c_str(), light()->diffuse());
+					program->setUniformVec4((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].specular")).c_str(), light()->specular());
+					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].falloff")).c_str(), (int)light()->falloff());
+					program->setUniformVec3((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].position")).c_str(), transform()->position());
+					program->setUniformVec3((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].direction")).c_str(), light()->direction());
+					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].innerCutOff")).c_str(), (float)cos(0.01745329251*light()->innerCutOff()));
+					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].outerCutOff")).c_str(), (float)cos(0.01745329251*light()->outerCutOff()));
+					(*luzSpotIndex)++;
+				}
 			}
-			if (this->primitive()->mesh() != nullptr)
+			if (this->primitive() != nullptr)
 			{
-				cg::GLMesh * m = glMesh((this->primitive())->mesh());
-				cg::Transform *t = transform();
-				auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
-				program->setUniformMat4("transform", t->localToWorldMatrix());
-				program->setUniformMat3("normalMatrix", normalMatrix);
-				program->setUniformVec4("material.ambient", primitive()->material.ambient);
-				program->setUniformVec4("material.diffuse", primitive()->material.diffuse);
-				program->setUniformVec4("material.spot", primitive()->material.spot);
-				program->setUniform("material.shine", (float)primitive()->material.shine);
-				program->setUniform("flatMode", (int)0);
-				m->bind();
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+				if (this->primitive()->mesh() != nullptr)
+				{
+					cg::GLMesh * m = glMesh((this->primitive())->mesh());
+					cg::Transform *t = transform();
+					auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
+					program->setUniformMat4("transform", t->localToWorldMatrix());
+					program->setUniformMat3("normalMatrix", normalMatrix);
+					program->setUniformVec4("material.ambient", primitive()->material.ambient);
+					program->setUniformVec4("material.diffuse", primitive()->material.diffuse);
+					program->setUniformVec4("material.spot", primitive()->material.spot);
+					program->setUniform("material.shine", (float)primitive()->material.shine);
+					program->setUniform("flatMode", (int)0);
+					m->bind();
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+				}
 			}
 		}
 		for (std::list<SceneObject>::iterator it = this->childrenBegin(); it != this->childrenEnd(); ++it)
-			it->render(program, luzPontualIndex, luzDirecionalIndex);
+			it->render(program, luzPontualIndex, luzDirecionalIndex, luzSpotIndex);
 	}
 
 	std::list<Reference<Component>>::iterator

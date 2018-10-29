@@ -15,24 +15,9 @@ c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transfor
               real=float
           ]
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-  SceneObject.cpp
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
-          with
-          [
-              real=float
-          ]
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
-          with
-          [
-              real=float
-          ]
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
-          with
-          [
-              real=float
-          ]
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\sceneobject.cpp(137): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\sceneobject.cpp(307): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
-  Gerando Código...
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(128): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(483): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(484): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(485): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(486): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
   p3.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\p3\build\vs2017\..\..\p3.exe

@@ -54,7 +54,7 @@ public:
   Material(const Color& color = Color::white):
     ambient{0.2f * color},
     diffuse{0.8f * color},
-    spot{Color::black},
+    spot{Color::gray},
     shine{100}
   {
     // do nothing

@@ -26,38 +26,108 @@ P3::buildScene()
 	cg::SceneObject *currentBox;
 	std::list<cg::SceneObject>::iterator it;
 	std::list<Reference<Component>>::iterator p;
+	auto& meshes = Assets::meshes();
 
-	cg::SceneObject obj1("Object 1", *currentScene);
-	it = currentScene->append(obj1);
+	cg::SceneObject obj("Empty Object", *currentScene);
+	it = currentScene->append(obj);
 	it->setMyIterator(it);
-	it->addComponent(new Transform());
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 	(*p)->setMyIterator(p);
 
-	currentBox = &(*it); // criando box nivel 2
-	cg::SceneObject box11("Box 1.1", *currentScene);
-	box11.setParent(currentBox);
-	it = currentBox->appendChildren(box11);
+	currentBox = &(*it);
+	cg::SceneObject box("Box", *currentScene);
+	cg::SceneObject jato("Jato", *currentScene);
+	cg::SceneObject coelho("Coelho", *currentScene);
+	box.setParent(currentBox);
+	jato.setParent(currentBox);
+	coelho.setParent(currentBox);
+
+	it = currentBox->appendChildren(box);
 	it->setMyIterator(it);
-	it->addComponent(new Transform());
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.0f, -7.0f, 0.0f));
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
 	(*p)->setMyIterator(p);
 
-	cg::SceneObject obj2("Object 2", *currentScene);
-	it = currentScene->append(obj2);
+	it = currentBox->appendChildren(jato);
 	it->setMyIterator(it);
-	it->addComponent(new Transform());
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalScale(0.5f);
+	it->transform()->setLocalPosition(vec3f(0.0f, -5.0f, 0.0f));
 	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+	for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
+		if (mit->first.compare("f-16.obj") == 0)
+			it->primitive()->setMesh(Assets::loadMesh(mit), mit->first);
 	(*p)->setMyIterator(p);
 
-	currentBox = &(*it); // criando box nivel 2
-	cg::SceneObject box21("Box 2.1", *currentScene);
-	box21.setParent(currentBox);
-	it = currentBox->appendChildren(box21);
+	it = currentBox->appendChildren(coelho);
 	it->setMyIterator(it);
-	it->addComponent(new Transform());
-	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+	p = it->addComponent(new Transform());
 	(*p)->setMyIterator(p);
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+	for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
+		if (mit->first.compare("bunny.obj") == 0)
+			it->primitive()->setMesh(Assets::loadMesh(mit), mit->first);
+	(*p)->setMyIterator(p);
+
+	cg::SceneObject dirLight("Luz Direcional Branca", *currentScene);
+	it = currentScene->append(dirLight);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent(new Light());
+	(*p)->setMyIterator(p);
+	it->light()->setAmbient((Color)vec4f((float)35/255, (float)35/255, (float)35/255, 0));
+	it->light()->setDiffuse((Color)vec4f((float)45/255, (float)45/255, (float)45/255, 0));
+	it->light()->setSpecular((Color)vec4f((float)45/255, (float)45/255, (float)45/255, 0));
+	it->light()->setDirection(vec3f(-1.0f, 0.0f, 0.0f));
+	it->light()->setType(Light::Type::Directional);
+
+	cg::SceneObject pointLight("Luz Pontual Amarela", *currentScene);
+	it = currentScene->append(pointLight);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent(new Light());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.9f, -1.0f, 0.0f));
+	it->light()->setAmbient((Color)vec4f((float)80/255, (float)80/255, 0, 0));
+	it->light()->setDiffuse((Color)vec4f((float)170/255, (float)181/255, 0, 0));
+	it->light()->setSpecular((Color)vec4f((float)170/255, (float)193/255, 0, 0));
+
+	cg::SceneObject redSpot("Luz Spot Vermelha no Jato", *currentScene);
+	it = currentScene->append(redSpot);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent(new Light());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.0f, -0.4f, 0.0f));
+	it->light()->setAmbient((Color)vec4f(1, 0, 0, 1));
+	it->light()->setDiffuse((Color)vec4f(1, 0, 0, 1));
+	it->light()->setSpecular((Color)vec4f(1, 0, 0, 1));
+	it->light()->setDirection(vec3f(-0.3f, -1.8f, -0.2f));
+	it->light()->setType(Light::Type::Spot);
+
+	cg::SceneObject blueSpot("Luz Spot Azul no Coelho", *currentScene);
+	it = currentScene->append(blueSpot);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent(new Light());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.0f, 2.7f, 0.0f));
+	it->light()->setAmbient((Color)vec4f(0, (float)22/255, (float)246/255, 0));
+	it->light()->setDiffuse((Color)vec4f(0, (float)89/255, (float)230/255, 0));
+	it->light()->setSpecular((Color)vec4f((float)3/255, (float)155/255, (float)170/255, 0));
+	it->light()->setDirection(vec3f(0.1f, -0.6f, -0.2f));
+	it->light()->setInnerCutOff(17.1);
+	it->light()->setOuterCutOff(36.5);
+	it->light()->setType(Light::Type::Spot);
 }
 
 void
@@ -173,14 +243,6 @@ P3::hierarchyWindow()
 
 				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
 				(*p)->setMyIterator(p);
-				it->transform()->setLocalScale(0.2f);
-
-				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-				(*p)->setMyIterator(p);
-				it->primitive()->material.ambient = Color::white;
-				it->primitive()->material.diffuse = Color::white;
-				it->primitive()->material.spot = Color::white;
-				it->primitive()->material.shine = 0.0f;
 
 				p = it->addComponent(new Light());
 				(*p)->setMyIterator(p);
@@ -195,13 +257,6 @@ P3::hierarchyWindow()
 
 				std::list<Reference<Component>>::iterator p = it->addComponent(new Transform());
 				(*p)->setMyIterator(p);
-
-				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
-				(*p)->setMyIterator(p);
-				it->primitive()->material.ambient = Color::white;
-				it->primitive()->material.diffuse = Color::white;
-				it->primitive()->material.spot = Color::white;
-				it->primitive()->material.shine = 0.0f;
 
 				p = it->addComponent(new Light());
 				(*p)->setMyIterator(p);
@@ -355,7 +410,7 @@ P3::inspectMaterial(Material& material)
 	ImGui::ColorEdit3("Ambient", material.ambient);
 	ImGui::ColorEdit3("Diffuse", material.diffuse);
 	ImGui::ColorEdit3("Spot", material.spot);
-	ImGui::DragFloat("Shine", &material.shine, 1, 0, 1000.0f);
+	ImGui::DragFloat("Shine", &material.shine, 1, 1, 1000.0f);
 }
 
 inline void
@@ -392,6 +447,8 @@ P3::inspectLight(Light& light)
 	Color temp;
 	vec3f temp2;
 	int falloff;
+	float innerCutOff, outerCutOff;
+
 	temp = light.ambient();
 	if (ImGui::ColorEdit3("Ambient Light", temp))
 		light.setAmbient(temp);
@@ -412,6 +469,21 @@ P3::inspectLight(Light& light)
 		falloff = light.falloff();
 		if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
 			light.setFalloff(falloff);
+	}
+	if (lt == Light::Type::Spot)
+	{
+		falloff = light.falloff();
+		if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
+			light.setFalloff(falloff);
+		temp2 = light.direction();
+		if (ImGui::DragVec3("Direction", temp2))
+			light.setDirection(temp2);
+		innerCutOff = light.innerCutOff();
+		outerCutOff = light.outerCutOff();
+		if (ImGui::DragFloat("Inner Cutoff", &innerCutOff, 0.5, 0.1, 89.0))
+			light.setInnerCutOff(innerCutOff > outerCutOff ? outerCutOff - 0.1 : innerCutOff);
+		if (ImGui::DragFloat("Outer Cutoff", &outerCutOff, 0.5, 0.1, 89.0))
+			light.setOuterCutOff(outerCutOff < innerCutOff ? innerCutOff + 0.1 : outerCutOff);
 	}
 }
 
@@ -790,29 +862,33 @@ P3::render()
 	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
 	_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
 
-	int luzPontualIndex = 0, luzDirecionalIndex = 0;
+	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
 	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
-		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex);
+		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex);
 
 	_program[_indexProgramaAtual].setUniform("nLP", (int)luzPontualIndex);
 	_program[_indexProgramaAtual].setUniform("nLD", (int)luzDirecionalIndex);
+	_program[_indexProgramaAtual].setUniform("nLS", (int)luzSpotIndex);
 	if (_current != _scene) // desenha o selecionado
 	{
 		cg::SceneObject *object = (cg::SceneObject*)_current;
-		if (object->visible && object->primitive()->mesh() != nullptr)
+		if (object->primitive() != nullptr)
 		{
-			cg::GLMesh * m;
-			cg::Transform *t = object->transform();
-			_program[_indexProgramaAtual].setUniformMat4("transform", t->localToWorldMatrix());
+			if (object->visible && object->primitive()->mesh() != nullptr)
+			{
+				cg::GLMesh * m;
+				cg::Transform *t = object->transform();
+				_program[_indexProgramaAtual].setUniformMat4("transform", t->localToWorldMatrix());
 
-			m = glMesh((object->primitive())->mesh());
-			m->bind();
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+				m = glMesh((object->primitive())->mesh());
+				m->bind();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
 
-			_program[_indexProgramaAtual].setUniformVec4("material.diffuse", _selectedWireframeColor);
-			_program[_indexProgramaAtual].setUniform("flatMode", (int)1);
-			renderMesh(m, GL_LINE);
+				_program[_indexProgramaAtual].setUniformVec4("material.diffuse", _selectedWireframeColor);
+				_program[_indexProgramaAtual].setUniform("flatMode", (int)1);
+				renderMesh(m, GL_LINE);
+			}
 		}
 	}
 }

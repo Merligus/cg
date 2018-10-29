@@ -57,11 +57,13 @@ public:
   Light() :
 	Component{ "Light" },
 	_type{ Point },
-	_direction{ vec3f(0, 0, 0) },
-	_ambient{ Color::white },
-	_diffuse{ Color::white },
-	_specular{ Color::white },
-	_falloff{ 2 }
+	_direction{ vec3f(0.0f, -1.0f, -1.0f) },
+	_ambient{ Color::gray },
+	_diffuse{ Color::gray },
+	_specular{ Color::gray },
+	_falloff{ 1 },
+	_innerCutOff{ 10.0f },
+	_outerCutOff{ 14.0f }
   {
     // do nothing
   }
@@ -126,6 +128,26 @@ public:
 	  _falloff = f;
   }
 
+  float innerCutOff()
+  {
+	  return _innerCutOff;
+  }
+
+  void setInnerCutOff(float i)
+  {
+	  _innerCutOff = i;
+  }
+
+  float outerCutOff()
+  {
+	  return _outerCutOff;
+  }
+
+  void setOuterCutOff(float o)
+  {
+	  _outerCutOff = o;
+  }
+
 private:
 	Type _type;
 	vec3f _direction;
@@ -133,7 +155,8 @@ private:
 	Color _diffuse;
 	Color _specular;
 	int _falloff;
-
+	float _innerCutOff;
+	float _outerCutOff;
 }; // Light
 
 } // end namespace cg
