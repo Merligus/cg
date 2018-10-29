@@ -247,7 +247,7 @@ namespace cg
 	{
 		if (this->visible)
 		{
-			if (light() != nullptr)
+			if (light() != nullptr && indexPrograma != 2)
 			{
 				if (light()->type() == Light::Type::Directional && (*luzSpotIndex) + (*luzDirecionalIndex) + (*luzPontualIndex) < 8)
 				{
@@ -287,13 +287,16 @@ namespace cg
 					cg::Transform *t = transform();
 					auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
 					program->setUniformMat4("transform", t->localToWorldMatrix());
-					if(indexPrograma != 3)
+					if(indexPrograma < 2)
 						program->setUniformMat3("normalMatrix", normalMatrix);
-					program->setUniformVec4("material.ambient", primitive()->material.ambient);
-					program->setUniformVec4("material.diffuse", primitive()->material.diffuse);
-					program->setUniformVec4("material.spot", primitive()->material.spot);
-					program->setUniform("material.shine", (float)primitive()->material.shine);
-					program->setUniform("flatMode", (int)0);
+					if (indexPrograma != 2)
+					{
+						program->setUniformVec4("material.ambient", primitive()->material.ambient);
+						program->setUniformVec4("material.diffuse", primitive()->material.diffuse);
+						program->setUniformVec4("material.spot", primitive()->material.spot);
+						program->setUniform("material.shine", (float)primitive()->material.shine);
+						program->setUniform("flatMode", (int)0);
+					}
 					m->bind();
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
