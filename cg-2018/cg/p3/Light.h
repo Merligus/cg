@@ -58,14 +58,12 @@ public:
 	Component{ "Light" },
 	_type{ Point },
 	_direction{ vec3f(0.0f, -1.0f, -1.0f) },
-	_ambient{ Color::gray },
-	_diffuse{ Color::gray },
-	_specular{ Color::gray },
+	_color{ Color::gray },
 	_falloff{ 1 },
 	_innerCutOff{ 10.0f },
 	_outerCutOff{ 14.0f }
   {
-    // do nothing
+    // do nothing 
   }
 
   auto type() const
@@ -88,34 +86,14 @@ public:
 	  _direction = d;
   }
 
-  Color ambient()
+  Color color()
   {
-	  return _ambient;
+	  return _color;
   }
 
-  void setAmbient(Color a)
+  void setColor(Color a)
   {
-	  _ambient = a;
-  }
-
-  Color diffuse()
-  {
-	  return _diffuse;
-  }
-
-  void setDiffuse(Color d)
-  {
-	  _diffuse = d;
-  }
-
-  Color specular()
-  {
-	  return _specular;
-  }
-
-  void setSpecular(Color s)
-  {
-	  _specular = s;
+	  _color = a;
   }
 
   int falloff()
@@ -151,9 +129,7 @@ public:
 private:
 	Type _type;
 	vec3f _direction;
-	Color _ambient;
-	Color _diffuse;
-	Color _specular;
+	Color _color;
 	int _falloff;
 	float _innerCutOff;
 	float _outerCutOff;
