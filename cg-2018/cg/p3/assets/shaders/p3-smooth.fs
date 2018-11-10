@@ -11,17 +11,13 @@ struct Material
 struct LuzDirecional {
 	vec3 direction;
 
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+	vec4 color;
 };
 
 struct LuzPontual {
 	vec3 position;
 
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+	vec4 color;
 	
 	int falloff;
 };
@@ -30,9 +26,7 @@ struct LuzSpot {
 	vec3 direction;
 	vec3 position;
 
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
+	vec4 color;
 
 	int falloff;
 	float innerCutOff;
@@ -64,9 +58,9 @@ void main()
 		vec3 L = normalize(luzesPontuais[i].position - vec3(P));
 		vec3 R = reflect(-L, N);
 
-		vec4 A = luzesPontuais[i].ambient * float(1 - flatMode) * material.ambient;
-		vec4 D = material.diffuse * luzesPontuais[i].diffuse * max(dot(N, L), float(flatMode));
-		vec4 S = material.spot * luzesPontuais[i].specular * pow(max(dot(R, V), 0), material.shine);
+		vec4 A = luzesPontuais[i].color * float(1 - flatMode) * material.ambient;
+		vec4 D = material.diffuse * luzesPontuais[i].color * max(dot(N, L), float(flatMode));
+		vec4 S = material.spot * luzesPontuais[i].color * pow(max(dot(R, V), 0), material.shine);
 		
 		float dl = length(luzesPontuais[i].position - vec3(P));
 		vertexColor = vertexColor + (A + D + S)/pow(dl, luzesPontuais[i].falloff);
@@ -77,9 +71,9 @@ void main()
 		vec3 L = normalize(-luzesDirecionais[i].direction);
 		vec3 R = reflect(-L, N);
 
-		vec4 A = luzesDirecionais[i].ambient * float(1 - flatMode) * material.ambient;
-		vec4 D = material.diffuse * luzesDirecionais[i].diffuse * max(dot(N, L), float(flatMode));
-		vec4 S = material.spot * luzesDirecionais[i].specular * pow(max(dot(R, V), 0), material.shine);
+		vec4 A = luzesDirecionais[i].color * float(1 - flatMode) * material.ambient;
+		vec4 D = material.diffuse * luzesDirecionais[i].color * max(dot(N, L), float(flatMode));
+		vec4 S = material.spot * luzesDirecionais[i].color * pow(max(dot(R, V), 0), material.shine);
 
 		vertexColor = vertexColor + (A + D + S);
 	}
@@ -92,9 +86,9 @@ void main()
 		float intensity = clamp((theta - luzesSpots[i].outerCutOff) / epsilon, 0.0, 1.0);
 		vec3 R = reflect(-L, N);
 
-		vec4 A = luzesSpots[i].ambient * float(1 - flatMode) * material.ambient;
-		vec4 D = material.diffuse * luzesSpots[i].diffuse * max(dot(N, L), float(flatMode));
-		vec4 S = material.spot * luzesSpots[i].specular * pow(max(dot(R, V), 0), material.shine);
+		vec4 A = luzesSpots[i].color * float(1 - flatMode) * material.ambient;
+		vec4 D = material.diffuse * luzesSpots[i].color * max(dot(N, L), float(flatMode));
+		vec4 S = material.spot * luzesSpots[i].color * pow(max(dot(R, V), 0), material.shine);
 
 		float dl = length(luzesSpots[i].position - vec3(P));
 

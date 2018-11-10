@@ -81,10 +81,8 @@ P3::buildScene()
 	(*p)->setMyIterator(p);
 	p = it->addComponent(new Light());
 	(*p)->setMyIterator(p);
-	it->light()->setAmbient((Color)vec4f((float)35/255, (float)35/255, (float)35/255, 0));
-	it->light()->setDiffuse((Color)vec4f((float)45/255, (float)45/255, (float)45/255, 0));
-	it->light()->setSpecular((Color)vec4f((float)45/255, (float)45/255, (float)45/255, 0));
-	it->light()->setDirection(vec3f(-1.0f, 0.0f, 0.0f));
+	it->light()->setColor((Color)vec4f((float)165/255, (float)165/255, (float)165/255, 0));
+	it->transform()->rotate(vec3f(0, 0, 90.0f));
 	it->light()->setType(Light::Type::Directional);
 
 	cg::SceneObject pointLight("Luz Pontual Amarela", *currentScene);
@@ -95,9 +93,7 @@ P3::buildScene()
 	p = it->addComponent(new Light());
 	(*p)->setMyIterator(p);
 	it->transform()->setLocalPosition(vec3f(0.9f, -1.0f, 0.0f));
-	it->light()->setAmbient((Color)vec4f((float)80/255, (float)80/255, 0, 0));
-	it->light()->setDiffuse((Color)vec4f((float)170/255, (float)181/255, 0, 0));
-	it->light()->setSpecular((Color)vec4f((float)170/255, (float)193/255, 0, 0));
+	it->light()->setColor((Color)vec4f((float)170/255, (float)181/255, 0, 0));
 
 	cg::SceneObject redSpot("Luz Spot Vermelha no Jato", *currentScene);
 	it = currentScene->append(redSpot);
@@ -107,10 +103,8 @@ P3::buildScene()
 	p = it->addComponent(new Light());
 	(*p)->setMyIterator(p);
 	it->transform()->setLocalPosition(vec3f(0.0f, -0.4f, 0.0f));
-	it->light()->setAmbient((Color)vec4f(1, 0, 0, 1));
-	it->light()->setDiffuse((Color)vec4f(1, 0, 0, 1));
-	it->light()->setSpecular((Color)vec4f(1, 0, 0, 1));
-	it->light()->setDirection(vec3f(-0.3f, -1.8f, -0.2f));
+	it->light()->setColor((Color)vec4f(1, 0, 0, 1));
+	it->transform()->rotate(vec3f(10.0f, 0, -9.0f));
 	it->light()->setType(Light::Type::Spot);
 
 	cg::SceneObject blueSpot("Luz Spot Azul no Coelho", *currentScene);
@@ -121,12 +115,10 @@ P3::buildScene()
 	p = it->addComponent(new Light());
 	(*p)->setMyIterator(p);
 	it->transform()->setLocalPosition(vec3f(0.0f, 2.7f, 0.0f));
-	it->light()->setAmbient((Color)vec4f(0, (float)22/255, (float)246/255, 0));
-	it->light()->setDiffuse((Color)vec4f(0, (float)89/255, (float)230/255, 0));
-	it->light()->setSpecular((Color)vec4f((float)3/255, (float)155/255, (float)170/255, 0));
-	it->light()->setDirection(vec3f(0.1f, -0.6f, -0.2f));
-	it->light()->setInnerCutOff(17.1);
-	it->light()->setOuterCutOff(36.5);
+	it->light()->setColor((Color)vec4f(0, (float)89/255, (float)230/255, 0));
+	it->transform()->rotate(vec3f(16.8f, 3.7f, 6.1f));
+	it->light()->setInnerCutOff(16.1);
+	it->light()->setOuterCutOff(24.5);
 	it->light()->setType(Light::Type::Spot);
 }
 
@@ -451,21 +443,9 @@ P3::inspectLight(Light& light)
 	int falloff;
 	float innerCutOff, outerCutOff;
 
-	temp = light.ambient();
-	if (ImGui::ColorEdit3("Ambient Light", temp))
-		light.setAmbient(temp);
-	temp = light.diffuse();
-	if (ImGui::ColorEdit3("Diffuse Light", temp))
-		light.setDiffuse(temp);
-	temp = light.specular();
-	if (ImGui::ColorEdit3("Specular Light", temp))
-		light.setSpecular(temp);
-	if (lt == Light::Type::Directional)
-	{
-		temp2 = light.direction();
-		if (ImGui::DragVec3("Direction", temp2))
-			light.setDirection(temp2);
-	}
+	temp = light.color();
+	if (ImGui::ColorEdit3("Light Color", temp))
+		light.setColor(temp);
 	if (lt == Light::Type::Point)
 	{
 		falloff = light.falloff();
@@ -477,9 +457,6 @@ P3::inspectLight(Light& light)
 		falloff = light.falloff();
 		if (ImGui::SliderInt("Falloff", &falloff, 0, 2))
 			light.setFalloff(falloff);
-		temp2 = light.direction();
-		if (ImGui::DragVec3("Direction", temp2))
-			light.setDirection(temp2);
 		innerCutOff = light.innerCutOff();
 		outerCutOff = light.outerCutOff();
 		if (ImGui::DragFloat("Inner Cutoff", &innerCutOff, 0.5, 0.1, 89.0))
@@ -868,8 +845,6 @@ P3::render()
 		_camera->translate(d);
 	}
 	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
-	if (_indexProgramaAtual == 3)
-		_program[_indexProgramaAtual].setUniformMat4("view", _camera->worldToCameraMatrix());
 
 	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
 	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)

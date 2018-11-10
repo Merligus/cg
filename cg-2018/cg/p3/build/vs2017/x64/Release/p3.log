@@ -15,11 +15,12 @@ c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transfor
               real=float
           ]
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(128): warning C4305: 'argumento': truncamento de 'double' para 'float'
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(485): warning C4305: 'argumento': truncamento de 'double' para 'float'
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(486): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(487): warning C4305: 'argumento': truncamento de 'double' para 'float'
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(488): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(120): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(462): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(463): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(464): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(465): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\p3.cpp(442): warning C4101: 'temp2': variável local não referenciada
   SceneObject.cpp
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
           with
@@ -38,9 +39,9 @@ c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transfor
           ]
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
 c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\sceneobject.cpp(137): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
-c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\sceneobject.cpp(325): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p3\sceneobject.cpp(319): warning C4267: 'return': conversão de 'size_t' para 'unsigned int', possível perda de dados
   Gerando código
-  2 of 2442 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 2443 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     2 functions had inline decision re-evaluated but remain unchanged
   Finalizada a geração de código

@@ -57,7 +57,6 @@ public:
   Light() :
 	Component{ "Light" },
 	_type{ Point },
-	_direction{ vec3f(0.0f, -1.0f, -1.0f) },
 	_color{ Color::gray },
 	_falloff{ 1 },
 	_innerCutOff{ 10.0f },
@@ -74,16 +73,6 @@ public:
   void setType(Type type)
   {
     _type = type;
-  }
-
-  vec3f direction()
-  {
-	  return _direction;
-  }
-
-  void setDirection(vec3f d)
-  {
-	  _direction = d;
   }
 
   Color color()
@@ -128,7 +117,6 @@ public:
 
 private:
 	Type _type;
-	vec3f _direction;
 	Color _color;
 	int _falloff;
 	float _innerCutOff;
