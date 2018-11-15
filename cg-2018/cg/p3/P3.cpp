@@ -689,10 +689,9 @@ P3::renderModeGui()
 		break;
 	}
 
-	static Color edgeColor;
 	static bool showEdges;
 
-	ImGui::ColorEdit3("Edges", edgeColor);
+	ImGui::ColorEdit3("Edges", _edgeColor);
 	ImGui::SameLine();
 	ImGui::Checkbox("###showEdges", &showEdges);
 }
@@ -845,10 +844,19 @@ P3::render()
 		_camera->translate(d);
 	}
 	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
+	if(_indexProgramaAtual == 2)
+		_program[_indexProgramaAtual].setUniformVec4("color", _edgeColor);
 
 	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
+	bool currentVisible;
+	if (_current != _scene)
+	{
+		currentVisible = ((SceneObject*)_current)->visible;
+		((SceneObject*)_current)->visible = false;
+	}
 	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
 		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex, _indexProgramaAtual);
+	((SceneObject*)_current)->visible = currentVisible;
 
 	if (_indexProgramaAtual != 2)
 	{
@@ -857,6 +865,7 @@ P3::render()
 		_program[_indexProgramaAtual].setUniform("nLS", (int)luzSpotIndex);
 		_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
 	}
+		
 	if (_current != _scene) // desenha o selecionado
 	{
 		cg::SceneObject *object = (cg::SceneObject*)_current;
@@ -870,14 +879,14 @@ P3::render()
 
 				m = glMesh((object->primitive())->mesh());
 				m->bind();
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
-
 				if (_indexProgramaAtual != 2)
 				{
+					renderMesh(m, GL_FILL);
 					_program[_indexProgramaAtual].setUniformVec4("material.diffuse", _selectedWireframeColor);
 					_program[_indexProgramaAtual].setUniform("flatMode", (int)1);
 				}
+				else
+					_program[_indexProgramaAtual].setUniformVec4("color", _selectedWireframeColor);
 				renderMesh(m, GL_LINE);
 			}
 		}

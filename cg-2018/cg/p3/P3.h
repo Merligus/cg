@@ -57,6 +57,7 @@ private:
   Reference<Primitive> _primitive;
   Reference<Light> _light;
   SceneNode* _current{};
+  Color _edgeColor{ 255, 255, 255 };
   Color _selectedWireframeColor{255, 102, 0};
   Flags<MoveBits> _moveFlags{};
   Flags<DragBits> _dragFlags{};

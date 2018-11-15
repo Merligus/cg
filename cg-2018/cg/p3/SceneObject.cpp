@@ -292,8 +292,16 @@ namespace cg
 						program->setUniform("flatMode", (int)0);
 					}
 					m->bind();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+					if (indexPrograma == 2)
+					{
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+					}
+					else
+					{
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glDrawElements(GL_TRIANGLES, m->vertexCount(), GL_UNSIGNED_INT, 0);
+					}
 				}
 			}
 		}
