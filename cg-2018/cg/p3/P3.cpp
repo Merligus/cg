@@ -844,28 +844,7 @@ P3::render()
 		_camera->translate(d);
 	}
 	_program[_indexProgramaAtual].setUniformMat4("vpMatrix", vpMatrix(_camera));
-	if(_indexProgramaAtual == 2)
-		_program[_indexProgramaAtual].setUniformVec4("color", _edgeColor);
 
-	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
-	bool currentVisible;
-	if (_current != _scene)
-	{
-		currentVisible = ((SceneObject*)_current)->visible;
-		((SceneObject*)_current)->visible = false;
-	}
-	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
-		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex, _indexProgramaAtual);
-	((SceneObject*)_current)->visible = currentVisible;
-
-	if (_indexProgramaAtual != 2)
-	{
-		_program[_indexProgramaAtual].setUniform("nLP", (int)luzPontualIndex);
-		_program[_indexProgramaAtual].setUniform("nLD", (int)luzDirecionalIndex);
-		_program[_indexProgramaAtual].setUniform("nLS", (int)luzSpotIndex);
-		_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
-	}
-		
 	if (_current != _scene) // desenha o selecionado
 	{
 		cg::SceneObject *object = (cg::SceneObject*)_current;
@@ -881,7 +860,6 @@ P3::render()
 				m->bind();
 				if (_indexProgramaAtual != 2)
 				{
-					renderMesh(m, GL_FILL);
 					_program[_indexProgramaAtual].setUniformVec4("material.diffuse", _selectedWireframeColor);
 					_program[_indexProgramaAtual].setUniform("flatMode", (int)1);
 				}
@@ -890,6 +868,21 @@ P3::render()
 				renderMesh(m, GL_LINE);
 			}
 		}
+	}
+
+	if (_indexProgramaAtual == 2)
+		_program[_indexProgramaAtual].setUniformVec4("color", _edgeColor);
+
+	int luzPontualIndex = 0, luzDirecionalIndex = 0, luzSpotIndex = 0;
+	for (std::list<cg::SceneObject>::iterator it = _scene->containerBegin(); it != _scene->containerEnd(); ++it)
+		it->render(&_program[_indexProgramaAtual], &luzPontualIndex, &luzDirecionalIndex, &luzSpotIndex, _indexProgramaAtual);
+
+	if (_indexProgramaAtual != 2)
+	{
+		_program[_indexProgramaAtual].setUniform("nLP", (int)luzPontualIndex);
+		_program[_indexProgramaAtual].setUniform("nLD", (int)luzDirecionalIndex);
+		_program[_indexProgramaAtual].setUniform("nLS", (int)luzSpotIndex);
+		_program[_indexProgramaAtual].setUniformVec3("viewPos", _camera->position());
 	}
 }
 

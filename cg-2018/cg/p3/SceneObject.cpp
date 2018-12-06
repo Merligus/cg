@@ -259,14 +259,14 @@ namespace cg
 				{
 					program->setUniformVec4((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].color")).c_str(), light()->color());
 					program->setUniform((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].falloff")).c_str(), (int)light()->falloff());
-					program->setUniformVec3((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].position")).c_str(), transform()->position());
+					program->setUniformVec3((std::string("luzesPontuais[") + std::to_string(*luzPontualIndex) + std::string("].position")).c_str(), light()->transform()->position());
 					(*luzPontualIndex)++;
 				}
 				else if (light()->type() == Light::Type::Spot && (*luzSpotIndex) + (*luzDirecionalIndex) + (*luzPontualIndex) < 8)
 				{
 					program->setUniformVec4((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].color")).c_str(), light()->color());
 					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].falloff")).c_str(), (int)light()->falloff());
-					program->setUniformVec3((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].position")).c_str(), transform()->position());
+					program->setUniformVec3((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].position")).c_str(), light()->transform()->position());
 					program->setUniformVec3((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].direction")).c_str(), light()->transform()->rotation() * vec3f { 0, -1.0f, 0 });
 					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].innerCutOff")).c_str(), (float)cos(0.01745329251*light()->innerCutOff()));
 					program->setUniform((std::string("luzesSpots[") + std::to_string(*luzSpotIndex) + std::string("].outerCutOff")).c_str(), (float)cos(0.01745329251*light()->outerCutOff()));

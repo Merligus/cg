@@ -1,0 +1,15 @@
+﻿  Assets.cpp
+  Camera.cpp
+  GLImage.cpp
+  GLRenderer.cpp
+  Image.cpp
+  Main.cpp
+  MeshSweeper.cpp
+  P5.cpp
+  Primitive.cpp
+  RayTracer.cpp
+  Renderer.cpp
+  SceneObject.cpp
+  Transform.cpp
+  Gerando Código...
+  p5.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\cg\cg-2018\cg\p5\build\vs2017\..\..\p5.exe
