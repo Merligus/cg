@@ -43,24 +43,25 @@ namespace cg
 //
 // Material: material class
 // ========
-class Material
-{
-public:
-  Color ambient; // ambient color
-  Color diffuse; // diffuse color
-  Color spot; // specular spot color
-  float shine; // specular spot exponent
-  Color specular; // specular color
+	class Material
+	{
+	public:
+		Color ambient; // ambient color
+		Color diffuse; // diffuse color
+		Color spot; // specular spot color
+		float shine; // specular spot exponent
+		Color specular; // specular color
 
-  Material(const Color& color = Color::white):
-    ambient{0.2f * color},
-    diffuse{0.8f * color},
-    shine{100}
-  {
-    spot = specular = Color::black;
-  }
+		Material(const Color& color = Color::white) :
+			ambient{ 0.2f * color },
+			diffuse{ 0.8f * color },
+			spot{ Color::gray },
+			shine{ 100 }
+		{
+			spot = specular = Color::black;
+		}
 
-}; // Material
+	}; // Material
 
 } // end namespace cg
 

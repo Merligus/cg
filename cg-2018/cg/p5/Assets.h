@@ -39,31 +39,31 @@
 namespace cg
 { // begin namespace cg
 
-using MeshRef = Reference<TriangleMesh>;
-using MeshMap = std::map<std::string, MeshRef>;
-using MeshMapIterator = typename MeshMap::const_iterator;
+	using MeshRef = Reference<TriangleMesh>;
+	using MeshMap = std::map<std::string, MeshRef>;
+	using MeshMapIterator = typename MeshMap::const_iterator;
 
 
-/////////////////////////////////////////////////////////////////////
-//
-// Assets: assets class
-// ======
-class Assets
-{
-public:
-  static void initialize();
+	/////////////////////////////////////////////////////////////////////
+	//
+	// Assets: assets class
+	// ======
+	class Assets
+	{
+	public:
+		static void initialize();
 
-  static MeshMap& meshes()
-  {
-    return _meshes;
-  }
+		static MeshMap& meshes()
+		{
+			return _meshes;
+		}
 
-  static TriangleMesh* loadMesh(MeshMapIterator mit);
+		static TriangleMesh* loadMesh(MeshMapIterator mit);
 
-private:
-  static MeshMap _meshes;
+	private:
+		static MeshMap _meshes;
 
-}; // Assets
+	}; // Assets
 
 } // end namespace cg
 

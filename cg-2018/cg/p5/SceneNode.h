@@ -34,6 +34,8 @@
 #define __SceneNode_h
 
 #include "core/NameableObject.h"
+#include <string>
+#include <list>
 
 namespace cg
 { // begin namespace cg
@@ -43,24 +45,32 @@ namespace cg
 //
 // SceneNode: generic scene node class
 // =========
-class SceneNode: public NameableObject
-{
-public:
-  using NameableObject::NameableObject;
+	class SceneNode : public NameableObject
+	{
+	public:
+		using NameableObject::NameableObject;
 
-  template <typename T>
-  T* as()
-  {
-    return dynamic_cast<T*>(this);
-  }
+		template <typename T>
+		T* as()
+		{
+			return dynamic_cast<T*>(this);
+		}
 
-  template <typename T>
-  const T* as() const
-  {
-    return dynamic_cast<const T*>(this);
-  }
+		template <typename T>
+		const T* as() const
+		{
+			return dynamic_cast<const T*>(this);
+		}
 
-}; // SceneNode
+	protected:
+		SceneNode() = default;
+
+		SceneNode(const char* name)
+		{
+			NameableObject::setName(name);
+		}
+
+	}; // SceneNode
 
 } // end namespace cg
 

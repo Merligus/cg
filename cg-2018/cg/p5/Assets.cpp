@@ -37,46 +37,46 @@
 namespace cg
 { // begin namespace cg
 
-namespace fs = std::experimental::filesystem;
+	namespace fs = std::experimental::filesystem;
 
 
-/////////////////////////////////////////////////////////////////////
-//
-// Assets implementation
-// ======
-MeshMap Assets::_meshes;
+	/////////////////////////////////////////////////////////////////////
+	//
+	// Assets implementation
+	// ======
+	MeshMap Assets::_meshes;
 
-void
-Assets::initialize()
-{
-  fs::path meshPath{Application::assetFilePath("meshes/")};
+	void
+		Assets::initialize()
+	{
+		fs::path meshPath{ Application::assetFilePath("meshes/") };
 
-  if (fs::is_directory(meshPath))
-  {
-    auto p = fs::directory_iterator(meshPath);
+		if (fs::is_directory(meshPath))
+		{
+			auto p = fs::directory_iterator(meshPath);
 
-    for (auto e = fs::directory_iterator(); p != e; ++p)
-      if (fs::is_regular_file(p->status()))
-        _meshes[p->path().filename().string()] = nullptr;
-  }
-}
+			for (auto e = fs::directory_iterator(); p != e; ++p)
+				if (fs::is_regular_file(p->status()))
+					_meshes[p->path().filename().string()] = nullptr;
+		}
+	}
 
-TriangleMesh*
-Assets::loadMesh(MeshMapIterator mit)
-{
-  if (mit == _meshes.end())
-    return nullptr;
+	TriangleMesh*
+		Assets::loadMesh(MeshMapIterator mit)
+	{
+		if (mit == _meshes.end())
+			return nullptr;
 
-  TriangleMesh* m{mit->second};
+		TriangleMesh* m{ mit->second };
 
-  if (m == nullptr)
-  {
-    auto filename = "meshes/" + mit->first;
+		if (m == nullptr)
+		{
+			auto filename = "meshes/" + mit->first;
 
-    m = Application::loadMesh(filename.c_str());
-    _meshes[mit->first] = m;
-  }
-  return m;
-}
+			m = Application::loadMesh(filename.c_str());
+			_meshes[mit->first] = m;
+		}
+		return m;
+	}
 
 } // end namespace cg

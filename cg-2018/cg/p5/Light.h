@@ -44,39 +44,84 @@ namespace cg
 //
 // Light: light class
 // =====
-class Light: public Component
-{
-public:
-  enum Type
-  {
-    Directional,
-    Point,
-    Spot
-  };
+	class Light : public Component
+	{
+	public:
+		enum Type
+		{
+			Directional,
+			Point,
+			Spot
+		};
 
-  Color color{Color::white};
+		Light() :
+			Component{ "Light" },
+			_type{ Point },
+			_color{ Color::gray },
+			_falloff{ 1 },
+			_innerCutOff{ 10.0f },
+			_outerCutOff{ 14.0f }
+		{
+			// do nothing 
+		}
 
-  Light():
-    Component{"Light"},
-    _type{Point}
-  {
-    // do nothing
-  }
+		auto type() const
+		{
+			return _type;
+		}
 
-  auto type() const
-  {
-    return _type;
-  }
+		void setType(Type type)
+		{
+			_type = type;
+		}
 
-  void setType(Type type)
-  {
-    _type = type;
-  }
+		Color color()
+		{
+			return _color;
+		}
 
-private:
-  Type _type;
+		void setColor(Color a)
+		{
+			_color = a;
+		}
 
-}; // Light
+		int falloff()
+		{
+			return _falloff;
+		}
+
+		void setFalloff(int f)
+		{
+			_falloff = f;
+		}
+
+		float innerCutOff()
+		{
+			return _innerCutOff;
+		}
+
+		void setInnerCutOff(float i)
+		{
+			_innerCutOff = i;
+		}
+
+		float outerCutOff()
+		{
+			return _outerCutOff;
+		}
+
+		void setOuterCutOff(float o)
+		{
+			_outerCutOff = o;
+		}
+
+	private:
+		Type _type;
+		Color _color;
+		int _falloff;
+		float _innerCutOff;
+		float _outerCutOff;
+	}; // Light
 
 } // end namespace cg
 

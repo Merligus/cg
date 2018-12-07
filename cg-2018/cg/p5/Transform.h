@@ -44,196 +44,200 @@ namespace cg
 //
 // Transform: scene object transform class
 // =========
-class Transform final: public Component
-{
-public:
-  enum class Space
-  {
-    Local,
-    World
-  };
+	class Transform final : public Component
+	{
+	public:
+		enum class Space
+		{
+			Local,
+			World
+		};
 
-  /// Constructs an identity transform.
-  Transform();
+		/// Constructs an identity transform.
+		Transform();
 
-  /// Returns the parent of this transform.
-  Transform* parent() const; // implemented in SceneObject.h
+		/// Returns the parent of this transform.
+		Transform* parent() const; // implemented in SceneObject.h
 
-  /// Returns the local position of this transform.
-  const vec3f& localPosition() const
-  {
-    return _localPosition;
-  }
+		/// Returns the local position of this transform.
+		const vec3f& localPosition() const
+		{
+			return _localPosition;
+		}
 
-  /// Returns the local rotation of this transform.
-  const quatf& localRotation() const
-  {
-    return _localRotation;
-  }
+		/// Returns the local rotation of this transform.
+		const quatf& localRotation() const
+		{
+			return _localRotation;
+		}
 
-  /// Returns the local Euler angles (in degrees) of this transform.
-  const vec3f& localEulerAngles() const
-  {
-    return _localEulerAngles;
-  }
+		/// Returns the local Euler angles (in degrees) of this transform.
+		const vec3f& localEulerAngles() const
+		{
+			return _localEulerAngles;
+		}
 
-  /// Returns the local scale of this transform.
-  const vec3f& localScale() const
-  {
-    return _localScale;
-  }
+		/// Returns the local scale of this transform.
+		const vec3f& localScale() const
+		{
+			return _localScale;
+		}
 
-  /// Sets the local position of this transform.
-  void setLocalPosition(const vec3f& position)
-  {
-    _localPosition = position;
-    update();
-  }
+		/// Sets the local position of this transform.
+		void setLocalPosition(const vec3f& position)
+		{
+			_localPosition = position;
+			update();
+		}
 
-  /// Sets the local rotation of this transform.
-  void setLocalRotation(const quatf& rotation)
-  {
-    _localEulerAngles = rotation.eulerAngles();
-    _localRotation = rotation;
-    update();
-  }
+		/// Sets the local rotation of this transform.
+		void setLocalRotation(const quatf& rotation)
+		{
+			_localEulerAngles = rotation.eulerAngles();
+			_localRotation = rotation;
+			update();
+		}
 
-  /// Sets the local Euler angles (in degrees) of this transform.
-  void setLocalEulerAngles(const vec3f& angles)
-  {
-    _localEulerAngles = angles;
-    _localRotation = quatf::eulerAngles(angles);
-    update();
-  }
+		/// Sets the local Euler angles (in degrees) of this transform.
+		void setLocalEulerAngles(const vec3f& angles)
+		{
+			vec3f aux = angles;
+			_localEulerAngles = aux;
+			_localRotation = quatf::eulerAngles(aux);
+			update();
+		}
 
-  /// Sets the local scale of this transform.
-  void setLocalScale(const vec3f& scale)
-  {
-    _localScale = scale;
-    update();
-  }
+		/// Sets the local scale of this transform.
+		void setLocalScale(const vec3f& scale)
+		{
+			_localScale.x = scale.x < 0.001 ? 0.001 : scale.x;
+			_localScale.y = scale.y < 0.001 ? 0.001 : scale.y;
+			_localScale.z = scale.z < 0.001 ? 0.001 : scale.z;
+			update();
+		}
 
-  /// Sets the local uniform scale of this transform.
-  void setLocalScale(float scale)
-  {
-    setLocalScale(vec3f{scale});
-  }
+		/// Sets the local uniform scale of this transform.
+		void setLocalScale(float scale)
+		{
+			scale = scale < 0.001 ? 0.001 : scale;
+			setLocalScale(vec3f{ scale });
+		}
 
-  /// Returns the world position of this transform.
-  const vec3f& position() const
-  {
-    return _position;
-  }
+		/// Returns the world position of this transform.
+		const vec3f& position() const
+		{
+			return _position;
+		}
 
-  /// Returns the world rotation of this transform.
-  const quatf& rotation() const
-  {
-    return _rotation;
-  }
+		/// Returns the world rotation of this transform.
+		const quatf& rotation() const
+		{
+			return _rotation;
+		}
 
-  /// Returns the world Euler angles (in degrees) of this transform.
-  vec3f eulerAngles() const
-  {
-    return _rotation.eulerAngles();
-  }
+		/// Returns the world Euler angles (in degrees) of this transform.
+		vec3f eulerAngles() const
+		{
+			return _rotation.eulerAngles();
+		}
 
-  const vec3f& lossyScale() const
-  {
-    return _lossyScale;
-  }
+		const vec3f& lossyScale() const
+		{
+			return _lossyScale;
+		}
 
-  /// Sets the world position of this transform.
-  void setPosition(const vec3f& position);
+		/// Sets the world position of this transform.
+		void setPosition(const vec3f& position);
 
-  /// Sets the world rotation of this transform.
-  void setRotation(const quatf& rotation);
+		/// Sets the world rotation of this transform.
+		void setRotation(const quatf& rotation);
 
-  /// Sets the world Euler angles (in degrees) of this transform.
-  void setEulerAngles(const vec3f& angles)
-  {
-    setRotation(quatf::eulerAngles(angles));
-  }
+		/// Sets the world Euler angles (in degrees) of this transform.
+		void setEulerAngles(const vec3f& angles)
+		{
+			setRotation(quatf::eulerAngles(angles));
+		}
 
-  /// Translates this transform relative to the \c space axes.
-  void translate(const vec3f&, Space = Space::Local);
+		/// Translates this transform relative to the \c space axes.
+		void translate(const vec3f&, Space = Space::Local);
 
-  /// Rotates this transform around the \c space axes.
-  void rotate(const vec3f& angles, Space space = Space::Local)
-  {
-    rotate(quatf::eulerAngles(angles), space);
-  }
+		/// Rotates this transform around the \c space axes.
+		void rotate(const vec3f& angles, Space space = Space::Local)
+		{
+			rotate(quatf::eulerAngles(angles), space);
+		}
 
-  /// Rotates this transform around an \c axis.
-  void rotate(const vec3f& axis, float angle, Space space = Space::Local)
-  {
-    rotate(quatf{angle, axis}, space);
-  }
+		/// Rotates this transform around an \c axis.
+		void rotate(const vec3f& axis, float angle, Space space = Space::Local)
+		{
+			rotate(quatf{ angle, axis }, space);
+		}
 
-  /// Returns the local to world _matrix of this transform.
-  const mat4f& localToWorldMatrix() const
-  {
-    return _matrix;
-  }
+		/// Returns the local to world _matrix of this transform.
+		const mat4f& localToWorldMatrix() const
+		{
+			return _matrix;
+		}
 
-  /// Returns the world to local _matrix of this transform.
-  const mat4f& worldToLocalMatrix() const
-  {
-    return _inverseMatrix;
-  }
+		/// Returns the world to local _matrix of this transform.
+		const mat4f& worldToLocalMatrix() const
+		{
+			return _inverseMatrix;
+		}
 
-  /// Transforms \c p from local space to world space.
-  vec3f transform(const vec3f& p) const
-  {
-    return _matrix.transform3x4(p);
-  }
+		/// Transforms \c p from local space to world space.
+		vec3f transform(const vec3f& p) const
+		{
+			return _matrix.transform3x4(p);
+		}
 
-  /// Transforms \c p from world space to local space.
-  vec3f inverseTransform(const vec3f& p) const
-  {
-    return _inverseMatrix.transform3x4(p);
-  }
+		/// Transforms \c p from world space to local space.
+		vec3f inverseTransform(const vec3f& p) const
+		{
+			return _inverseMatrix.transform3x4(p);
+		}
 
-  /// Transforms \c v from local space to world space.
-  vec3f transformVector(const vec3f& v) const
-  {
-    return _matrix.transformVector(v);
-  }
+		/// Transforms \c v from local space to world space.
+		vec3f transformVector(const vec3f& v) const
+		{
+			return _matrix.transformVector(v);
+		}
 
-  /// Transforms \c v from world space to local space.
-  vec3f inverseTransformVector(const vec3f& v) const
-  {
-    return _inverseMatrix.transformVector(v);
-  }
+		/// Transforms \c v from world space to local space.
+		vec3f inverseTransformVector(const vec3f& v) const
+		{
+			return _inverseMatrix.transformVector(v);
+		}
 
-  /// Transforms \c d from world space to local space.
-  vec3f transformDirection(const vec3f& d) const
-  {
-    return _rotation.rotate(d);
-  }
+		/// Transforms \c d from world space to local space.
+		vec3f transformDirection(const vec3f& d) const
+		{
+			return _rotation.rotate(d);
+		}
 
-  void print(FILE* out = stdout) const;
+		void print(FILE* out = stdout) const;
 
-private:
-  vec3f _localPosition;
-  quatf _localRotation;
-  vec3f _localEulerAngles;
-  vec3f _localScale;
-  vec3f _position;
-  quatf _rotation;
-  vec3f _lossyScale;
-  mat4f _matrix;
-  mat4f _inverseMatrix;
+	private:
+		vec3f _localPosition;
+		quatf _localRotation;
+		vec3f _localEulerAngles;
+		vec3f _localScale;
+		vec3f _position;
+		quatf _rotation;
+		vec3f _lossyScale;
+		mat4f _matrix;
+		mat4f _inverseMatrix;
 
-  mat4f localMatrix() const;
-  mat4f inverseLocalMatrix() const;
+		mat4f localMatrix() const;
+		mat4f inverseLocalMatrix() const;
 
-  void rotate(const quatf&, Space = Space::Local);
-  void update();
-  void parentChanged();
+		void rotate(const quatf&, Space = Space::Local);
+		void update();
+		void parentChanged();
 
-  friend class SceneObject;
+		friend class SceneObject;
 
-}; // Transform
+	}; // Transform
 
 } // end namespace cg
 

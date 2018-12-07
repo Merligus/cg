@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\Primitive.cpp" />
     <ClCompile Include="..\..\RayTracer.cpp" />
     <ClCompile Include="..\..\Renderer.cpp" />
+    <ClCompile Include="..\..\SceneNode.cpp" />
     <ClCompile Include="..\..\SceneObject.cpp" />
     <ClCompile Include="..\..\Transform.cpp" />
   </ItemGroup>

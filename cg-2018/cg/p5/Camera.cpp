@@ -40,171 +40,293 @@ namespace cg
 //
 // Camera implementation
 // ======
-uint32_t Camera::_nextId;
+	uint32_t Camera::_nextId;
 
-inline const char*
-Camera::defaultName()
-{
-  static char name[16];
+	inline const char*
+		Camera::defaultName()
+	{
+		static char name[16];
 
-  snprintf(name, sizeof name, "Camera %d", ++_nextId);
-  return name;
-}
+		snprintf(name, sizeof name, "Camera %d", ++_nextId);
+		return name;
+	}
 
-Camera::Camera():
-  NameableObject{defaultName()}
-{
-  setDefaultView();
-}
+	Camera::Camera() :
+		NameableObject{ defaultName() }
+	{
+		setDefaultView();
+	}
 
-void
-Camera::setPosition(const vec3f& value)
-//[]---------------------------------------------------[]
-//|  Set the camera's position                          |
-//|                                                     |
-//|  Setting the camera's position will not change      |
-//|  neither the direction of projection nor the        |
-//|  distance between the position and the focal point. |
-//|  The focal point will be moved along the direction  |
-//|  of projection.                                     |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+	void
+		Camera::setPosition(const vec3f& value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's position                          |
+		//|                                                     |
+		//|  Setting the camera's position will not change      |
+		//|  neither the direction of projection nor the        |
+		//|  distance between the position and the focal point. |
+		//|  The focal point will be moved along the direction  |
+		//|  of projection.                                     |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		mat4f::vec3 DOP;
+		DOP = vec3f((_focalPoint.x - _position.x) / _distance,
+			(_focalPoint.y - _position.y) / _distance,
+			(_focalPoint.z - _position.z) / _distance);
 
-void
-Camera::setEulerAngles(const vec3f& value)
-{
-  // TODO
-}
+		_position = value;
 
-void
-Camera::setRotation(const quatf& value)
-{
-  // TODO
-}
+		_focalPoint = _distance * DOP + _position;
+		updateViewMatrix();
+	}
 
-void
-Camera::setProjectionType(ProjectionType value)
-//[]---------------------------------------------------[]
-//|  Set the camera's projection type                   |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+	void
+		Camera::setEulerAngles(const vec3f& value)
+	{
+		// TODO
+		_eulerAngles = value;
+		_eulerAngles = vec3f((float)((int)(_eulerAngles.x * 100) % 36000) / 100, (float)((int)(_eulerAngles.y * 100) % 36000) / 100, (float)((int)(_eulerAngles.z * 100) % 36000) / 100);
+		if (_eulerAngles.y > 89.0f)
+			_eulerAngles.y = 89.0f;
+		if (_eulerAngles.y < -89.0f)
+			_eulerAngles.y = -89.0f;
 
-void
-Camera::setDistance(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's distance                          |
-//|                                                     |
-//|  Setting the distance between the position and      |
-//|  focal point will move the focal point along the    |
-//|  direction of projection.                           |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+		quatf Yaw(_eulerAngles.x, vec3f(0, -1, 0));
+		quatf Pitch(_eulerAngles.y, vec3f(-1, 0, 0));
+		quatf Roll(_eulerAngles.z, vec3f(0, 0, 1));
+		setRotation(Yaw * Pitch * Roll);
+		vec3f DOP;
+		mat3f r = (mat3f)_rotation;
+		DOP = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+		DOP.normalize();
 
-void
-Camera::setViewAngle(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's view angle                        |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+		_focalPoint = _distance * DOP + _position;
+		updateViewMatrix();
+	}
 
-void
-Camera::setHeight(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's view_height                       |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+	void
+		Camera::setRotation(const quatf& value)
+	{
+		// TODO
+		_rotation = value;
+	}
 
-void
-Camera::setAspectRatio(float value)
-//[]---------------------------------------------------[]
-//|  Set the camera's aspect ratio                      |
-//[]---------------------------------------------------[]
-{
-  // TODO
-  _aspectRatio = value;
-}
+	void
+		Camera::setProjectionType(ProjectionType value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's projection type                   |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_projectionType = value;
 
-void
-Camera::setClippingPlanes(float F, float B)
-//[]---------------------------------------------------[]
-//|  Set the distance of the clippling planes           |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+		updateProjectionMatrix();
+	}
 
-void
-Camera::rotateYX(float ay, float ax, bool orbit)
-//[]---------------------------------------------------[]
-//|  Rotate YX                                          |
-//|                                                     |
-//|  If orbit is true, then it is a composition of an   |
-//|  azimuth of ay with an elevation of ax, in this     |
-//|  order. Otherwise, it is a composition of a yaw of  |
-//|  ay with a pitch of ax, in this order.              |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+	void
+		Camera::setDistance(float value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's distance                          |
+		//|                                                     |
+		//|  Setting the distance between the position and      |
+		//|  focal point will move the focal point along the    |
+		//|  direction of projection.                           |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		mat4f::vec3 DOP;
+		DOP = vec3f((_focalPoint.x - _position.x) / _distance,
+			(_focalPoint.y - _position.y) / _distance,
+			(_focalPoint.z - _position.z) / _distance);
 
-void
-Camera::zoom(float zoom)
-//[]---------------------------------------------------[]
-//|  Zoom                                               |
-//|                                                     |
-//|  Change the view angle (or height) of the camera so |
-//|  that more or less of a scene occupies the view     |
-//|  window. A value > 1 is a zoom-in. A value < 1 is   |
-//|  zoom-out.                                          |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+		_focalPoint = value * DOP + _position;
+		_distance = value;
+		updateViewMatrix();
+	}
 
-void
-Camera::translate(float dx, float dy, float dz)
-//[]---------------------------------------------------[]
-//|  Translate the camera                               |
-//[]---------------------------------------------------[]
-{
-  // TODO
-}
+	void
+		Camera::setViewAngle(float value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's view angle                        |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_viewAngle = value;
+		updateProjectionMatrix();
+	}
 
-void
-Camera::setDefaultView(float aspect)
-//[]---------------------------------------------------[]
-//|  Set default view                                   |
-//[]---------------------------------------------------[]
-{
-  _position.set(0.0f, 5.0f, 10.0f);
-  _eulerAngles.set(0.0f);
-  _rotation = quatf::identity();
-  _focalPoint.set(0.0f, 0.0f, 0.0f);
-  _distance = 10.0f;
-  _aspectRatio = aspect;
-  _projectionType = Perspective;
-  _viewAngle = 60.0f;
-  _height = 10.0f;
-  _F = 0.01f;
-  _B = 1000.0f;
-}
+	void
+		Camera::setHeight(float value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's view_height                       |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_height = value;
+		updateProjectionMatrix();
+	}
 
-void
-Camera::update()
-{
-  _matrix = mat4f::lookAt(_position, _focalPoint, vec3f::up());
-  _matrix.inverse(_inverseMatrix);
-  _projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
-}
+	void
+		Camera::setAspectRatio(float value)
+		//[]---------------------------------------------------[]
+		//|  Set the camera's aspect ratio                      |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_aspectRatio = value;
+		updateProjectionMatrix();
+	}
+
+	void
+		Camera::setClippingPlanes(float F, float B)
+		//[]---------------------------------------------------[]
+		//|  Set the distance of the clippling planes           |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_F = F;
+		_B = B;
+		updateProjectionMatrix();
+	}
+
+	void
+		Camera::rotateYX(float ay, float ax, bool orbit)
+		//[]---------------------------------------------------[]
+		//|  Rotate YX                                          |
+		//|                                                     |
+		//|  If orbit is true, then it is a composition of an   |
+		//|  azimuth of ay with an elevation of ax, in this     |
+		//|  order. Otherwise, it is a composition of a yaw of  |
+		//|  ay with a pitch of ax, in this order.              |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		_eulerAngles.x = _eulerAngles.x + ay;
+		_eulerAngles.y = _eulerAngles.y + ax;
+		if (_eulerAngles.y > 89.0f)
+			_eulerAngles.y = 89.0f;
+		if (_eulerAngles.y < -89.0f)
+			_eulerAngles.y = -89.0f;
+		_eulerAngles = vec3f((float)((int)(_eulerAngles.x * 100) % 36000) / 100, _eulerAngles.y, _eulerAngles.z);
+		quatf Yaw(_eulerAngles.x, vec3f(0, -1, 0));
+		quatf Pitch(_eulerAngles.y, vec3f(-1, 0, 0));
+		quatf Roll(_eulerAngles.z, vec3f(0, 0, 1));
+		setRotation(Yaw * Pitch * Roll);
+		vec3f DOP;
+		mat3f r = (mat3f)_rotation;
+		DOP = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+		DOP.normalize();
+
+		if (orbit == true)
+			_position = _focalPoint - _distance * DOP;
+		else
+			_focalPoint = _distance * DOP + _position;
+		updateViewMatrix();
+	}
+
+	void
+		Camera::zoom(float zoom)
+		//[]---------------------------------------------------[]
+		//|  Zoom                                               |
+		//|                                                     |
+		//|  Change the view angle (or height) of the camera so |
+		//|  that more or less of a scene occupies the view     |
+		//|  window. A value > 1 is a zoom-in. A value < 1 is   |
+		//|  zoom-out.                                          |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		if (_projectionType == Parallel)
+			setHeight(_height / zoom);
+		else
+			setViewAngle(_viewAngle / zoom);
+
+		updateProjectionMatrix();
+	}
+
+	void
+		Camera::translate(float dx, float dy, float dz)
+		//[]---------------------------------------------------[]
+		//|  Translate the camera                               |
+		//[]---------------------------------------------------[]
+	{
+		// TODO
+		mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), Right, VUP;
+		vec3f DOP;
+		DOP = vec3f((_focalPoint.x - _position.x) / _distance,
+			(_focalPoint.y - _position.y) / _distance,
+			(_focalPoint.z - _position.z) / _distance);
+
+		Right = (DOP.cross(WorldUp)).versor();
+		VUP = (Right.cross(DOP)).versor();
+
+		_position.x -= DOP.x * dz;
+		_position.z -= DOP.z * dz;
+
+		_focalPoint.x -= DOP.x * dz;
+		_focalPoint.z -= DOP.z * dz;
+
+		_position += Right * dx;
+		_focalPoint += Right * dx;
+
+		_position.y += VUP.y * dy;
+		_focalPoint.y += VUP.y * dy;
+
+		updateViewMatrix();
+	}
+
+	void
+		Camera::setDefaultView(float aspect)
+		//[]---------------------------------------------------[]
+		//|  Set default view                                   |
+		//[]---------------------------------------------------[]
+	{
+		_position.set(0.0f, 5.0f, 10.0f);
+		_eulerAngles.set(0.0f);
+		quatf Yaw(_eulerAngles.x, vec3f(0, -1, 0));
+		quatf Pitch(_eulerAngles.y, vec3f(-1, 0, 0));
+		quatf Roll(_eulerAngles.z, vec3f(0, 0, 1));
+		setRotation(Yaw * Pitch * Roll);
+		_focalPoint.set(0.0f, 0.0f, 0.0f);
+		_distance = 10.0f;
+		_aspectRatio = aspect;
+		_projectionType = Perspective;
+		_viewAngle = 60.0f;
+		_height = 10.0f;
+		_F = 0.01f;
+		_B = 1000.0f;
+		// TODO: update view and projection matrices.
+		updateViewMatrix();
+		updateProjectionMatrix();
+	}
+
+	void
+		Camera::updateProjectionMatrix()
+	{
+		if (_projectionType == Perspective)
+			_projectionMatrix = mat4f::perspective(_viewAngle, _aspectRatio, _F, _B);
+		else
+		{
+			float W = _height * _aspectRatio;
+			_projectionMatrix = mat4f::ortho(-W / 2.0f, W / 2.0f, -_height / 2.0f, _height / 2.0f, _F, _B);
+		}
+	}
+
+	void
+		Camera::updateViewMatrix()
+	{
+		mat4f::vec3 WorldUp(0.0f, 1.0f, 0.0f), DOP, Right, VUP;
+		mat3f r = (mat3f)_rotation;
+		DOP = vec3f(-r(0, 2), -r(1, 2), -r(2, 2));
+		DOP.normalize();
+
+		Right = (DOP.cross(WorldUp)).versor();
+		VUP = (Right.cross(DOP)).versor();
+
+		_matrix = mat4f::lookAt(_position, _position + DOP, VUP);
+		_inverseMatrix = mat4f::lookAt(_position, _position + DOP, VUP);
+		_inverseMatrix.inverse(_inverseMatrix);
+	}
 
 } // end namespace cg

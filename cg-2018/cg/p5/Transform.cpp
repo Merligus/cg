@@ -30,165 +30,194 @@
 // Author(s): Paulo Pagliosa (and your name)
 // Last revision: 15/09/2018
 
+#include "Transform.h"
 #include "SceneObject.h"
 
 namespace cg
 { // begin namespace cg
 
-template <typename real>
-inline Matrix4x4<real>
-inverseTRS(const Matrix4x4<real>& trs)
-{
-  auto u = Vector3<real>{trs[0]};
-  auto v = Vector3<real>{trs[1]};
-  auto w = Vector3<real>{trs[2]};
+	template <typename real>
+	inline Matrix4x4<real>
+		inverseTRS(const Matrix4x4<real>& trs)
+	{
+		auto u = Vector3<real>{ trs[0] };
+		auto v = Vector3<real>{ trs[1] };
+		auto w = Vector3<real>{ trs[2] };
 
-  u *= math::inverse(u.squaredNorm());
-  v *= math::inverse(v.squaredNorm());
-  w *= math::inverse(w.squaredNorm());
+		u *= math::inverse(u.squaredNorm());
+		v *= math::inverse(v.squaredNorm());
+		w *= math::inverse(w.squaredNorm());
 
-  auto p = Vector3<real>{trs[3]};
-  Matrix4x4<real> inv;
+		auto p = Vector3<real>{ trs[3] };
+		Matrix4x4<real> inv;
 
-  inv[0].set(u.x, v.x, w.x);
-  inv[1].set(u.y, v.y, w.y);
-  inv[2].set(u.z, v.z, w.z);
-  inv[3].set(-(u.dot(p)), -(v.dot(p)), -(w.dot(p)), real(1));
-  return inv;
-}
+		inv[0].set(u.x, v.x, w.x);
+		inv[1].set(u.y, v.y, w.y);
+		inv[2].set(u.z, v.z, w.z);
+		inv[3].set(-(u.dot(p)), -(v.dot(p)), -(w.dot(p)), real(1));
+		return inv;
+	}
 
-template <typename real>
-inline Vector3<real>
-translation(const Matrix4x4<real>& trs)
-{
-  return Vector3<real>{trs[3]};
-}
+	template <typename real>
+	inline Vector3<real>
+		translation(const Matrix4x4<real>& trs)
+	{
+		return Vector3<real>{trs[3]};
+	}
 
-template <typename real>
-inline Vector3<real>
-scale(const Quaternion<real>& q, const Matrix4x4<real>& m)
-{
-  using mat3 = Matrix3x3<real>;
-  return (mat3f{q.inverse()} * mat3f{m}).diagonal();
-}
+	template <typename real>
+	inline Vector3<real>
+		scale(const Quaternion<real>& q, const Matrix4x4<real>& m)
+	{
+		using mat3 = Matrix3x3<real>;
+		return (mat3f{ q.inverse() } *mat3f{ m }).diagonal();
+	}
 
 
-/////////////////////////////////////////////////////////////////////
-//
-// Transform implementation
-// =========
-Transform::Transform():
-  Component{"Transform"},
-  _localPosition{0.0f},
-  _localRotation{quatf::identity()},
-  _localEulerAngles{0.0f},
-  _localScale{1.0f},
-  _matrix{1.0}
-{
-  _position = _localPosition;
-  _rotation = _localRotation;
-  _lossyScale = _localScale;
-  _inverseMatrix = _matrix;
-}
+	/////////////////////////////////////////////////////////////////////
+	//
+	// Transform implementation
+	// =========
+	Transform::Transform() :
+		Component{ "Transform" },
+		_localPosition{ 0.0f },
+		_localRotation{ quatf::identity() },
+		_localEulerAngles{ 0.0f },
+		_localScale{ 1.0f },
+		_matrix{ 1.0 }
+	{
+		_position = _localPosition;
+		_rotation = _localRotation;
+		_lossyScale = _localScale;
+		_inverseMatrix = _matrix;
+	}
 
-inline mat4f
-Transform::localMatrix() const
-{
-  return mat4f::TRS(_localPosition, _localRotation, _localScale);
-}
+	inline mat4f
+		Transform::localMatrix() const
+	{
+		return mat4f::TRS(_localPosition, _localRotation, _localScale);
+	}
 
-inline mat4f
-Transform::inverseLocalMatrix() const
-{
-  mat3f r{_localRotation};
+	inline mat4f
+		Transform::inverseLocalMatrix() const
+	{
+		mat3f r{ _localRotation };
 
-  r[0] *= math::inverse(_localScale[0]);
-  r[1] *= math::inverse(_localScale[1]);
-  r[2] *= math::inverse(_localScale[2]);
+		r[0] *= math::inverse(_localScale[0]);
+		r[1] *= math::inverse(_localScale[1]);
+		r[2] *= math::inverse(_localScale[2]);
 
-  mat4f m;
+		mat4f m;
 
-  m[0].set(r[0][0], r[1][0], r[2][0]);
-  m[1].set(r[0][1], r[1][1], r[2][1]);
-  m[2].set(r[0][2], r[1][2], r[2][2]);
-  m[3][0] = -(r[0].dot(_localPosition));
-  m[3][1] = -(r[1].dot(_localPosition));
-  m[3][2] = -(r[2].dot(_localPosition));
-  m[3][3] = 1.0f;
-  return m;
-}
+		m[0].set(r[0][0], r[1][0], r[2][0]);
+		m[1].set(r[0][1], r[1][1], r[2][1]);
+		m[2].set(r[0][2], r[1][2], r[2][2]);
+		m[3][0] = -(r[0].dot(_localPosition));
+		m[3][1] = -(r[1].dot(_localPosition));
+		m[3][2] = -(r[2].dot(_localPosition));
+		m[3][3] = 1.0f;
+		return m;
+	}
 
-void
-Transform::setPosition(const vec3f& position)
-{
-  setLocalPosition(parent()->inverseTransform(position));
-}
+	void
+		Transform::setPosition(const vec3f& position)
+	{
+		setLocalPosition(parent()->inverseTransform(position));
+	}
 
-void
-Transform::setRotation(const quatf& rotation)
-{
-  setLocalRotation(parent()->_rotation.inverse() * rotation);
-}
+	void
+		Transform::setRotation(const quatf& rotation)
+	{
+		setLocalRotation(parent()->_rotation.inverse() * rotation);
+	}
 
-void
-Transform::translate(const vec3f& t, Space space)
-{
-  if (space == Space::Local)
-    setPosition(_position + transformDirection(t));
-  else
-    setPosition(_position + t);
-}
+	void
+		Transform::translate(const vec3f& t, Space space)
+	{
+		if (space == Space::Local)
+			setPosition(_position + transformDirection(t));
+		else
+			setPosition(_position + t);
+	}
 
-void
-Transform::rotate(const quatf& q, Space space)
-{
-  if (space == Space::World)
-    setLocalRotation(_localRotation * (_rotation.inverse() * q * _rotation));
-  else
-    setLocalRotation(_localRotation * q);
-}
+	void
+		Transform::rotate(const quatf& q, Space space)
+	{
+		if (space == Space::World)
+			setLocalRotation(_localRotation * (_rotation.inverse() * q * _rotation));
+		else
+			setLocalRotation(_localRotation * q);
+	}
 
-void
-Transform::update()
-{
-  //auto p = parent();
+	void
+		Transform::update()
+	{
+		auto p = parent();
 
-  _matrix = /*p->_matrix * */localMatrix();
-  _position = translation(_matrix);
-  _rotation = /*p->_rotation * */_localRotation;
-  _lossyScale = scale(_rotation, _matrix);
-  _inverseMatrix = inverseLocalMatrix()/* * p->_inverseMatrix*/;
-  // TODO: update the transform of all scene object's children.
-}
+		if (p != nullptr)
+			_matrix = p->_matrix * localMatrix();
+		else
+			_matrix = localMatrix();
+		_position = translation(_matrix);
+		if (p != nullptr)
+			_rotation = p->_rotation * _localRotation;
+		else
+			_rotation = _localRotation;
+		_lossyScale = scale(_rotation, _matrix);
+		if (p != nullptr)
+			_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		else
+			_inverseMatrix = inverseLocalMatrix();
+		// TODO: update the transform of all scene object's children.
+		SceneObject* sceneO = &(*sceneObject());
+		for (std::list<cg::SceneObject>::iterator it = sceneO->childrenBegin(); it != sceneO->childrenEnd(); ++it)
+			it->transform()->update();
+	}
 
-void
-Transform::parentChanged()
-{
-  //auto p = parent();
-  auto m = /*p->_inverseMatrix * */_matrix;
+	void
+		Transform::parentChanged()
+	{
+		auto p = parent();
+		mat4f m;
+		if (p != nullptr)
+			m = p->_inverseMatrix * _matrix;
+		else
+			m = _matrix;
 
-  _localPosition = translation(m);
-  _localRotation = /*p->_rotation.inverse() * */_rotation;
-  _localEulerAngles = _localRotation.eulerAngles();
-  _localScale = scale(_localRotation, m);
-  _matrix = /*p->_matrix * */localMatrix();
-  _lossyScale = scale(_rotation, _matrix);
-  _inverseMatrix = inverseLocalMatrix()/* * p->_inverseMatrix*/;
-  // TODO: update the transform of all scene object's children.
-}
+		_localPosition = translation(m);
+		if (p != nullptr)
+			_localRotation = p->_rotation.inverse() * _rotation;
+		else
+			_localRotation = _rotation;
+		_localEulerAngles = _localRotation.eulerAngles();
+		_localScale = scale(_localRotation, m);
+		if (p != nullptr)
+			_matrix = p->_matrix * localMatrix();
+		else
+			_matrix = localMatrix();
+		_lossyScale = scale(_rotation, _matrix);
+		if (p != nullptr)
+			_inverseMatrix = inverseLocalMatrix() * p->_inverseMatrix;
+		else
+			_inverseMatrix = inverseLocalMatrix();
+		// TODO: update the transform of all scene object's children.
+		SceneObject* sceneO = &(*sceneObject());
+		for (std::list<cg::SceneObject>::iterator it = sceneO->childrenBegin(); it != sceneO->childrenEnd(); ++it)
+			it->transform()->parentChanged();
+	}
 
-void
-Transform::print(FILE* out) const
-{
-  fprintf(out, "Name: %s\n", sceneObject()->name());
-  _localPosition.print("Local position: ", out);
-  _localEulerAngles.print("Local rotation: ", out);
-  _localScale.print("Local scale: ", out);
-  _position.print("Position: ", out);
-  _rotation.eulerAngles().print("Rotation: ", out);
-  _lossyScale.print("Lossy scale: ", out);
-  _matrix.print("Local2WorldMatrix", out);
-  _inverseMatrix.print("World2LocalMatrix", out);
-}
+	void
+		Transform::print(FILE* out) const
+	{
+		fprintf(out, "Name: %s\n", sceneObject()->name());
+		_localPosition.print("Local position: ", out);
+		_localEulerAngles.print("Local rotation: ", out);
+		_localScale.print("Local scale: ", out);
+		_position.print("Position: ", out);
+		_rotation.eulerAngles().print("Rotation: ", out);
+		_lossyScale.print("Lossy scale: ", out);
+		_matrix.print("Local2WorldMatrix", out);
+		_inverseMatrix.print("World2LocalMatrix", out);
+	}
 
 } // end namespace cg

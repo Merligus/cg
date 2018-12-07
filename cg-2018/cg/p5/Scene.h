@@ -44,20 +44,56 @@ namespace cg
 //
 // Scene: scene class
 // =====
-class Scene: public SceneNode
-{
-public:
-  Color backgroundColor{Color::gray};
-  Color ambientLight{Color::black};
+	class Scene : public SceneNode
+	{
+	public:
+		Color backgroundColor{ Color::gray };
+		Color ambientLight{ Color::black };
 
-  /// Constructs an empty scene.
-  Scene(const char* name):
-    SceneNode{name}
-  {
-    // do nothing
-  }
+		/// Constructs an empty scene.
+		Scene(const char* name) :
+			SceneNode{ name }
+		{
+			// do nothing
+		}
 
-}; // Scene
+		std::list<SceneObject>::iterator containerBegin()
+		{
+			return _container.begin();
+		}
+
+		std::list<SceneObject>::iterator containerEnd()
+		{
+			return _container.end();
+		}
+
+		auto containerSize()
+		{
+			return _container.size();
+		}
+
+		std::list<SceneObject>::iterator append(SceneObject novo)
+		{
+			std::list<SceneObject>::iterator aux;
+			std::cout << "Adiciona na cena " << std::endl;
+			_container.push_back(novo); // insere na última posição
+			aux = --_container.end(); // pega o iterator para a última posição da lista
+			(*aux).setMyIterator(aux); // atualiza o iterator do elemento da lista
+			return aux; // retorna o iterator pro "novo" na lista
+		}
+
+		std::list<SceneObject>::iterator remove(std::list<SceneObject>::iterator it)
+		{
+			std::cout << "Remove da cena" << std::endl;
+			return _container.erase(it); // retorna o próximo iterator. Caso it seja o último, retorna o iterator para _children.end()
+		}
+
+	private:
+		std::list<SceneObject> _container;
+
+	}; // Scene
+
+
 
 } // end namespace cg
 

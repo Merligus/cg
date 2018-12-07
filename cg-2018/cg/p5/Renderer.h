@@ -44,47 +44,47 @@ namespace cg
 //
 // Renderer: generic renderer class
 // ========
-class Renderer: public SharedObject
-{
-public:
-  // Constructors
-  Renderer() = default;
+	class Renderer : public SharedObject
+	{
+	public:
+		// Constructors
+		Renderer() = default;
 
-  Renderer(Scene&, Camera* = nullptr);
+		Renderer(Scene&, Camera* = nullptr);
 
-  auto scene() const
-  {
-    return _scene;
-  }
+		auto scene() const
+		{
+			return _scene;
+		}
 
-  auto camera() const
-  {
-    return _camera;
-  }
+		auto camera() const
+		{
+			return _camera;
+		}
 
-  void imageSize(int& w, int &h) const
-  {
-    w = _W;
-    h = _H;
-  }
+		void imageSize(int& w, int &h) const
+		{
+			w = _W;
+			h = _H;
+		}
 
-  void setScene(Scene&);
-  void setCamera(Camera*);
-  void setImageSize(int, int);
+		void setScene(Scene&);
+		void setCamera(Camera*);
+		void setImageSize(int, int);
 
-  vec3f project(const vec3f&) const;
-  vec3f unproject(const vec3f&) const;
+		vec3f project(const vec3f&) const;
+		vec3f unproject(const vec3f&) const;
 
-  virtual void update();
-  virtual void render() = 0;
+		virtual void update();
+		virtual void render() = 0;
 
-protected:
-  Reference<Scene> _scene;
-  Reference<Camera> _camera;
-  int _W;
-  int _H;
+	protected:
+		Reference<Scene> _scene;
+		Reference<Camera> _camera;
+		int _W;
+		int _H;
 
-}; // Renderer
+	}; // Renderer
 
 } // end namespace cg
 

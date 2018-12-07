@@ -45,42 +45,42 @@ namespace cg
 //
 // Primitive: primitive class
 // =========
-class Primitive: public Component
-{
-public:
-  Material material;
+	class Primitive : public Component
+	{
+	public:
+		Material material;
 
-  Primitive(TriangleMesh* mesh, const std::string& meshName):
-    Component{"Primitive"},
-    _mesh{mesh},
-    _meshName(meshName)
-  {
-    // do nothing
-  }
+		Primitive(TriangleMesh* mesh, const std::string& meshName) :
+			Component{ "Primitive" },
+			_mesh{ mesh },
+			_meshName(meshName)
+		{
+			// do nothing
+		}
 
-  TriangleMesh* mesh() const
-  {
-    return _mesh;
-  }
+		TriangleMesh* mesh() const
+		{
+			return _mesh;
+		}
 
-  const char* const meshName() const
-  {
-    return _meshName.c_str();
-  }
+		const char* const meshName() const
+		{
+			return _meshName.c_str();
+		}
 
-  void setMesh(TriangleMesh* mesh, const std::string& meshName)
-  {
-    _mesh = mesh;
-    _meshName = meshName;
-  }
+		void setMesh(TriangleMesh* mesh, const std::string& meshName)
+		{
+			_mesh = mesh;
+			_meshName = meshName;
+		}
 
-  bool intersect(const Ray& ray, float& distance) const;
+		bool intersect(const Ray& ray, float& distance) const;
 
-private:
-  Reference<TriangleMesh> _mesh;
-  std::string _meshName;
+	private:
+		Reference<TriangleMesh> _mesh;
+		std::string _meshName;
 
-}; // Primitive
+	}; // Primitive
 
 } // end namespace cg
 

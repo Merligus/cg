@@ -97,6 +97,8 @@
     <ClInclude Include="..\..\include\geometry\TriangleMesh.h" />
     <ClInclude Include="..\..\include\graphics\Application.h" />
     <ClInclude Include="..\..\include\graphics\Color.h" />
+    <ClInclude Include="..\..\include\graphics\GLGraphics.h" />
+    <ClInclude Include="..\..\include\graphics\GLGraphicsBase.h" />
     <ClInclude Include="..\..\include\graphics\GLMesh.h" />
     <ClInclude Include="..\..\include\graphics\GLProgram.h" />
     <ClInclude Include="..\..\include\graphics\GLWindow.h" />
@@ -117,6 +119,8 @@
     <ClCompile Include="..\..\externals\src\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\src\Application.cpp" />
     <ClCompile Include="..\..\src\Color.cpp" />
+    <ClCompile Include="..\..\src\GLGraphics.cpp" />
+    <ClCompile Include="..\..\src\GLGraphicsBase.cpp" />
     <ClCompile Include="..\..\src\GLProgram.cpp" />
     <ClCompile Include="..\..\src\GLWindow.cpp" />
     <ClCompile Include="..\..\src\MeshReader.cpp" />

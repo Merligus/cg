@@ -53,198 +53,199 @@ namespace cg
 //
 // Camera: camera class
 // ======
-class Camera: public NameableObject
-{
-public:
-  enum ProjectionType
-  {
-    Perspective,
-    Parallel
-  };
+	class Camera : public NameableObject
+	{
+	public:
+		enum ProjectionType
+		{
+			Perspective,
+			Parallel
+		};
 
-  Camera();
+		Camera();
 
-  vec3f position() const;
-  vec3f directionOfProjection() const;
-  vec3f eulerAngles() const;
-  quatf rotation() const;
-  float viewAngle() const;
-  float height() const;
-  float aspectRatio() const;
-  float clippingPlanes(float& F, float& B) const;
-  float nearPlane() const;
-  ProjectionType projectionType() const;
-  vec3f focalPoint() const;
-  float distance() const;
+		vec3f position() const;
+		vec3f directionOfProjection() const;
+		vec3f eulerAngles() const;
+		quatf rotation() const;
+		float viewAngle() const;
+		float height() const;
+		float aspectRatio() const;
+		float clippingPlanes(float& F, float& B) const;
+		float nearPlane() const;
+		ProjectionType projectionType() const;
+		vec3f focalPoint() const;
+		float distance() const;
 
-  void setPosition(const vec3f& value);
-  void setEulerAngles(const vec3f& value);
-  void setRotation(const quatf& value);
-  void setViewAngle(float value);
-  void setHeight(float value);
-  void setAspectRatio(float value);
-  void setClippingPlanes(float F, float B);
-  void setProjectionType(ProjectionType value);
-  void setDistance(float value);
+		void setPosition(const vec3f& value);
+		void setEulerAngles(const vec3f& value);
+		void setRotation(const quatf& value);
+		void setViewAngle(float value);
+		void setHeight(float value);
+		void setAspectRatio(float value);
+		void setClippingPlanes(float F, float B);
+		void setProjectionType(ProjectionType value);
+		void setDistance(float value);
 
-  void setDefaultView(float aspect = 1.0f);
+		void setDefaultView(float aspect = 1.0f);
 
-  void rotateYX(float ay, float ax, bool orbit = false);
-  void zoom(float zoom);
-  void translate(float dx, float dy, float dz);
-  void translate(const vec3f& d);
+		void rotateYX(float ay, float ax, bool orbit = false);
+		void zoom(float zoom);
+		void translate(float dx, float dy, float dz);
+		void translate(const vec3f& d);
 
-  mat4f worldToCameraMatrix() const;
-  mat4f cameraToWorldMatrix() const;
-  mat4f projectionMatrix() const;
-  vec3f worldToCamera(const vec3f& p) const;
-  vec3f cameraToWorld(const vec3f& p) const;
+		void updateProjectionMatrix();
+		void updateViewMatrix();
 
-  void update();
+		mat4f worldToCameraMatrix() const;
+		mat4f cameraToWorldMatrix() const;
+		mat4f projectionMatrix() const;
+		vec3f worldToCamera(const vec3f& p) const;
+		vec3f cameraToWorld(const vec3f& p) const;
 
-private:
-  static uint32_t _nextId;
+	private:
+		static uint32_t _nextId;
 
-  vec3f _position;
-  vec3f _eulerAngles;
-  quatf _rotation;
-  float _viewAngle;
-  float _height;
-  float _aspectRatio;
-  float _F;
-  float _B;
-  ProjectionType _projectionType;
-  vec3f _focalPoint;
-  float _distance;
-  mat4f _matrix; // view matrix
-  mat4f _inverseMatrix;
-  mat4f _projectionMatrix;
+		vec3f _position;
+		vec3f _eulerAngles;
+		quatf _rotation;
+		float _viewAngle;
+		float _height;
+		float _aspectRatio;
+		float _F;
+		float _B;
+		ProjectionType _projectionType;
+		vec3f _focalPoint;
+		float _distance;
+		mat4f _matrix; // view matrix
+		mat4f _inverseMatrix;
+		mat4f _projectionMatrix;
 
-  static const char* defaultName();
+		static const char* defaultName();
 
-  friend class Renderer;
+		friend class Renderer;
 
-}; // Camera
+	}; // Camera
 
-inline vec3f
-Camera::position() const
-{
-  return _position;
-}
+	inline vec3f
+		Camera::position() const
+	{
+		return _position;
+	}
 
-inline vec3f
-Camera::directionOfProjection() const
-{
-  return vec3f{_inverseMatrix[2]};
-}
+	inline vec3f
+		Camera::directionOfProjection() const
+	{
+		return vec3f{ _inverseMatrix[2] };
+	}
 
-inline vec3f
-Camera::eulerAngles() const
-{
-  return _eulerAngles;
-}
+	inline vec3f
+		Camera::eulerAngles() const
+	{
+		return _eulerAngles;
+	}
 
-inline quatf
-Camera::rotation() const
-{
-  return _rotation;
-}
+	inline quatf
+		Camera::rotation() const
+	{
+		return _rotation;
+	}
 
-inline Camera::ProjectionType
-Camera::projectionType() const
-{
-  return _projectionType;
-}
-inline vec3f
-Camera::focalPoint() const
-{
-  return _focalPoint;
-}
+	inline Camera::ProjectionType
+		Camera::projectionType() const
+	{
+		return _projectionType;
+	}
+	inline vec3f
+		Camera::focalPoint() const
+	{
+		return _focalPoint;
+	}
 
-inline float
-Camera::distance() const
-{
-  return _distance;
-}
+	inline float
+		Camera::distance() const
+	{
+		return _distance;
+	}
 
-inline float
-Camera::viewAngle() const
-{
-  return _viewAngle;
-}
+	inline float
+		Camera::viewAngle() const
+	{
+		return _viewAngle;
+	}
 
-inline float
-Camera::height() const
-{
-  return _height;
-}
+	inline float
+		Camera::height() const
+	{
+		return _height;
+	}
 
-inline float
-Camera::aspectRatio() const
-{
-  return _aspectRatio;
-}
+	inline float
+		Camera::aspectRatio() const
+	{
+		return _aspectRatio;
+	}
 
-inline float
-Camera::clippingPlanes(float& F, float& B) const
-{
-  F = _F;
-  B = _B;
-  return B - F;
-}
+	inline float
+		Camera::clippingPlanes(float& F, float& B) const
+	{
+		F = _F;
+		B = _B;
+		return B - F;
+	}
 
-inline float
-Camera::nearPlane() const
-{
-  return _F;
-}
+	inline float
+		Camera::nearPlane() const
+	{
+		return _F;
+	}
 
-inline void
-Camera::translate(const vec3f& d)
-{
-  if (d.isNull())
-    return;
-  translate(d.x, d.y, d.z);
-}
+	inline void
+		Camera::translate(const vec3f& d)
+	{
+		if (d.isNull())
+			return;
+		translate(d.x, d.y, d.z);
+	}
 
-inline mat4f
-Camera::worldToCameraMatrix() const
-{
-  return _matrix;
-}
+	inline mat4f
+		Camera::worldToCameraMatrix() const
+	{
+		return _matrix;
+	}
 
-inline mat4f
-Camera::cameraToWorldMatrix() const
-{
-  return _inverseMatrix;
-}
+	inline mat4f
+		Camera::cameraToWorldMatrix() const
+	{
+		return _inverseMatrix;
+	}
 
-inline mat4f
-Camera::projectionMatrix() const
-{
-  return _projectionMatrix;
-}
+	inline mat4f
+		Camera::projectionMatrix() const
+	{
+		return _projectionMatrix;
+	}
 
-inline vec3f
-Camera::worldToCamera(const vec3f& p) const
-{
-  return _matrix.transform3x4(p);
-}
+	inline vec3f
+		Camera::worldToCamera(const vec3f& p) const
+	{
+		return _matrix.transform3x4(p);
+	}
 
-inline vec3f
-Camera::cameraToWorld(const vec3f& p) const
-{
-  return _inverseMatrix.transform3x4(p);
-}
+	inline vec3f
+		Camera::cameraToWorld(const vec3f& p) const
+	{
+		return _inverseMatrix.transform3x4(p);
+	}
 
-//
-// Auxiliary function
-//
-inline auto
-vpMatrix(const Camera* c)
-{
-  return c->projectionMatrix() * c->worldToCameraMatrix();
-}
+	//
+	// Auxiliary function
+	//
+	inline auto
+		vpMatrix(const Camera* c)
+	{
+		return c->projectionMatrix() * c->worldToCameraMatrix();
+	}
 
 } // end namespace cg
 

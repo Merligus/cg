@@ -34,51 +34,61 @@
 #define __Component_h
 
 #include "core/SharedObject.h"
+#include <list>
 
 namespace cg
 { // begin namespace cg
 
 // Forward definitions
-class SceneObject;
-class Transform;
+	class SceneObject;
+	class Transform;
 
 
-/////////////////////////////////////////////////////////////////////
-//
-// Component: scene object component class
-// =========
-class Component: public SharedObject
-{
-public:
-  /// Returns the type name of this component.
-  auto typeName() const
-  {
-    return _typeName;
-  }
+	/////////////////////////////////////////////////////////////////////
+	//
+	// Component: scene object component class
+	// =========
+	class Component : public SharedObject
+	{
+	public:
+		bool myIteratorSet{ false };
 
-  /// Returns the scene object owning this component.
-  auto sceneObject() const
-  {
-    return _sceneObject;
-  }
+		/// Returns the type name of this component.
+		auto typeName() const
+		{
+			return _typeName;
+		}
 
-  /// Returns the transform of this component.
-  Transform* transform(); // implemented in SceneObject.h
+		/// Returns the scene object owning this component.
+		auto sceneObject() const
+		{
+			return _sceneObject;
+		}
 
-protected:
-  Component(const char* const typeName):
-    _typeName{typeName}
-  {
-    // do nothing
-  }
+		void setMyIterator(std::list<Reference<Component>>::iterator it)
+		{
+			_myIterator = it;
+			myIteratorSet = true;
+		}
 
-private:
-  const char* const _typeName;
-  SceneObject* _sceneObject{};
+		/// Returns the transform of this component.
+		Transform* transform(); // implemented in SceneObject.h
 
-  friend class SceneObject;
+	protected:
+		Component(const char* const typeName) :
+			_typeName{ typeName }
+		{
+			// do nothing
+		}
 
-}; // Component
+	private:
+		const char* const _typeName;
+		std::list<SceneObject>::iterator _sceneObject;
+		std::list<Reference<Component>>::iterator _myIterator;
+
+		friend class SceneObject;
+
+	}; // Component
 
 } // end namespace cg
 

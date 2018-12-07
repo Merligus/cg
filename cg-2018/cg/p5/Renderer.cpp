@@ -40,64 +40,65 @@ namespace cg
 //
 // Renderer implementation
 // ========
-Renderer::Renderer(Scene& scene, Camera* camera):
-  _scene(&scene)
-{
-  _camera = camera != nullptr ? camera : new Camera{};
-}
+	Renderer::Renderer(Scene& scene, Camera* camera) :
+		_scene(&scene)
+	{
+		_camera = camera != nullptr ? camera : new Camera{};
+	}
 
-void
-Renderer::setScene(Scene& scene)
-{
-  if (&scene != _scene)
-    _scene = &scene;
-}
+	void
+		Renderer::setScene(Scene& scene)
+	{
+		if (&scene != _scene)
+			_scene = &scene;
+	}
 
-void
-Renderer::setCamera(Camera* camera)
-{
-  if (camera != _camera)
-    _camera = camera != nullptr ? camera : new Camera{};
-}
+	void
+		Renderer::setCamera(Camera* camera)
+	{
+		if (camera != _camera)
+			_camera = camera != nullptr ? camera : new Camera{};
+	}
 
-void
-Renderer::setImageSize(int w, int h)
-{
-  _camera->setAspectRatio((float)(_W = w) / (float)(_H = h));
-}
+	void
+		Renderer::setImageSize(int w, int h)
+	{
+		_camera->setAspectRatio((float)(_W = w) / (float)(_H = h));
+	}
 
-void
-Renderer::update()
-{
-  _camera->update();
-  // TODO
-}
+	void
+		Renderer::update()
+	{
+		_camera->updateViewMatrix();
+		_camera->updateProjectionMatrix();
+		// TODO
+	}
 
-inline vec3f
-normalize(const vec4f& p)
-{
-  return vec3f{p} * math::inverse(p.w);
-}
+	inline vec3f
+		normalize(const vec4f& p)
+	{
+		return vec3f{ p } *math::inverse(p.w);
+	}
 
-vec3f
-Renderer::project(const vec3f& p) const
-{
-  auto w = normalize(vpMatrix(_camera) * vec4f{p, 1});
+	vec3f
+		Renderer::project(const vec3f& p) const
+	{
+		auto w = normalize(vpMatrix(_camera) * vec4f { p, 1 });
 
-  w.x = (w.x * 0.5f + 0.5f) * _W;
-  w.y = (w.y * 0.5f + 0.5f) * _H;
-  w.z = (w.z * 0.5f + 0.5f);
-  return w;
-}
+		w.x = (w.x * 0.5f + 0.5f) * _W;
+		w.y = (w.y * 0.5f + 0.5f) * _H;
+		w.z = (w.z * 0.5f + 0.5f);
+		return w;
+	}
 
-vec3f
-Renderer::unproject(const vec3f& w) const
-{
-  vec4f p{w.x / _W * 2 - 1, w.y / _H * 2 - 1, w.z * 2 - 1, 1};
-  mat4f m{vpMatrix(_camera)};
+	vec3f
+		Renderer::unproject(const vec3f& w) const
+	{
+		vec4f p{ w.x / _W * 2 - 1, w.y / _H * 2 - 1, w.z * 2 - 1, 1 };
+		mat4f m{ vpMatrix(_camera) };
 
-  m.invert();
-  return normalize(m * p);
-}
+		m.invert();
+		return normalize(m * p);
+	}
 
 } // end namespace cg

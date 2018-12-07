@@ -43,12 +43,12 @@ namespace cg
 //
 // MeshSweeper: mesh sweeper class
 // ===========
-class MeshSweeper
-{
-public:
-  static TriangleMesh* makeBox();
+	class MeshSweeper
+	{
+	public:
+		static TriangleMesh* makeBox();
 
-}; // MeshSweeper
+	}; // MeshSweeper
 
 } // end namespace cg
 
