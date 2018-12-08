@@ -74,7 +74,7 @@ namespace cg
 			_meshName = meshName;
 		}
 
-		bool intersect(const Ray& ray, float& distance) const;
+		bool intersect(const Ray& ray, float& distance, int& tIndex, vec3f& position) const;
 
 	private:
 		Reference<TriangleMesh> _mesh;

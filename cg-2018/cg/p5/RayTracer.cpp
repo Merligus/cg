@@ -33,6 +33,7 @@
 #include "Camera.h"
 #include "RayTracer.h"
 #include <time.h>
+#include <stack>
 
 using namespace std;
 
@@ -200,10 +201,35 @@ RayTracer::intersect(const Ray& ray, Intersection& hit)
 //|  @return true if the ray intersects an object       |
 //[]---------------------------------------------------[]
 {
-  hit.object = nullptr;
-  hit.distance = ray.tMax;
-  // TODO: insert your code here
-  return hit.object != nullptr;
+	hit.object = nullptr;
+	hit.distance = ray.tMax;
+	// TODO: insert your code here
+	float distance = ray.tMax;
+	int triangleIndex = -1;
+	vec3f position;
+	auto scene = (Scene*)_scene;
+	std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
+	for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
+		pilhaDeObjetos.push(object);
+	while (!pilhaDeObjetos.empty())
+	{
+		auto object = pilhaDeObjetos.top();
+		if (object->primitive() != nullptr)
+		{
+			bool inter = object->primitive()->intersect(ray, distance, triangleIndex, position);
+			if (hit.distance > distance && inter)
+			{
+				hit.p = position;
+				hit.triangleIndex = triangleIndex;
+				hit.distance = distance;
+				hit.object = object->primitive();
+			}
+		}
+		pilhaDeObjetos.pop();
+		for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
+			pilhaDeObjetos.push(filho);
+	}
+	return hit.object != nullptr;
 }
 
 Color
@@ -217,8 +243,115 @@ RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
 //|  @return color at point P                           |
 //[]---------------------------------------------------[]
 {
-  // TODO: insert your code here
-  return Color::black;
+	// TODO: insert your code here
+	_numberOfHits++;
+	auto scene = (Scene*)_scene;
+	Color c = hit.object->material.ambient * scene->ambientLight;
+	if (hit.object->material.specular != Color::black)
+	{
+		vec3f Or{ hit.object->material.specular.r, hit.object->material.specular.g, hit.object->material.specular.b };
+		weight *= Or.max();
+		if (weight > _minWeight)
+		{
+			auto data = hit.object->mesh()->data();
+			vec3f N = data.vertexNormals[hit.triangleIndex].versor();
+			Ray reflectRay{ hit.p - rt_eps() * ray.direction, ray.direction.versor() - 2 * N.dot(ray.direction.versor()) * N };
+			c += hit.object->material.specular * trace(reflectRay, level + 1, weight);
+		}
+	}
+
+	float distance = ray.tMax;
+
+	std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
+	for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
+		pilhaDeObjetos.push(object);
+	while (!pilhaDeObjetos.empty())
+	{
+		auto object = pilhaDeObjetos.top();
+		if (object->light() != nullptr)
+		{
+			// vec3f O = ray.origin + (hit.distance - rt_eps()) * ray.direction.versor();
+			vec3f O = hit.p - rt_eps() * ray.direction;
+			vec3f direcao = object->transform()->position() - O;
+			Ray lightRay{ O, direcao, 0, (direcao).length() - rt_eps() };
+			if (!shadow(lightRay))
+			{
+				auto t = object->light()->transform();
+				auto data = hit.object->mesh()->data();
+				vec3f N = mat3f{ t->worldToLocalMatrix() }.transposed() * data.vertexNormals[hit.triangleIndex];
+				N = N.versor();
+				vec3f V = camera()->position() - hit.p;
+				if (object->light()->type() == Light::Type::Directional)
+				{
+					vec3f direction = t->rotation() * vec3f { 0, -1.0f, 0 };
+					Color color = object->light()->color();
+					
+					vec3f L = (-direction).versor();
+					vec3f R = -L - 2 * N.dot(-L) * N;
+
+					Color A = color * hit.object->material.ambient;
+					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+
+					c += (A + D + S);
+				}
+				else if (object->light()->type() == Light::Type::Point)
+				{
+					Color color = object->light()->color();
+					int falloff = object->light()->falloff();
+					vec3f position = object->light()->transform()->position();
+
+					vec3f L = (position - hit.p).versor();
+					vec3f R = -L - 2 * N.dot(-L) * N;
+
+					Color A = color * hit.object->material.ambient;
+					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+
+					c = c + (A + D + S);
+					/*float dl = (position - hit.p).length();
+					c.r = c.r + (A.r + D.r + S.r) / pow(dl, falloff);
+					c.g = c.g + (A.g + D.g + S.g) / pow(dl, falloff);
+					c.b = c.b + (A.b + D.b + S.b) / pow(dl, falloff);
+					c.a = c.a + (A.a + D.a + S.a) / pow(dl, falloff);*/
+				}
+				else if (object->light()->type() == Light::Type::Spot)
+				{
+					Color color = object->light()->color();
+					int falloff = object->light()->falloff();
+					vec3f position = object->light()->transform()->position();
+					vec3f direction = t->rotation() * vec3f { 0, -1.0f, 0 };
+					float innerCutOff = cos(0.01745329251*object->light()->innerCutOff());
+					float outerCutOff = cos(0.01745329251*object->light()->outerCutOff());
+
+					vec3f L = (position - hit.p).versor();
+					float theta = L.dot((-direction).versor());
+					float epsilon = innerCutOff - outerCutOff;
+					float intensity = (theta - outerCutOff) / epsilon;
+					if (intensity < 0.0f)
+						intensity = 0.0f;
+					else if (intensity > 1.0f)
+						intensity = 1.0f;
+					vec3f R = -L - 2 * N.dot(-L) * N;
+
+					Color A = color * hit.object->material.ambient;
+					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+
+					float dl = (position - hit.p).length();
+
+					c.r = c.r + intensity * (A.r + D.r + S.r) / pow(dl, falloff);
+					c.g = c.g + intensity * (A.g + D.g + S.g) / pow(dl, falloff);
+					c.b = c.b + intensity * (A.b + D.b + S.b) / pow(dl, falloff);
+					c.a = c.a + intensity * (A.a + D.a + S.a) / pow(dl, falloff);
+				}
+			}
+		}
+		pilhaDeObjetos.pop();
+		for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
+			pilhaDeObjetos.push(filho);		
+	}
+	return c;
 }
 
 Color

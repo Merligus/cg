@@ -1,5 +1,6 @@
 #include "MeshSweeper.h"
 #include "P5.h"
+#include <stack>
 
 MeshMap P5::_defaultMeshes;
 
@@ -43,7 +44,36 @@ P5::buildScene()
 	std::list<Reference<Component>>::iterator p;
 	auto& meshes = Assets::meshes();
 
-	cg::SceneObject obj("Empty Object", *currentScene);
+	cg::SceneObject obj("Box1", *currentScene);
+	it = currentScene->append(obj);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+	(*p)->setMyIterator(p);
+
+	cg::SceneObject box2("Box2", *currentScene);
+	it = currentScene->append(box2);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.0f, -1.0f, 2.2f));
+	it->transform()->setLocalScale(0.5f);
+	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+	(*p)->setMyIterator(p);
+
+	cg::SceneObject pointLight("Luz Pontual Amarela", *currentScene);
+	it = currentScene->append(pointLight);
+	it->setMyIterator(it);
+	p = it->addComponent(new Transform());
+	(*p)->setMyIterator(p);
+	p = it->addComponent(new Light());
+	(*p)->setMyIterator(p);
+	it->transform()->setLocalPosition(vec3f(0.0f, 0.0f, 2.0f));
+	it->transform()->setLocalScale(0.1f);
+	it->light()->setColor((Color)vec4f((float)255 / 255, (float)0 / 255, 0, 0));
+
+	/*cg::SceneObject obj("Empty Object", *currentScene);
 	it = currentScene->append(obj);
 	it->setMyIterator(it);
 	p = it->addComponent(new Transform());
@@ -134,7 +164,7 @@ P5::buildScene()
 	it->transform()->rotate(vec3f(16.8f, 3.7f, 6.1f));
 	it->light()->setInnerCutOff(16.1);
 	it->light()->setOuterCutOff(24.5);
-	it->light()->setType(Light::Type::Spot);
+	it->light()->setType(Light::Type::Spot);*/
 	
 	return scene;
 }
@@ -1029,12 +1059,31 @@ P5::mouseButtonInputEvent(int button, int actions, int mods)
 
 			// TODO: scene intersection
 			const auto ray = makeRay(_pivotX, _pivotY);
-			float distance;
+			float distance = ray.tMax;
 
-			auto object = (SceneObject*)_current;
-
-			if (object->primitive()->intersect(ray, distance))
-				_current = object;
+			auto scene = _renderer->scene();
+			std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
+			for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
+				pilhaDeObjetos.push(object);
+			while (!pilhaDeObjetos.empty())
+			{
+				auto object = pilhaDeObjetos.top();
+				float d;
+				vec3f position;
+				int triangleIndex;
+				if (object->primitive() != nullptr)
+				{
+					bool iter = object->primitive()->intersect(ray, d, triangleIndex, position);
+					if (d < distance && iter)
+					{
+						_current = &(*object);
+						distance = d;
+					}
+				}
+				pilhaDeObjetos.pop();
+				for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
+					pilhaDeObjetos.push(filho);
+			}
 		}
 		return true;
 	}

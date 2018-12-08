@@ -282,7 +282,7 @@ namespace cg
 		//|  Set default view                                   |
 		//[]---------------------------------------------------[]
 	{
-		_position.set(0.0f, 5.0f, 10.0f);
+		_position.set(0.0f, 0.0f, 10.0f);
 		_eulerAngles.set(0.0f);
 		quatf Yaw(_eulerAngles.x, vec3f(0, -1, 0));
 		quatf Pitch(_eulerAngles.y, vec3f(-1, 0, 0));

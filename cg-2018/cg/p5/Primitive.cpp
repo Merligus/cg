@@ -38,33 +38,73 @@ namespace cg
 
 
 bool
-Primitive::intersect(const Ray& ray, float& distance) const
+Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& position) const
 {
-  if (_mesh == nullptr)
-    return false;
+	if (_mesh == nullptr)
+		return false;
 
-  auto t = const_cast<Primitive*>(this)->transform();
-  Ray localRay{ray, t->worldToLocalMatrix()};
-  auto d = math::inverse(localRay.direction.length());
-  float tMin;
-  float tMax;
+	auto trans = const_cast<Primitive*>(this)->transform();
+	Ray localRay{ray, trans->worldToLocalMatrix()};
+	auto d = math::inverse(localRay.direction.length());
+	float tMin;
+	float tMax;
 
-  localRay.direction *= d;
-  if (_mesh->bounds().intersect(localRay, tMin, tMax))
-  {
-    // TODO: mesh intersection
-    if (tMin >= ray.tMin && tMin <= ray.tMax)
-    {
-      distance = tMin * d;
-      return true;
-    }
-    if (tMax >= ray.tMin && tMax <= ray.tMax)
-    {
-      distance = tMax * d;
-      return true;
-    }
-  }
-  return false;
+	localRay.direction *= d;
+	if (_mesh->bounds().intersect(localRay, tMin, tMax))
+	{
+		// TODO: _mesh intersection
+		auto data = _mesh->data();
+		float t = ray.tMax, b1 = 0, b2 = 0;
+		bool inter = false;
+		for (int triangleIndex = 0; triangleIndex < data.numberOfTriangles; triangleIndex++)
+		{
+			vec3f e1 = data.vertices[data.triangles[triangleIndex].v[1]] - data.vertices[data.triangles[triangleIndex].v[0]];
+			vec3f e2 = data.vertices[data.triangles[triangleIndex].v[2]] - data.vertices[data.triangles[triangleIndex].v[0]];
+			vec3f s1 = localRay.direction.cross(e2);
+			float dir = s1.dot(e1);
+			if (dir == 0)
+				continue;
+			dir = 1 / dir;
+			vec3f s = localRay.origin - data.vertices[data.triangles[triangleIndex].v[0]];
+			vec3f s2 = s.cross(e1);
+			float tAux = (s2.dot(e2)) * dir;
+			if (tAux <= 0)
+				continue;
+			float b1Aux = (s1.dot(s)) * dir;
+			if (b1Aux < 0)
+				continue;
+			float b2Aux = s2.dot(localRay.direction) * dir;
+			if (b2Aux < 0 || b2Aux + b1Aux > 1)
+				continue;
+			if (tAux >= ray.tMin && tAux <= ray.tMax && tAux < t)
+			{
+				t = tAux;
+				b1 = b1Aux;
+				b2 = b2Aux;
+				tIndex = triangleIndex;
+				inter = true;
+			}			
+		}
+		if (inter)
+		{
+			// position = trans->localToWorldMatrix().transform((1 - b1 - b2) * data.vertices[data.triangles[tIndex].v[0]] + b1 * data.vertices[data.triangles[tIndex].v[1]] + b2 * data.vertices[data.triangles[tIndex].v[2]]);
+			position = trans->localToWorldMatrix().transform(t * localRay.direction.versor() + localRay.origin);
+			distance = (position - ray.origin).length();
+			return true;
+		}
+		/*se não interceptar ninguém
+		if (tMin >= ray.tMin && tMin <= ray.tMax)
+		{
+			distance = tMin * d;
+			return true;
+		}
+		if (tMax >= ray.tMin && tMax <= ray.tMax)
+		{
+			distance = tMax * d;
+			return true;
+		}*/
+	}
+	return false;
 }
 
 } // end namespace cg
