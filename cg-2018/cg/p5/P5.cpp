@@ -558,6 +558,9 @@ inline void
 P5::sceneObjectGui()
 {
 	auto object = (SceneObject*)_current;
+	auto transform = object->transform();
+	auto primitive = object->primitive();
+	auto light = object->light();
 
 	addComponentButton(*object);
 	ImGui::Separator();
@@ -565,15 +568,15 @@ P5::sceneObjectGui()
 	ImGui::SameLine();
 	ImGui::Checkbox("###visible", &object->visible);
 	ImGui::Separator();
-	if (object->transform() != nullptr)
-		if (ImGui::CollapsingHeader(object->transform()->typeName()))
-			ImGui::TransformEdit(object->transform());
-	if (object->primitive() != nullptr)
-		if (ImGui::CollapsingHeader(object->primitive()->typeName()))
-			inspectPrimitive(*object->primitive());
-	if (object->light() != nullptr)
-		if (ImGui::CollapsingHeader(object->light()->typeName()))
-			inspectLight(*object->light());
+	if (transform != nullptr)
+		if (ImGui::CollapsingHeader(transform->typeName()))
+			ImGui::TransformEdit(transform);
+	if (primitive != nullptr)
+		if (ImGui::CollapsingHeader(primitive->typeName()))
+			inspectPrimitive(*primitive);
+	if (light != nullptr)
+		if (ImGui::CollapsingHeader(light->typeName()))
+			inspectLight(*light);
 }
 
 inline void
