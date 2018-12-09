@@ -201,10 +201,15 @@ RayTracer::intersect(const Ray& ray, Intersection& hit)
 //|  @return true if the ray intersects an object       |
 //[]---------------------------------------------------[]
 {
+	Ray raioAuxiliar;
+	raioAuxiliar.set(ray.origin, ray.direction);
+	raioAuxiliar.tMin = ray.tMin;
+	raioAuxiliar.tMax = ray.tMax;
+
 	hit.object = nullptr;
-	hit.distance = ray.tMax;
+	hit.distance = raioAuxiliar.tMax;
 	// TODO: insert your code here
-	float distance = ray.tMax;
+	float distance = raioAuxiliar.tMax;
 	int triangleIndex = -1;
 	vec3f position;
 	auto scene = (Scene*)_scene;
@@ -216,7 +221,7 @@ RayTracer::intersect(const Ray& ray, Intersection& hit)
 		auto object = pilhaDeObjetos.top();
 		if (object->primitive() != nullptr && object->visible)
 		{
-			bool inter = object->primitive()->intersect(ray, distance, triangleIndex, position);
+			bool inter = object->primitive()->intersect(raioAuxiliar, distance, triangleIndex, position);
 			if (hit.distance > distance && inter)
 			{
 				hit.p = position;
@@ -274,18 +279,18 @@ RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
 		auto object = pilhaDeObjetos.top();
 		if (object->light() != nullptr)
 		{
-			// vec3f O = ray.origin + (hit.distance - rt_eps()) * ray.direction.versor();
 			auto data = hit.object->mesh()->data();
 			vec3f normalLocal = data.vertexNormals[data.triangles[hit.triangleIndex].v[0]];
 			mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
 			vec3f N = normalMatrix.transform(normalLocal).versor();
 			vec3f O = hit.p + rt_eps() * N;
 			vec3f direcao = object->transform()->position() - O;
-			Ray lightRay{ O, direcao, 0, (direcao).length() - rt_eps() };
+			Ray lightRay{ O, direcao };
+			lightRay.tMax = (direcao).length() - rt_eps();
 			lightRay.direction = direcao;
 			if (!shadow(lightRay))
 			{
-				vec3f V = (camera()->position() - hit.p).versor();
+				vec3f V = (camera()->position() - O).versor();
 				if (object->light()->type() == Light::Type::Directional)
 				{
 					vec3f direction = object->transform()->rotation() * vec3f { 0, -1.0f, 0 };

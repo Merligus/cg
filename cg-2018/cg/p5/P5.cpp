@@ -42,38 +42,10 @@ P5::buildScene()
 	cg::SceneObject *currentBox;
 	std::list<cg::SceneObject>::iterator it;
 	std::list<Reference<Component>>::iterator p;
+	
 	auto& meshes = Assets::meshes();
 
-	cg::SceneObject obj("Box1", *currentScene);
-	it = currentScene->append(obj);
-	it->setMyIterator(it);
-	p = it->addComponent(new Transform());
-	(*p)->setMyIterator(p);
-	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-	(*p)->setMyIterator(p);
-
-	cg::SceneObject box2("Box2", *currentScene);
-	it = currentScene->append(box2);
-	it->setMyIterator(it);
-	p = it->addComponent(new Transform());
-	(*p)->setMyIterator(p);
-	it->transform()->setLocalPosition(vec3f(0.0f, -1.0f, 2.2f));
-	it->transform()->setLocalScale(0.5f);
-	p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
-	(*p)->setMyIterator(p);
-
-	cg::SceneObject pointLight("Luz Pontual Amarela", *currentScene);
-	it = currentScene->append(pointLight);
-	it->setMyIterator(it);
-	p = it->addComponent(new Transform());
-	(*p)->setMyIterator(p);
-	p = it->addComponent(new Light());
-	(*p)->setMyIterator(p);
-	it->transform()->setLocalPosition(vec3f(0.0f, 0.0f, 2.0f));
-	it->transform()->setLocalScale(0.1f);
-	it->light()->setColor((Color)vec4f((float)255 / 255, (float)0 / 255, 0, 0));
-
-	/*cg::SceneObject obj("Empty Object", *currentScene);
+	cg::SceneObject obj("Empty Object", *currentScene);
 	it = currentScene->append(obj);
 	it->setMyIterator(it);
 	p = it->addComponent(new Transform());
@@ -164,7 +136,7 @@ P5::buildScene()
 	it->transform()->rotate(vec3f(16.8f, 3.7f, 6.1f));
 	it->light()->setInnerCutOff(16.1);
 	it->light()->setOuterCutOff(24.5);
-	it->light()->setType(Light::Type::Spot);*/
+	it->light()->setType(Light::Type::Spot);
 	
 	return scene;
 }
@@ -186,11 +158,6 @@ P5::initialize()
 	glPolygonOffset(1.0f, 1.0f);
 	glEnable(GL_LINE_SMOOTH);
 	_program[2].use();
-}
-
-namespace ImGui
-{
-	void ShowDemoWindow(bool*);
 }
 
 inline void
@@ -798,6 +765,76 @@ P5::fileMenu()
 	if (ImGui::MenuItem("Save As..."))
 	{
 		// TODO
+	}
+	ImGui::Separator();
+	if (ImGui::BeginMenu("Examples"))
+	{
+		if (ImGui::MenuItem("Example #1"))
+		{
+			Scene* scene = _renderer->scene();
+			cg::Scene *currentScene = scene;
+			// Scene* scene;
+			// cg::Scene *currentScene = scene = new cg::Scene{ "Scene Example #1" };
+			_renderer->setScene(*currentScene);
+			auto camera = _renderer->camera();
+
+			_current = nullptr;
+			while (_renderer->scene()->containerSize() > 0)
+			{
+				auto currentObject = scene->containerBegin();
+				_current = currentObject->autoDelete();
+			}
+
+			std::list<cg::SceneObject>::iterator it;
+			std::list<Reference<Component>>::iterator p;
+
+			cg::SceneObject obj("Box1", *currentScene);
+			it = currentScene->append(obj);
+			it->setMyIterator(it);
+			p = it->addComponent(new Transform());
+			(*p)->setMyIterator(p);
+			p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+			(*p)->setMyIterator(p);
+			it->primitive()->material.spot.setRGB(Color::white);
+			it->primitive()->material.specular.setRGB(Color::white);
+			it->primitive()->material.shine = 938.0f;
+
+			cg::SceneObject box2("Box2", *currentScene);
+			it = currentScene->append(box2);
+			it->setMyIterator(it);
+			p = it->addComponent(new Transform());
+			(*p)->setMyIterator(p);
+			it->transform()->setLocalPosition(vec3f(0.0f, 0.0f, 1.6f));
+			it->transform()->setLocalScale(0.2f);
+			p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+			(*p)->setMyIterator(p);
+			it->primitive()->material.specular.setRGB(Color::white);
+			it->primitive()->material.shine = 25.0f;
+
+			cg::SceneObject cone("Cone1", *currentScene);
+			it = currentScene->append(cone);
+			it->setMyIterator(it);
+			p = it->addComponent(new Transform());
+			(*p)->setMyIterator(p);
+			it->transform()->setLocalPosition(vec3f(0.0f, 0.0f, 7.0f));
+			p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Cone")));
+			(*p)->setMyIterator(p);
+
+			cg::SceneObject pointLight("Luz Invisivel Transparente", *currentScene);
+			it = currentScene->append(pointLight);
+			it->setMyIterator(it);
+			p = it->addComponent(new Transform());
+			(*p)->setMyIterator(p);
+			p = it->addComponent(new Light());
+			(*p)->setMyIterator(p);
+			it->transform()->setLocalPosition(vec3f(0.0f, 0.0f, 2.7f));
+			it->transform()->setLocalScale(0.1f);
+			it->light()->setColor((Color)vec4f((float)255 / 255, 0, 0, 0));
+
+			camera->setPosition(vec3f(1.0f, 0.0f, 2.4f));
+			camera->rotateYX(-20.0f, 0.0f);
+		}
+		ImGui::EndMenu();
 	}
 	ImGui::Separator();
 	if (ImGui::MenuItem("Exit", "Alt+F4"))

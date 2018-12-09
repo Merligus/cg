@@ -44,7 +44,9 @@ Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& positi
 		return false;
 
 	auto trans = const_cast<Primitive*>(this)->transform();
-	Ray localRay{ray, trans->worldToLocalMatrix()};
+	Ray localRay{ray.origin, ray.direction}; // trans->worldToLocalMatrix()
+	localRay.origin = trans->worldToLocalMatrix().transform(ray.origin);
+	localRay.direction = trans->worldToLocalMatrix().transformVector(ray.direction);
 	auto d = math::inverse(localRay.direction.length());
 	float tMin;
 	float tMax;
@@ -54,7 +56,7 @@ Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& positi
 	{
 		// TODO: _mesh intersection
 		auto data = _mesh->data();
-		float t = ray.tMax, b1 = 0, b2 = 0;
+		float t = math::Limits<float>::inf(), b1 = 0, b2 = 0;
 		bool inter = false;
 		for (int triangleIndex = 0; triangleIndex < data.numberOfTriangles; triangleIndex++)
 		{
@@ -76,14 +78,12 @@ Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& positi
 			float b2Aux = s2.dot(localRay.direction) * dir;
 			if (b2Aux < 0 || b2Aux + b1Aux > 1)
 				continue;
-			if (tAux >= ray.tMin && tAux <= ray.tMax && tAux < t)
+			if (tAux*d >= ray.tMin && tAux*d <= ray.tMax && tAux < t)
 			{
 				t = tAux;
-				b1 = b1Aux;
-				b2 = b2Aux;
 				tIndex = triangleIndex;
 				inter = true;
-			}			
+			}
 		}
 		if (inter)
 		{
@@ -92,17 +92,6 @@ Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& positi
 			distance = (position - ray.origin).length();
 			return true;
 		}
-		/*se não interceptar ninguém
-		if (tMin >= ray.tMin && tMin <= ray.tMax)
-		{
-			distance = tMin * d;
-			return true;
-		}
-		if (tMax >= ray.tMin && tMax <= ray.tMax)
-		{
-			distance = tMax * d;
-			return true;
-		}*/
 	}
 	return false;
 }
