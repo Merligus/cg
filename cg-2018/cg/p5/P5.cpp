@@ -987,6 +987,111 @@ P5::mainMenu()
 				camera->setPosition(vec3f(0.53f, 0.31f, 0.51f));
 				camera->rotateYX(-17.26f, 5.8f);
 			}
+			if (ImGui::MenuItem("Example #3"))
+			{
+				Scene* scene = _renderer->scene();
+				cg::Scene *currentScene = scene;
+				_renderer->setScene(*currentScene);
+				auto camera = _renderer->camera();
+
+				_current = nullptr;
+				while (_renderer->scene()->containerSize() > 0)
+				{
+					auto currentObject = scene->containerBegin();
+					_current = currentObject->autoDelete();
+				}
+
+				std::list<cg::SceneObject>::iterator it;
+				std::list<Reference<Component>>::iterator p;
+				auto& meshes = Assets::meshes();
+
+				cg::SceneObject chao("Chao", *currentScene);
+				it = currentScene->append(chao);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalPosition(vec3f(0.0f, -0.3f, 0.0f));
+				it->transform()->setLocalScale(vec3f(30.0f, 0.0f, 30.0f));
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient.setRGB(0, 60, 7);
+				it->primitive()->material.diffuse.setRGB(104, 104, 104);
+				it->primitive()->material.spot.setRGB(Color::black);
+				it->primitive()->material.specular.setRGB(46, 46, 46);
+
+				cg::SceneObject casa("Casa", *currentScene);
+				it = currentScene->append(casa);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalScale(0.05f);				
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
+				for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
+					if (mit->first.compare("House15.obj") == 0)
+						it->primitive()->setMesh(Assets::loadMesh(mit), mit->first);
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient.setRGB(51, 51, 51);
+				it->primitive()->material.diffuse.setRGB(204, 204, 204);
+				it->primitive()->material.spot.setRGB(59, 59, 59);
+				it->primitive()->material.specular.setRGB(0, 0, 0);
+
+				cg::SceneObject cone("Cone", *currentScene);
+				it = currentScene->append(cone);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalPosition(vec3f(-13.9f, 0.0f, 0.0f));
+				it->transform()->setLocalScale(vec3f(0.5f, 5.0f, 0.5f));
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Cone")));
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient.setRGB(51, 51, 51);
+				it->primitive()->material.diffuse.setRGB(204, 204, 204);
+				it->primitive()->material.spot.setRGB(Color::black);
+				it->primitive()->material.specular.setRGB(Color::black);
+
+				cg::SceneObject espelho("Espelho", *currentScene);
+				it = currentScene->append(espelho);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalPosition(vec3f(-18.3f, 0.0f, 0.0f));
+				it->transform()->setLocalScale(vec3f(0.0f, 5.0f, 5.0f));
+				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("Box")));
+				(*p)->setMyIterator(p);
+				it->primitive()->material.ambient.setRGB(Color::black);
+				it->primitive()->material.diffuse.setRGB(Color::black);
+				it->primitive()->material.spot.setRGB(Color::black);
+				it->primitive()->material.specular.setRGB(Color::white);
+
+				cg::SceneObject luzVermelha("Luz Vermelha", *currentScene);
+				it = currentScene->append(luzVermelha);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalPosition(vec3f(-6.8f, 2.7f, -2.3f));
+				p = it->addComponent(new Light());
+				(*p)->setMyIterator(p);
+				it->light()->setColor((Color)vec4f((float)168 / 255, 0, 0));
+				it->light()->setFalloff(0);
+				it->light()->setType(Light::Type::Point);
+
+				cg::SceneObject luzAzul("Luz Azul", *currentScene);
+				it = currentScene->append(luzAzul);
+				it->setMyIterator(it);
+				p = it->addComponent(new Transform());
+				(*p)->setMyIterator(p);
+				it->transform()->setLocalPosition(vec3f(-6.8f, 2.7f, 2.3f));
+				p = it->addComponent(new Light());
+				(*p)->setMyIterator(p);
+				it->light()->setColor((Color)vec4f(0, (float)89 / 255, (float)230 / 255));
+				it->light()->setFalloff(0);
+				it->light()->setType(Light::Type::Point);
+
+				scene->backgroundColor = Color::black;
+				camera->setDefaultView(float(width()) / float(height()));
+				camera->setPosition(vec3f(-17.29f, 1.23f, 0.17f));
+				camera->rotateYX(-91.45f, 4.2f);
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
