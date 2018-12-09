@@ -1130,13 +1130,21 @@ P5::render()
 	_renderer->update();
 	if (_traceFlag)
 	{
-		if (_image == nullptr)
+		if (_indexProgramaAtual != 1)
 		{
-			_image = new GLImage{ width(), height() };
-			_rayTracer->renderImage(*_image);
+			_program[1].use();
+			_indexProgramaAtual = 1;
 		}
-		_image->draw();
-		return;
+		else
+		{
+			if (_image == nullptr)
+			{
+				_image = new GLImage{ width(), height() };
+				_rayTracer->renderImage(*_image);
+			}
+			_image->draw();
+			return;
+		}
 	}
 
 	const auto& bc = _renderer->scene()->backgroundColor;

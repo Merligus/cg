@@ -62,7 +62,7 @@ namespace cg
 			_mesh{ mesh },
 			_meshName(meshName)
 		{
-			Node N;
+			/*Node N;
 			auto data = _mesh->data();
 			N.bound = _mesh->bounds();
 			N.data.numberOfTriangles = data.numberOfTriangles;
@@ -156,7 +156,7 @@ namespace cg
 						i++;
 					}
 				}
-			}
+			}*/
 		}
 
 		TriangleMesh* mesh() const

@@ -1,1 +1,15 @@
-﻿  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cg.lib
+﻿  gl3w.c
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  Application.cpp
+  Color.cpp
+  GLGraphics.cpp
+  GLGraphicsBase.cpp
+  GLProgram.cpp
+  GLWindow.cpp
+  MeshReader.cpp
+  NameableObject.cpp
+  TriangleMesh.cpp
+  cg.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\common\build\vs2017\..\..\lib\cg.lib
