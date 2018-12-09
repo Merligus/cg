@@ -252,7 +252,7 @@ RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
 	_numberOfHits++;
 	auto scene = (Scene*)_scene;
 	Color c = hit.object->material.ambient * scene->ambientLight;
-	if (hit.object->material.specular != Color::black)
+	if (hit.object->material.specular.r > 0 || hit.object->material.specular.g > 0 || hit.object->material.specular.b > 0)
 	{
 		vec3f Or{ hit.object->material.specular.r, hit.object->material.specular.g, hit.object->material.specular.b };
 		weight *= Or.max();
