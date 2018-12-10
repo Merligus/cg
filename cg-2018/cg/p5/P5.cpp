@@ -740,6 +740,8 @@ P5::rendererWindow()
 		renderModeGui();
 	else
 		_traceFlag = true;
+	if (ImGui::Button("Atualizar"))
+		_image = nullptr;
 	ImGui::Separator();
 	if (ImGui::CollapsingHeader("Camera"))
 		cameraGui();
@@ -1232,8 +1234,6 @@ bool
 P5::windowResizeEvent(int width, int height)
 {
 	_renderer->setImageSize(width, height);
-	_image = nullptr;
-	_traceFlag = false;
 	return true;
 }
 

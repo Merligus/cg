@@ -1,0 +1,63 @@
+﻿  Main.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+  P5.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(137): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(490): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(491): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(492): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(493): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(470): warning C4101: 'temp2': variável local não referenciada
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(950): warning C4305: 'argumento': truncamento de 'double' para 'float'
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\p5.cpp(964): warning C4305: 'argumento': truncamento de 'double' para 'float'
+  RayTracer.cpp
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(113): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(114): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(115): warning C4244: '=': conversão de 'double' para 'real', possível perda de dados
+          with
+          [
+              real=float
+          ]
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\transform.h(122): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\raytracer.cpp(338): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
+c:\users\pichau\documents\computacao grafica\cgrepository\cg-2018\cg\p5\raytracer.cpp(339): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
+  Gerando Código...
+  p5.vcxproj -> C:\Users\Pichau\Documents\Computacao Grafica\CGRepository\cg-2018\cg\p5\build\vs2017\..\..\p5.exe

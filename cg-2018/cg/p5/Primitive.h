@@ -109,7 +109,7 @@ namespace cg
 						passoX = 0.0f;
 						passoY = 0.0f;
 					}
-					Node esquerdo[2], direito[2];
+					Node esquerdo[k-1], direito[k-1];
 					int ind = -1;
 					float custoMenor = 0.0, custo = 0.0;
 					for (int l = 1; l < k; l++)

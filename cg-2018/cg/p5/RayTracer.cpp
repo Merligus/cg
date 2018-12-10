@@ -277,16 +277,22 @@ RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
 	while (!pilhaDeObjetos.empty())
 	{
 		auto object = pilhaDeObjetos.top();
-		if (object->light() != nullptr)
+		if (object->light() != nullptr && object->visible)
 		{
 			auto data = hit.object->mesh()->data();
 			vec3f normalLocal = data.vertexNormals[data.triangles[hit.triangleIndex].v[0]];
 			mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
 			vec3f N = normalMatrix.transform(normalLocal).versor();
 			vec3f O = hit.p + rt_eps() * N;
-			vec3f direcao = object->transform()->position() - O;
+			vec3f direcao{1.0f, 1.0f, 1.0f};
 			Ray lightRay{ O, direcao };
-			lightRay.tMax = (direcao).length() - rt_eps();
+			if (object->light()->type() == Light::Type::Directional)
+				direcao = -(object->transform()->rotation() * vec3f { 0, -1.0f, 0 });
+			else
+			{
+				direcao = object->transform()->position() - O;
+				lightRay.tMax = (direcao).length() - rt_eps();
+			}
 			lightRay.direction = direcao;
 			if (!shadow(lightRay))
 			{
