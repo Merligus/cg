@@ -49,6 +49,7 @@ namespace cg
 	public:
 		Color backgroundColor{ Color::gray };
 		Color ambientLight{ Color::black };
+		bool bvhMode{ false };
 
 		/// Constructs an empty scene.
 		Scene(const char* name) :

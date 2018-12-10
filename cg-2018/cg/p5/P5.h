@@ -53,6 +53,7 @@ private:
 	GLSL::Program _program[4] = { "P3 - Gouraud", "P3 - Phong", "P3 - None", "P3 - Flat" };
 	Reference<GLRenderer> _renderer;
 	int _indexProgramaAtual;
+	bool _bvhMode{ false };
 	Reference<SceneObject> _box;
 	Reference<Primitive> _primitive;
 	Reference<Light> _light;

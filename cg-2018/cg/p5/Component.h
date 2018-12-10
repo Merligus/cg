@@ -42,6 +42,7 @@ namespace cg
 // Forward definitions
 	class SceneObject;
 	class Transform;
+	class Scene;
 
 
 	/////////////////////////////////////////////////////////////////////

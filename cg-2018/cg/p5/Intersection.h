@@ -53,6 +53,7 @@ struct Intersection
   float distance; // distance from the ray's origin to the intersection point
   vec3f p; // barycentric coordinates of the intersection point
   void* userData; // any user data
+  vec3f normal;
 
 }; // Intersection
 

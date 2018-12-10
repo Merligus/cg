@@ -42,7 +42,7 @@ P5::buildScene()
 	cg::SceneObject *currentBox;
 	std::list<cg::SceneObject>::iterator it;
 	std::list<Reference<Component>>::iterator p;
-	
+
 	auto& meshes = Assets::meshes();
 
 	cg::SceneObject obj("Empty Object", *currentScene);
@@ -137,7 +137,7 @@ P5::buildScene()
 	it->light()->setInnerCutOff(16.1);
 	it->light()->setOuterCutOff(24.5);
 	it->light()->setType(Light::Type::Spot);
-	
+
 	return scene;
 }
 
@@ -742,6 +742,11 @@ P5::rendererWindow()
 		_traceFlag = true;
 	if (ImGui::Button("Atualizar"))
 		_image = nullptr;
+	if (ImGui::Button("BVH Mode On"))
+		_renderer->scene()->bvhMode = true;
+	ImGui::SameLine();
+	if (ImGui::Button("BVH Mode Off"))
+		_renderer->scene()->bvhMode = false;
 	ImGui::Separator();
 	if (ImGui::CollapsingHeader("Camera"))
 		cameraGui();
@@ -1026,7 +1031,7 @@ P5::mainMenu()
 				it->setMyIterator(it);
 				p = it->addComponent(new Transform());
 				(*p)->setMyIterator(p);
-				it->transform()->setLocalScale(0.05f);				
+				it->transform()->setLocalScale(0.05f);
 				p = it->addComponent((cg::Primitive*)makePrimitive(_defaultMeshes.find("None")));
 				for (auto mit = meshes.begin(); mit != meshes.end(); ++mit)
 					if (mit->first.compare("House15.obj") == 0)
@@ -1201,13 +1206,16 @@ P5::render()
 					_program[_indexProgramaAtual].setUniformVec4("color", object->primitive()->material.diffuse);
 				auto normalMatrix = mat3f{ t->worldToLocalMatrix() }.transposed();
 				_renderer->setVectorColor(Color::white);
-				_renderer->drawNormals(*(object->primitive())->mesh(), t->localToWorldMatrix(), normalMatrix);
-				
-				auto b = object->primitive()->mesh()->bounds();
+				// _renderer->drawNormals(*(object->primitive())->mesh(), t->localToWorldMatrix(), normalMatrix);
 
-				b.transform(t->localToWorldMatrix());
 				_renderer->setLineColor(_selectedWireframeColor);
-				_renderer->drawBounds(b);
+				auto SIZE = object->primitive()->bvhSize();
+				for (int i = 0; i < SIZE; i++)
+				{
+					auto b = object->primitive()->bvhAt(i);
+					b.transform(t->localToWorldMatrix());
+					_renderer->drawBounds(b);
+				}
 				_renderer->drawAxes(t->position(), mat3f{ t->rotation() });
 				// renderMesh(m, GL_LINE);
 			}
@@ -1317,10 +1325,10 @@ P5::mouseButtonInputEvent(int button, int actions, int mods)
 				auto object = pilhaDeObjetos.top();
 				float d;
 				vec3f position;
-				int triangleIndex;
+				vec3f normal;
 				if (object->primitive() != nullptr)
 				{
-					bool iter = object->primitive()->intersect(ray, d, triangleIndex, position);
+					bool iter = object->primitive()->intersect(ray, d, normal, position);
 					if (d < distance && iter)
 					{
 						_current = &(*object);

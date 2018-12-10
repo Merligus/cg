@@ -40,354 +40,354 @@ using namespace std;
 namespace cg
 { // begin namespace cg
 
-void
-printElapsedTime(const char* s, clock_t time)
-{
-  printf("%sElapsed time: %.4f s\n", s, (float)time / CLOCKS_PER_SEC);
-}
-
-
-/////////////////////////////////////////////////////////////////////
-//
-// RayTracer implementation
-// =========
-RayTracer::RayTracer(Scene& scene, Camera* camera):
-  Renderer{scene, camera},
-  _maxRecursionLevel{6},
-  _minWeight{MIN_WEIGHT}
-{
-  // TODO: BVH
-}
-
-void
-RayTracer::render()
-{
-  throw std::runtime_error("RayTracer::render() invoked");
-}
-
-inline float
-windowHeight(Camera* c)
-{
-  if (c->projectionType() == Camera::Parallel)
-    return c->height();
-  return c->nearPlane() * tan(math::toRadians(c->viewAngle() * 0.5f)) * 2;
-
-}
-void
-RayTracer::renderImage(Image& image)
-{
-  auto t = clock();
-  const auto& m = _camera->cameraToWorldMatrix();
-
-  // VRC axes
-  _vrc.u = m[0];
-  _vrc.v = m[1];
-  _vrc.n = m[2];
-  // init auxiliary mapping variables
-  _W = image.width();
-  _H = image.height();
-  _Iw = math::inverse(float(_W));
-  _Ih = math::inverse(float(_H));
-
-  auto height = windowHeight(_camera);
-
-  _W >= _H ? _Vw = (_Vh = height) * _W * _Ih : _Vh = (_Vw = height) * _H * _Iw;
-  // init pixel ray
-  _pixelRay.origin = _camera->position();
-  _pixelRay.direction = -_vrc.n;
-  _camera->clippingPlanes(_pixelRay.tMin, _pixelRay.tMax);
-  _numberOfRays = _numberOfHits = 0;
-  scan(image);
-  printf("\nNumber of rays: %llu", _numberOfRays);
-  printf("\nNumber of hits: %llu", _numberOfHits);
-  printElapsedTime("\nDONE! ", clock() - t);
-}
-
-void
-RayTracer::setPixelRay(float x, float y)
-//[]---------------------------------------------------[]
-//|  Set pixel ray                                      |
-//|  @param x coordinate of the pixel                   |
-//|  @param y cordinates of the pixel                   |
-//[]---------------------------------------------------[]
-{
-  auto p = imageToWindow(x, y);
-
-  switch (_camera->projectionType())
-  {
-    case Camera::Perspective:
-      _pixelRay.direction = (p - _camera->nearPlane() * _vrc.n).versor();
-      break;
-
-    case Camera::Parallel:
-      _pixelRay.origin = _camera->position() + p;
-      break;
-  }
-}
-
-void
-RayTracer::scan(Image& image)
-{
-  ImageBuffer scanLine{_W, 1};
-
-  for (int j = 0; j < _H; j++)
-  {
-    auto y = (float)j + 0.5f;
-
-    printf("Scanning line %d of %d\r", j + 1, _H);
-    for (int i = 0; i < _W; i++)
-      scanLine[i] = shoot((float)i + 0.5f, y);
-    image.setData(0, j, scanLine);
-  }
-}
-
-Color
-RayTracer::shoot(float x, float y)
-//[]---------------------------------------------------[]
-//|  Shoot a pixel ray                                  |
-//|  @param x coordinate of the pixel                   |
-//|  @param y cordinates of the pixel                   |
-//|  @return RGB color of the pixel                     |
-//[]---------------------------------------------------[]
-{
-  // set pixel ray
-  setPixelRay(x, y);
-
-  // trace pixel ray
-  Color color = trace(_pixelRay, 0, 1.0f);
-
-  // adjust RGB color
-  if (color.r > 1.0f)
-    color.r = 1.0f;
-  if (color.g > 1.0f)
-    color.g = 1.0f;
-  if (color.b > 1.0f)
-    color.b = 1.0f;
-  // return pixel color
-  return color;
-}
-
-Color
-RayTracer::trace(const Ray& ray, uint32_t level, float weight)
-//[]---------------------------------------------------[]
-//|  Trace a ray                                        |
-//|  @param the ray                                     |
-//|  @param recursion level                             |
-//|  @param ray weight                                  |
-//|  @return color of the ray                           |
-//[]---------------------------------------------------[]
-{
-  if (level > _maxRecursionLevel)
-    return Color::black;
-  _numberOfRays++;
-
-  Intersection hit;
-
-  return intersect(ray, hit) ? shade(ray, hit, level, weight) : background();
-}
-
-inline constexpr auto
-rt_eps()
-{
-  return 1e-4f;
-}
-
-bool
-RayTracer::intersect(const Ray& ray, Intersection& hit)
-//[]---------------------------------------------------[]
-//|  Ray/object intersection                            |
-//|  @param the ray (input)                             |
-//|  @param information on intersection (output)        |
-//|  @return true if the ray intersects an object       |
-//[]---------------------------------------------------[]
-{
-	Ray raioAuxiliar;
-	raioAuxiliar.set(ray.origin, ray.direction);
-	raioAuxiliar.tMin = ray.tMin;
-	raioAuxiliar.tMax = ray.tMax;
-
-	hit.object = nullptr;
-	hit.distance = raioAuxiliar.tMax;
-	// TODO: insert your code here
-	float distance = raioAuxiliar.tMax;
-	int triangleIndex = -1;
-	vec3f position;
-	auto scene = (Scene*)_scene;
-	std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
-	for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
-		pilhaDeObjetos.push(object);
-	while (!pilhaDeObjetos.empty())
+	void
+		printElapsedTime(const char* s, clock_t time)
 	{
-		auto object = pilhaDeObjetos.top();
-		if (object->primitive() != nullptr && object->visible)
-		{
-			bool inter = object->primitive()->intersect(raioAuxiliar, distance, triangleIndex, position);
-			if (hit.distance > distance && inter)
-			{
-				hit.p = position;
-				hit.triangleIndex = triangleIndex;
-				hit.distance = distance;
-				hit.object = object->primitive();
-			}
-		}
-		pilhaDeObjetos.pop();
-		for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
-			pilhaDeObjetos.push(filho);
+		printf("%sElapsed time: %.4f s\n", s, (float)time / CLOCKS_PER_SEC);
 	}
-	return hit.object != nullptr;
-}
 
-Color
-RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
-//[]---------------------------------------------------[]
-//|  Shade a point P                                    |
-//|  @param the ray (input)                             |
-//|  @param information on intersection (input)         |
-//|  @param recursion level                             |
-//|  @param ray weight                                  |
-//|  @return color at point P                           |
-//[]---------------------------------------------------[]
-{
-	// TODO: insert your code here
-	_numberOfHits++;
-	auto scene = (Scene*)_scene;
-	Color c = hit.object->material.ambient * scene->ambientLight;
-	if (hit.object->material.specular.r > 0 || hit.object->material.specular.g > 0 || hit.object->material.specular.b > 0)
+
+	/////////////////////////////////////////////////////////////////////
+	//
+	// RayTracer implementation
+	// =========
+	RayTracer::RayTracer(Scene& scene, Camera* camera) :
+		Renderer{ scene, camera },
+		_maxRecursionLevel{ 6 },
+		_minWeight{ MIN_WEIGHT }
 	{
-		vec3f Or{ hit.object->material.specular.r, hit.object->material.specular.g, hit.object->material.specular.b };
-		weight *= Or.max();
-		if (weight > _minWeight)
+		// TODO: BVH
+	}
+
+	void
+		RayTracer::render()
+	{
+		throw std::runtime_error("RayTracer::render() invoked");
+	}
+
+	inline float
+		windowHeight(Camera* c)
+	{
+		if (c->projectionType() == Camera::Parallel)
+			return c->height();
+		return c->nearPlane() * tan(math::toRadians(c->viewAngle() * 0.5f)) * 2;
+
+	}
+	void
+		RayTracer::renderImage(Image& image)
+	{
+		auto t = clock();
+		const auto& m = _camera->cameraToWorldMatrix();
+
+		// VRC axes
+		_vrc.u = m[0];
+		_vrc.v = m[1];
+		_vrc.n = m[2];
+		// init auxiliary mapping variables
+		_W = image.width();
+		_H = image.height();
+		_Iw = math::inverse(float(_W));
+		_Ih = math::inverse(float(_H));
+
+		auto height = windowHeight(_camera);
+
+		_W >= _H ? _Vw = (_Vh = height) * _W * _Ih : _Vh = (_Vw = height) * _H * _Iw;
+		// init pixel ray
+		_pixelRay.origin = _camera->position();
+		_pixelRay.direction = -_vrc.n;
+		_camera->clippingPlanes(_pixelRay.tMin, _pixelRay.tMax);
+		_numberOfRays = _numberOfHits = 0;
+		scan(image);
+		printf("\nNumber of rays: %llu", _numberOfRays);
+		printf("\nNumber of hits: %llu", _numberOfHits);
+		printElapsedTime("\nDONE! ", clock() - t);
+	}
+
+	void
+		RayTracer::setPixelRay(float x, float y)
+		//[]---------------------------------------------------[]
+		//|  Set pixel ray                                      |
+		//|  @param x coordinate of the pixel                   |
+		//|  @param y cordinates of the pixel                   |
+		//[]---------------------------------------------------[]
+	{
+		auto p = imageToWindow(x, y);
+
+		switch (_camera->projectionType())
 		{
-			auto data = hit.object->mesh()->data();
-			vec3f normalLocal = data.vertexNormals[data.triangles[hit.triangleIndex].v[0]];
-			mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
-			vec3f N = normalMatrix.transform(normalLocal).versor();
-			vec3f directionV = ray.direction.versor();
-			Ray reflectRay{ hit.p + rt_eps() * N, directionV};
-			reflectRay.direction = directionV - 2 * N.dot(directionV) * N;
-			c += hit.object->material.specular * trace(reflectRay, level + 1, weight);
+		case Camera::Perspective:
+			_pixelRay.direction = (p - _camera->nearPlane() * _vrc.n).versor();
+			break;
+
+		case Camera::Parallel:
+			_pixelRay.origin = _camera->position() + p;
+			break;
 		}
 	}
 
-	float distance = ray.tMax;
-
-	std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
-	for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
-		pilhaDeObjetos.push(object);
-	while (!pilhaDeObjetos.empty())
+	void
+		RayTracer::scan(Image& image)
 	{
-		auto object = pilhaDeObjetos.top();
-		if (object->light() != nullptr && object->visible)
+		ImageBuffer scanLine{ _W, 1 };
+
+		for (int j = 0; j < _H; j++)
 		{
-			auto data = hit.object->mesh()->data();
-			vec3f normalLocal = data.vertexNormals[data.triangles[hit.triangleIndex].v[0]];
-			mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
-			vec3f N = normalMatrix.transform(normalLocal).versor();
-			vec3f O = hit.p + rt_eps() * N;
-			vec3f direcao{1.0f, 1.0f, 1.0f};
-			Ray lightRay{ O, direcao };
-			if (object->light()->type() == Light::Type::Directional)
-				direcao = -(object->transform()->rotation() * vec3f { 0, -1.0f, 0 });
-			else
+			auto y = (float)j + 0.5f;
+
+			printf("Scanning line %d of %d\r", j + 1, _H);
+			for (int i = 0; i < _W; i++)
+				scanLine[i] = shoot((float)i + 0.5f, y);
+			image.setData(0, j, scanLine);
+		}
+	}
+
+	Color
+		RayTracer::shoot(float x, float y)
+		//[]---------------------------------------------------[]
+		//|  Shoot a pixel ray                                  |
+		//|  @param x coordinate of the pixel                   |
+		//|  @param y cordinates of the pixel                   |
+		//|  @return RGB color of the pixel                     |
+		//[]---------------------------------------------------[]
+	{
+		// set pixel ray
+		setPixelRay(x, y);
+
+		// trace pixel ray
+		Color color = trace(_pixelRay, 0, 1.0f);
+
+		// adjust RGB color
+		if (color.r > 1.0f)
+			color.r = 1.0f;
+		if (color.g > 1.0f)
+			color.g = 1.0f;
+		if (color.b > 1.0f)
+			color.b = 1.0f;
+		// return pixel color
+		return color;
+	}
+
+	Color
+		RayTracer::trace(const Ray& ray, uint32_t level, float weight)
+		//[]---------------------------------------------------[]
+		//|  Trace a ray                                        |
+		//|  @param the ray                                     |
+		//|  @param recursion level                             |
+		//|  @param ray weight                                  |
+		//|  @return color of the ray                           |
+		//[]---------------------------------------------------[]
+	{
+		if (level > _maxRecursionLevel)
+			return Color::black;
+		_numberOfRays++;
+
+		Intersection hit;
+
+		return intersect(ray, hit) ? shade(ray, hit, level, weight) : background();
+	}
+
+	inline constexpr auto
+		rt_eps()
+	{
+		return 1e-4f;
+	}
+
+	bool
+		RayTracer::intersect(const Ray& ray, Intersection& hit)
+		//[]---------------------------------------------------[]
+		//|  Ray/object intersection                            |
+		//|  @param the ray (input)                             |
+		//|  @param information on intersection (output)        |
+		//|  @return true if the ray intersects an object       |
+		//[]---------------------------------------------------[]
+	{
+		Ray raioAuxiliar;
+		raioAuxiliar.set(ray.origin, ray.direction);
+		raioAuxiliar.tMin = ray.tMin;
+		raioAuxiliar.tMax = ray.tMax;
+
+		hit.object = nullptr;
+		hit.distance = raioAuxiliar.tMax;
+		// TODO: insert your code here
+		float distance = raioAuxiliar.tMax;
+		vec3f normal;
+		vec3f position;
+		auto scene = (Scene*)_scene;
+		std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
+		for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
+			pilhaDeObjetos.push(object);
+		while (!pilhaDeObjetos.empty())
+		{
+			auto object = pilhaDeObjetos.top();
+			if (object->primitive() != nullptr && object->visible)
 			{
-				direcao = object->transform()->position() - O;
-				lightRay.tMax = (direcao).length() - rt_eps();
+				bool inter = object->primitive()->intersect(raioAuxiliar, distance, normal, position);
+				if (hit.distance > distance && inter)
+				{
+					hit.p = position;
+					hit.normal = normal;
+					hit.distance = distance;
+					hit.object = object->primitive();
+				}
 			}
-			lightRay.direction = direcao;
-			if (!shadow(lightRay))
+			pilhaDeObjetos.pop();
+			for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
+				pilhaDeObjetos.push(filho);
+		}
+		return hit.object != nullptr;
+	}
+
+	Color
+		RayTracer::shade(const Ray& ray, Intersection& hit, int level, float weight)
+		//[]---------------------------------------------------[]
+		//|  Shade a point P                                    |
+		//|  @param the ray (input)                             |
+		//|  @param information on intersection (input)         |
+		//|  @param recursion level                             |
+		//|  @param ray weight                                  |
+		//|  @return color at point P                           |
+		//[]---------------------------------------------------[]
+	{
+		// TODO: insert your code here
+		_numberOfHits++;
+		auto scene = (Scene*)_scene;
+		Color c = hit.object->material.ambient * scene->ambientLight;
+		if (hit.object->material.specular.r > 0 || hit.object->material.specular.g > 0 || hit.object->material.specular.b > 0)
+		{
+			vec3f Or{ hit.object->material.specular.r, hit.object->material.specular.g, hit.object->material.specular.b };
+			weight *= Or.max();
+			if (weight > _minWeight)
 			{
-				vec3f V = (camera()->position() - O).versor();
+				auto data = hit.object->mesh()->data();
+				vec3f normalLocal = hit.normal;
+				mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
+				vec3f N = normalMatrix.transform(normalLocal).versor();
+				vec3f directionV = ray.direction.versor();
+				Ray reflectRay{ hit.p + rt_eps() * N, directionV };
+				reflectRay.direction = directionV - 2 * N.dot(directionV) * N;
+				c += hit.object->material.specular * trace(reflectRay, level + 1, weight);
+			}
+		}
+
+		float distance = ray.tMax;
+
+		std::stack<std::list<cg::SceneObject>::iterator> pilhaDeObjetos;
+		for (std::list<cg::SceneObject>::iterator object = scene->containerBegin(); object != scene->containerEnd(); ++object)
+			pilhaDeObjetos.push(object);
+		while (!pilhaDeObjetos.empty())
+		{
+			auto object = pilhaDeObjetos.top();
+			if (object->light() != nullptr && object->visible)
+			{
+				auto data = hit.object->mesh()->data();
+				vec3f normalLocal = hit.normal;
+				mat3f normalMatrix = mat3f{ hit.object->sceneObject()->transform()->worldToLocalMatrix() }.transposed();
+				vec3f N = normalMatrix.transform(normalLocal).versor();
+				vec3f O = hit.p + rt_eps() * N;
+				vec3f direcao{ 1.0f, 1.0f, 1.0f };
+				Ray lightRay{ O, direcao };
 				if (object->light()->type() == Light::Type::Directional)
+					direcao = -(object->transform()->rotation() * vec3f { 0, -1.0f, 0 });
+				else
 				{
-					vec3f direction = object->transform()->rotation() * vec3f { 0, -1.0f, 0 };
-					Color color = object->light()->color();
-					
-					vec3f L = (-direction).versor();
-					vec3f R = -L - 2 * N.dot(-L) * N;
-
-					Color A = color * hit.object->material.ambient;
-					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
-					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
-
-					c += (A + D + S);
+					direcao = object->transform()->position() - O;
+					lightRay.tMax = (direcao).length() - rt_eps();
 				}
-				else if (object->light()->type() == Light::Type::Point)
+				lightRay.direction = direcao;
+				if (!shadow(lightRay))
 				{
-					Color color = object->light()->color();
-					int falloff = object->light()->falloff();
+					vec3f V = (camera()->position() - O).versor();
+					if (object->light()->type() == Light::Type::Directional)
+					{
+						vec3f direction = object->transform()->rotation() * vec3f { 0, -1.0f, 0 };
+						Color color = object->light()->color();
 
-					vec3f L = (lightRay.direction).versor();
-					vec3f R = -L - 2 * N.dot(-L) * N;
+						vec3f L = (-direction).versor();
+						vec3f R = -L - 2 * N.dot(-L) * N;
 
-					Color A = color * hit.object->material.ambient;
-					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
-					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+						Color A = color * hit.object->material.ambient;
+						Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+						Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
 
-					float dl = (lightRay.direction).length();
-					c.r = c.r + (A.r + D.r + S.r) / pow(dl, falloff);
-					c.g = c.g + (A.g + D.g + S.g) / pow(dl, falloff);
-					c.b = c.b + (A.b + D.b + S.b) / pow(dl, falloff);
-					c.a = c.a + (A.a + D.a + S.a) / pow(dl, falloff);
-				}
-				else if (object->light()->type() == Light::Type::Spot)
-				{
-					Color color = object->light()->color();
-					int falloff = object->light()->falloff();
-					vec3f position = object->transform()->position();
-					vec3f direction = object->transform()->rotation() * vec3f { 0, -1.0f, 0 };
-					float innerCutOff = cos(0.01745329251*object->light()->innerCutOff());
-					float outerCutOff = cos(0.01745329251*object->light()->outerCutOff());
+						c += (A + D + S);
+					}
+					else if (object->light()->type() == Light::Type::Point)
+					{
+						Color color = object->light()->color();
+						int falloff = object->light()->falloff();
 
-					vec3f L = (lightRay.direction).versor();
-					float theta = L.dot((-direction).versor());
-					float epsilon = innerCutOff - outerCutOff;
-					float intensity = (theta - outerCutOff) / epsilon;
-					if (intensity < 0.0f)
-						intensity = 0.0f;
-					else if (intensity > 1.0f)
-						intensity = 1.0f;
-					vec3f R = -L - 2 * N.dot(-L) * N;
+						vec3f L = (lightRay.direction).versor();
+						vec3f R = -L - 2 * N.dot(-L) * N;
 
-					Color A = color * hit.object->material.ambient;
-					Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
-					Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+						Color A = color * hit.object->material.ambient;
+						Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+						Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
 
-					float dl = (lightRay.direction).length();
+						float dl = (lightRay.direction).length();
+						c.r = c.r + (A.r + D.r + S.r) / pow(dl, falloff);
+						c.g = c.g + (A.g + D.g + S.g) / pow(dl, falloff);
+						c.b = c.b + (A.b + D.b + S.b) / pow(dl, falloff);
+						c.a = c.a + (A.a + D.a + S.a) / pow(dl, falloff);
+					}
+					else if (object->light()->type() == Light::Type::Spot)
+					{
+						Color color = object->light()->color();
+						int falloff = object->light()->falloff();
+						vec3f position = object->transform()->position();
+						vec3f direction = object->transform()->rotation() * vec3f { 0, -1.0f, 0 };
+						float innerCutOff = cos(0.01745329251*object->light()->innerCutOff());
+						float outerCutOff = cos(0.01745329251*object->light()->outerCutOff());
 
-					c.r = c.r + intensity * (A.r + D.r + S.r) / pow(dl, falloff);
-					c.g = c.g + intensity * (A.g + D.g + S.g) / pow(dl, falloff);
-					c.b = c.b + intensity * (A.b + D.b + S.b) / pow(dl, falloff);
-					c.a = c.a + intensity * (A.a + D.a + S.a) / pow(dl, falloff);
+						vec3f L = (lightRay.direction).versor();
+						float theta = L.dot((-direction).versor());
+						float epsilon = innerCutOff - outerCutOff;
+						float intensity = (theta - outerCutOff) / epsilon;
+						if (intensity < 0.0f)
+							intensity = 0.0f;
+						else if (intensity > 1.0f)
+							intensity = 1.0f;
+						vec3f R = -L - 2 * N.dot(-L) * N;
+
+						Color A = color * hit.object->material.ambient;
+						Color D = hit.object->material.diffuse * color * std::max(N.dot(L), 0.0f);
+						Color S = hit.object->material.spot * color * pow(std::max(R.dot(V), 0.0f), hit.object->material.shine);
+
+						float dl = (lightRay.direction).length();
+
+						c.r = c.r + intensity * (A.r + D.r + S.r) / pow(dl, falloff);
+						c.g = c.g + intensity * (A.g + D.g + S.g) / pow(dl, falloff);
+						c.b = c.b + intensity * (A.b + D.b + S.b) / pow(dl, falloff);
+						c.a = c.a + intensity * (A.a + D.a + S.a) / pow(dl, falloff);
+					}
 				}
 			}
+			pilhaDeObjetos.pop();
+			for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
+				pilhaDeObjetos.push(filho);
 		}
-		pilhaDeObjetos.pop();
-		for (std::list<cg::SceneObject>::iterator filho = object->childrenBegin(); filho != object->childrenEnd(); ++filho)
-			pilhaDeObjetos.push(filho);		
+		return c;
 	}
-	return c;
-}
 
-Color
-RayTracer::background() const
-//[]---------------------------------------------------[]
-//|  Background                                         |
-//|  @return background color                           |
-//[]---------------------------------------------------[]
-{
-  return _scene->backgroundColor;
-}
+	Color
+		RayTracer::background() const
+		//[]---------------------------------------------------[]
+		//|  Background                                         |
+		//|  @return background color                           |
+		//[]---------------------------------------------------[]
+	{
+		return _scene->backgroundColor;
+	}
 
-bool
-RayTracer::shadow(const Ray& ray)
-//[]---------------------------------------------------[]
-//|  Verifiy if ray is a shadow ray                     |
-//|  @param the ray (input)                             |
-//|  @return true if the ray intersects an object       |
-//[]---------------------------------------------------[]
-{
-  Intersection hit;
-  return intersect(ray, hit);
-}
+	bool
+		RayTracer::shadow(const Ray& ray)
+		//[]---------------------------------------------------[]
+		//|  Verifiy if ray is a shadow ray                     |
+		//|  @param the ray (input)                             |
+		//|  @return true if the ray intersects an object       |
+		//[]---------------------------------------------------[]
+	{
+		Intersection hit;
+		return intersect(ray, hit);
+	}
 
 } // end namespace cg

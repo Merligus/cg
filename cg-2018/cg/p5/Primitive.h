@@ -53,115 +53,31 @@ namespace cg
 		{
 			TriangleMesh::Data data;
 			Bounds3f bound;
+			int indiceFilhoEsquerdo;
 		}; // Node
 
 		Material material;
 
 		Primitive(TriangleMesh* mesh, const std::string& meshName) :
-			Component{ "Primitive" },
-			_mesh{ mesh },
-			_meshName(meshName)
+			Component{ "Primitive" }
 		{
-			/*Node N;
-			auto data = _mesh->data();
-			N.bound = _mesh->bounds();
-			N.data.numberOfTriangles = data.numberOfTriangles;
-			N.data.numberOfVertices = data.numberOfVertices;
-			N.data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
-			N.data.vertices = new vec3f[N.data.numberOfVertices];
-			for (int t = 0; t < N.data.numberOfTriangles; t++)
-				N.data.triangles[t].setVertices(data.triangles[t].v[0], data.triangles[t].v[1], data.triangles[t].v[2]);
-			for (int v = 0; v < N.data.numberOfVertices; v++)
-				N.data.vertices[v] = data.vertices[v];
-
-			bvh.push_back(N);
-			int i = 0;
-			bool flag = true;
-			while (i < bvh.size() && flag)
-			{
-				N = bvh[i];
-				if (N.data.numberOfTriangles < 20)
-				{
-					i++;
-					continue;
-				}
-				else
-				{
-					int k = 3;
-					vec3f size = N.bound.size();
-					float passoX = (float)size.x / k;
-					float passoY = (float)size.y / k;
-					float passoZ = (float)size.z / k;
-					vec3f p1 = N.bound.min();
-					vec3f p2 = N.bound.max();
-					if (passoX > passoY && passoX > passoZ)
-					{
-						passoY = 0.0f;
-						passoZ = 0.0f;
-					}
-					else if (passoY > passoX && passoY > passoZ)
-					{
-						passoX = 0.0f;
-						passoZ = 0.0f;
-					}
-					else
-					{
-						passoX = 0.0f;
-						passoY = 0.0f;
-					}
-					Node esquerdo[k-1], direito[k-1];
-					int ind = -1;
-					float custoMenor = 0.0, custo = 0.0;
-					for (int l = 1; l < k; l++)
-					{
-						vec3f p12 = p1 + vec3f{ l*passoX, l*passoY, l*passoZ };
-						vec3f p21 = p2 - vec3f{ (k-l) * passoX, (k - l) * passoY, (k - l) * passoZ };
-							
-						esquerdo[l-1].data.numberOfTriangles = 0;
-						esquerdo[l-1].bound.set(p1, p21);
-						esquerdo[l-1].data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
-						direito[l-1].bound.set(p12, p2);
-						direito[l-1].data.numberOfTriangles = 0;
-						direito[l-1].data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
-						for (int t = 0; t < N.data.numberOfTriangles; t++)
-						{
-							vec3f centroide(0.0f, 0.0f, 0.0f);
-							centroide = (data.vertices[N.data.triangles[t].v[0]] + data.vertices[N.data.triangles[t].v[1]] + data.vertices[N.data.triangles[t].v[2]]) * 0.3333333333;
-							if (esquerdo[l-1].bound.contains(centroide))
-							{
-								esquerdo[l-1].data.triangles->setVertices(N.data.triangles[t].v[0], N.data.triangles[t].v[1], N.data.triangles[t].v[2]);
-								esquerdo[l-1].data.numberOfTriangles++;
-							}
-							else if (direito[l-1].bound.contains(centroide))
-							{
-								direito[l-1].data.triangles->setVertices(N.data.triangles[t].v[0], N.data.triangles[t].v[1], N.data.triangles[t].v[2]);
-								direito[l-1].data.numberOfTriangles++;
-							}
-						}
-						custo = esquerdo[l-1].bound.area() * esquerdo[l-1].data.numberOfTriangles + direito[l-1].bound.area() * direito[l-1].data.numberOfTriangles;
-						if (custo < custoMenor || ind == -1)
-						{
-							ind = l-1;
-							custoMenor = custo;
-						}
-					}
-					if (custoMenor > N.bound.area() * N.data.numberOfTriangles)
-					{
-						flag = false;
-					}
-					else
-					{
-						bvh.push_back(esquerdo[ind]);
-						bvh.push_back(direito[ind]);
-						i++;
-					}
-				}
-			}*/
+			_limiar = 300;
+			setMesh(mesh, meshName);
 		}
 
 		TriangleMesh* mesh() const
 		{
 			return _mesh;
+		}
+
+		auto bvhSize()
+		{
+			return bvh.size();
+		}
+
+		auto bvhAt(int i)
+		{
+			return bvh[i].bound;
 		}
 
 		const char* const meshName() const
@@ -171,16 +87,112 @@ namespace cg
 
 		void setMesh(TriangleMesh* mesh, const std::string& meshName)
 		{
+			if (mesh != nullptr)
+			{
+				bvh.clear();
+				Node N;
+				auto data = mesh->data();
+				N.bound = mesh->bounds();
+				N.data.numberOfTriangles = data.numberOfTriangles;
+				N.data.numberOfVertices = data.numberOfVertices;
+				N.data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
+				N.data.vertices = new vec3f[N.data.numberOfVertices];
+				for (int t = 0; t < N.data.numberOfTriangles; t++)
+					N.data.triangles[t].setVertices(data.triangles[t].v[0], data.triangles[t].v[1], data.triangles[t].v[2]);
+				for (int v = 0; v < N.data.numberOfVertices; v++)
+					N.data.vertices[v] = data.vertices[v];
+				N.indiceFilhoEsquerdo = -1;
+				bvh.push_back(N);
+				int i = 0;
+				bool flag = true;
+				while (i < bvh.size() && flag)
+				{
+					N = bvh[i];
+					if (N.data.numberOfTriangles < _limiar)
+					{
+						i++;
+						continue;
+					}
+					else
+					{
+						int k = 3;
+						vec3f size = N.bound.size();
+						float passoX = (float)size.x / k;
+						float passoY = (float)size.y / k;
+						float passoZ = (float)size.z / k;
+						vec3f p1 = N.bound.min();
+						vec3f p2 = N.bound.max();
+						if (passoX > passoY && passoX > passoZ)
+						{
+							passoY = 0.0f;
+							passoZ = 0.0f;
+						}
+						else if (passoY > passoX && passoY > passoZ)
+						{
+							passoX = 0.0f;
+							passoZ = 0.0f;
+						}
+						else
+						{
+							passoX = 0.0f;
+							passoY = 0.0f;
+						}
+						Node esquerdo[3 - 1], direito[3 - 1];
+						int ind = -1;
+						float custoMenor = 0.0, custo = 0.0;
+						for (int l = 1; l < k; l++)
+						{
+							vec3f p12 = p1 + vec3f{ l*passoX, l*passoY, l*passoZ } - vec3f{0.05, 0.05, 0.05};
+							vec3f p21 = p2 - vec3f{ (k - l) * passoX, (k - l) * passoY, (k - l) * passoZ } + vec3f{ 0.05, 0.05, 0.05 };
+
+							esquerdo[l - 1].data.numberOfTriangles = 0;
+							esquerdo[l - 1].bound.set(p1, p21);
+							esquerdo[l - 1].data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
+							direito[l - 1].bound.set(p12, p2);
+							direito[l - 1].data.numberOfTriangles = 0;
+							direito[l - 1].data.triangles = new TriangleMesh::Triangle[N.data.numberOfTriangles];
+							for (int t = 0; t < N.data.numberOfTriangles; t++)
+							{
+								vec3f centroide(0.0f, 0.0f, 0.0f);
+								centroide = (data.vertices[N.data.triangles[t].v[0]] + data.vertices[N.data.triangles[t].v[1]] + data.vertices[N.data.triangles[t].v[2]]) * 0.3333333333;
+								if (esquerdo[l - 1].bound.contains(centroide))
+									esquerdo[l - 1].data.triangles[esquerdo[l - 1].data.numberOfTriangles++].setVertices(N.data.triangles[t].v[0], N.data.triangles[t].v[1], N.data.triangles[t].v[2]);
+								else if (direito[l - 1].bound.contains(centroide))
+									direito[l - 1].data.triangles[direito[l - 1].data.numberOfTriangles++].setVertices(N.data.triangles[t].v[0], N.data.triangles[t].v[1], N.data.triangles[t].v[2]);
+							}
+							custo = esquerdo[l - 1].bound.area() * esquerdo[l - 1].data.numberOfTriangles + direito[l - 1].bound.area() * direito[l - 1].data.numberOfTriangles;
+							if (custo < custoMenor || ind == -1)
+							{
+								ind = l - 1;
+								custoMenor = custo;
+							}
+						}
+						if (custoMenor > N.bound.area() * N.data.numberOfTriangles)
+						{
+							flag = false;
+						}
+						else
+						{
+							bvh[i].indiceFilhoEsquerdo = bvh.size();
+							esquerdo[ind].indiceFilhoEsquerdo = direito[ind].indiceFilhoEsquerdo = -1;
+							bvh.push_back(esquerdo[ind]);
+							bvh.push_back(direito[ind]);
+							i++;
+						}
+					}
+				}
+			}
 			_mesh = mesh;
 			_meshName = meshName;
 		}
 
-		bool intersect(const Ray& ray, float& distance, int& tIndex, vec3f& position) const;
+		bool intersect(const Ray& ray, float& distance, vec3f& normal, vec3f& position) const;
 
 	private:
 		Reference<TriangleMesh> _mesh;
 		std::vector<Node> bvh;
 		std::string _meshName;
+		int _limiar;
 
 	}; // Primitive
 

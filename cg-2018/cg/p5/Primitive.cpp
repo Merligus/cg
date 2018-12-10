@@ -32,68 +32,154 @@
 
 #include "Primitive.h"
 #include "Transform.h"
+#include <stack>
+#include "Scene.h"
 
 namespace cg
 { // begin namespace cg
 
 
-bool
-Primitive::intersect(const Ray& ray, float& distance, int& tIndex, vec3f& position) const
-{
-	if (_mesh == nullptr)
-		return false;
-
-	auto trans = const_cast<Primitive*>(this)->transform();
-	Ray localRay{ray.origin, ray.direction}; // trans->worldToLocalMatrix()
-	localRay.origin = trans->worldToLocalMatrix().transform(ray.origin);
-	localRay.direction = trans->worldToLocalMatrix().transformVector(ray.direction);
-	auto d = math::inverse(localRay.direction.length());
-	float tMin;
-	float tMax;
-
-	localRay.direction *= d;
-	if (_mesh->bounds().intersect(localRay, tMin, tMax))
+	bool
+	Primitive::intersect(const Ray& ray, float& distance, vec3f& normal, vec3f& position) const
 	{
-		// TODO: _mesh intersection
-		auto data = _mesh->data();
-		float t = math::Limits<float>::inf(), b1 = 0, b2 = 0;
-		bool inter = false;
-		for (int triangleIndex = 0; triangleIndex < data.numberOfTriangles; triangleIndex++)
+		if (_mesh == nullptr)
+			return false;
+
+		auto trans = const_cast<Primitive*>(this)->transform();
+		Ray localRay{ ray.origin, ray.direction }; // trans->worldToLocalMatrix()
+		localRay.origin = trans->worldToLocalMatrix().transform(ray.origin);
+		localRay.direction = trans->worldToLocalMatrix().transformVector(ray.direction);
+		auto d = math::inverse(localRay.direction.length());
+		float tMin;
+		float tMax;
+
+		localRay.direction *= d;
+		distance = math::Limits<float>::inf();
+		std::stack<Node> pilha;
+		if (bvh[0].bound.intersect(localRay, tMin, tMax))
 		{
-			vec3f e1 = data.vertices[data.triangles[triangleIndex].v[1]] - data.vertices[data.triangles[triangleIndex].v[0]];
-			vec3f e2 = data.vertices[data.triangles[triangleIndex].v[2]] - data.vertices[data.triangles[triangleIndex].v[0]];
-			vec3f s1 = localRay.direction.cross(e2);
-			float dir = s1.dot(e1);
-			if (dir == 0)
-				continue;
-			dir = 1 / dir;
-			vec3f s = localRay.origin - data.vertices[data.triangles[triangleIndex].v[0]];
-			vec3f s2 = s.cross(e1);
-			float tAux = (s2.dot(e2)) * dir;
-			if (tAux <= 0)
-				continue;
-			float b1Aux = (s1.dot(s)) * dir;
-			if (b1Aux < 0)
-				continue;
-			float b2Aux = s2.dot(localRay.direction) * dir;
-			if (b2Aux < 0 || b2Aux + b1Aux > 1)
-				continue;
-			if (tAux*d >= ray.tMin && tAux*d <= ray.tMax && tAux < t)
+			pilha.push(bvh[0]);
+			Scene s = *(trans->sceneObject())->scene();
+			if (!s.bvhMode)
 			{
-				t = tAux;
-				tIndex = triangleIndex;
-				inter = true;
+				Node N = pilha.top();
+				pilha.pop();
+				auto data = _mesh->data();
+				float t = math::Limits<float>::inf(), b1 = 0, b2 = 0;
+				vec3f n;
+				bool inter = false;
+				for (int triangleIndex = 0; triangleIndex < N.data.numberOfTriangles; triangleIndex++)
+				{
+					vec3f p0, p1, p2;
+					p0 = data.vertices[N.data.triangles[triangleIndex].v[0]];
+					p1 = data.vertices[N.data.triangles[triangleIndex].v[1]];
+					p2 = data.vertices[N.data.triangles[triangleIndex].v[2]];
+					vec3f e1 = p1 - p0;
+					vec3f e2 = p2 - p0;
+					vec3f s1 = localRay.direction.cross(e2);
+					float dir = s1.dot(e1);
+					if (dir == 0)
+						continue;
+					dir = 1 / dir;
+					vec3f s = localRay.origin - data.vertices[N.data.triangles[triangleIndex].v[0]];
+					vec3f s2 = s.cross(e1);
+					float tAux = (s2.dot(e2)) * dir;
+					if (tAux <= 0)
+						continue;
+					float b1Aux = (s1.dot(s)) * dir;
+					if (b1Aux < 0)
+						continue;
+					float b2Aux = s2.dot(localRay.direction) * dir;
+					if (b2Aux < 0 || b2Aux + b1Aux > 1)
+						continue;
+					if (tAux*d >= ray.tMin && tAux*d <= ray.tMax && tAux < t)
+					{
+						t = tAux;
+						n = data.vertexNormals[N.data.triangles[triangleIndex].v[0]];
+						/*n += data.vertexNormals[N.data.triangles[triangleIndex].v[1]];
+						n += data.vertexNormals[N.data.triangles[triangleIndex].v[2]];
+						n *= 0.333333333333;*/
+						inter = true;
+					}
+				}
+				t = t * d;
+				if (inter && t < distance)
+				{
+					normal = n;
+					position = t * ray.direction.versor() + ray.origin;
+					distance = t;
+				}
+				if (distance < math::Limits<float>::inf())
+					return true;
+				else
+					return false;
 			}
 		}
-		if (inter)
+		while (!pilha.empty())
 		{
-			// position = trans->localToWorldMatrix().transform((1 - b1 - b2) * data.vertices[data.triangles[tIndex].v[0]] + b1 * data.vertices[data.triangles[tIndex].v[1]] + b2 * data.vertices[data.triangles[tIndex].v[2]]);
-			position = trans->localToWorldMatrix().transform(t * localRay.direction.versor() + localRay.origin);
-			distance = (position - ray.origin).length();
-			return true;
+			Node N = pilha.top();
+			pilha.pop();
+			if (N.indiceFilhoEsquerdo == -1)
+			{
+				// Passo 5
+				auto data = _mesh->data();
+				float t = math::Limits<float>::inf(), b1 = 0, b2 = 0;
+				vec3f n;
+				bool inter = false;
+				for (int triangleIndex = 0; triangleIndex < N.data.numberOfTriangles; triangleIndex++)
+				{
+					vec3f p0, p1, p2;
+					p0 = data.vertices[N.data.triangles[triangleIndex].v[0]];
+					p1 = data.vertices[N.data.triangles[triangleIndex].v[1]];
+					p2 = data.vertices[N.data.triangles[triangleIndex].v[2]];
+					vec3f e1 = p1 - p0;
+					vec3f e2 = p2 - p0;
+					vec3f s1 = localRay.direction.cross(e2);
+					float dir = s1.dot(e1);
+					if (dir == 0)
+						continue;
+					dir = 1 / dir;
+					vec3f s = localRay.origin - data.vertices[N.data.triangles[triangleIndex].v[0]];
+					vec3f s2 = s.cross(e1);
+					float tAux = (s2.dot(e2)) * dir;
+					if (tAux <= 0)
+						continue;
+					float b1Aux = (s1.dot(s)) * dir;
+					if (b1Aux < 0)
+						continue;
+					float b2Aux = s2.dot(localRay.direction) * dir;
+					if (b2Aux < 0 || b2Aux + b1Aux > 1)
+						continue;
+					if (tAux*d >= ray.tMin && tAux*d <= ray.tMax && tAux < t)
+					{
+						t = tAux;
+						n = data.vertexNormals[N.data.triangles[triangleIndex].v[0]];
+						/*n += data.vertexNormals[N.data.triangles[triangleIndex].v[1]];
+						n += data.vertexNormals[N.data.triangles[triangleIndex].v[2]];
+						n *= 0.333333333333;*/
+						inter = true;
+					}
+				}
+				t = t * d;
+				if (inter && t < distance)
+				{
+					normal = n;
+					position = t * ray.direction.versor() + ray.origin;
+					distance = t;
+				}
+			}
+			else
+			{
+				if (bvh[N.indiceFilhoEsquerdo].bound.intersect(localRay, tMin, tMax))
+					pilha.push(bvh[N.indiceFilhoEsquerdo]);
+				if (bvh[N.indiceFilhoEsquerdo + 1].bound.intersect(localRay, tMin, tMax))
+					pilha.push(bvh[N.indiceFilhoEsquerdo + 1]);
+			}
 		}
+		if (distance < math::Limits<float>::inf())
+			return true;
+		else
+			return false;
 	}
-	return false;
-}
 
 } // end namespace cg
